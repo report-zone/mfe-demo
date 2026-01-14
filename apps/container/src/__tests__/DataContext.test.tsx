@@ -34,7 +34,7 @@ describe('DataContext', () => {
     );
 
     const setButton = screen.getByText('Set Data');
-    
+
     await act(async () => {
       setButton.click();
     });
@@ -52,7 +52,7 @@ describe('DataContext', () => {
     );
 
     const setButton = screen.getByText('Set Data');
-    
+
     await act(async () => {
       setButton.click();
     });
@@ -62,7 +62,7 @@ describe('DataContext', () => {
     });
 
     const clearButton = screen.getByText('Clear Data');
-    
+
     await act(async () => {
       clearButton.click();
     });
@@ -72,4 +72,3 @@ describe('DataContext', () => {
     });
   });
 });
-

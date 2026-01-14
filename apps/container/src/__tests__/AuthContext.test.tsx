@@ -52,7 +52,7 @@ describe('AuthContext', () => {
         loginId: 'test@example.com',
       },
     } as never);
-    
+
     vi.mocked(fetchAuthSession).mockResolvedValue({
       tokens: {
         accessToken: {

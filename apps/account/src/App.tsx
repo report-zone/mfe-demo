@@ -19,20 +19,10 @@ const App: React.FC = () => {
         <Box component="form" sx={{ mt: 3 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="First Name"
-                defaultValue="John"
-                variant="outlined"
-              />
+              <TextField fullWidth label="First Name" defaultValue="John" variant="outlined" />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Last Name"
-                defaultValue="Doe"
-                variant="outlined"
-              />
+              <TextField fullWidth label="Last Name" defaultValue="Doe" variant="outlined" />
             </Grid>
             <Grid item xs={12}>
               <TextField

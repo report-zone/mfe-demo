@@ -31,6 +31,7 @@ Deploy a specific MFE application:
 ```
 
 Examples:
+
 ```bash
 # Deploy container app to production
 ./scripts/deploy.sh container
@@ -43,6 +44,7 @@ Examples:
 ```
 
 Available app names:
+
 - `container`
 - `home`
 - `preferences`
@@ -58,6 +60,7 @@ Deploy all MFE applications at once:
 ```
 
 Examples:
+
 ```bash
 # Deploy all to production
 ./scripts/deploy-all.sh
@@ -149,6 +152,7 @@ s3://app.mfeworld.com/
 ### Static Website Hosting
 
 Enable static website hosting on the S3 bucket:
+
 - Index document: `container/index.html`
 - Error document: `container/index.html`
 
@@ -171,10 +175,10 @@ Enable static website hosting on the S3 bucket:
 
 Configure error responses to handle client-side routing:
 
-| HTTP Error Code | Custom Error Response | Response Page Path | Response Code |
-|-----------------|------------------------|-------------------|---------------|
-| 403             | Yes                    | /container/index.html | 200           |
-| 404             | Yes                    | /container/index.html | 200           |
+| HTTP Error Code | Custom Error Response | Response Page Path    | Response Code |
+| --------------- | --------------------- | --------------------- | ------------- |
+| 403             | Yes                   | /container/index.html | 200           |
+| 404             | Yes                   | /container/index.html | 200           |
 
 ## Import Maps Configuration
 
@@ -182,14 +186,14 @@ In production, the container app will use import maps to load MFEs dynamically. 
 
 ```html
 <script type="importmap">
-{
-  "imports": {
-    "home-mfe": "https://app.mfeworld.com/home/home-mfe.js",
-    "preferences-mfe": "https://app.mfeworld.com/preferences/preferences-mfe.js",
-    "account-mfe": "https://app.mfeworld.com/account/account-mfe.js",
-    "admin-mfe": "https://app.mfeworld.com/admin/admin-mfe.js"
+  {
+    "imports": {
+      "home-mfe": "https://app.mfeworld.com/home/home-mfe.js",
+      "preferences-mfe": "https://app.mfeworld.com/preferences/preferences-mfe.js",
+      "account-mfe": "https://app.mfeworld.com/account/account-mfe.js",
+      "admin-mfe": "https://app.mfeworld.com/admin/admin-mfe.js"
+    }
   }
-}
 </script>
 ```
 
@@ -209,25 +213,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          
+
       - name: Install dependencies
         run: yarn install
-        
+
       - name: Build applications
         run: yarn build
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
+
       - name: Deploy to S3
         run: ./scripts/deploy-all.sh production
 ```
@@ -235,6 +239,7 @@ jobs:
 ## Environment-Specific Deployments
 
 ### Production
+
 ```bash
 export S3_BUCKET=app.mfeworld.com
 export CLOUDFRONT_DIST_ID=XYXYXYXYXYX
@@ -242,6 +247,7 @@ export CLOUDFRONT_DIST_ID=XYXYXYXYXYX
 ```
 
 ### Staging
+
 ```bash
 export S3_BUCKET=staging.mfeworld.com
 export CLOUDFRONT_DIST_ID=YZYZYZYZYZYZ
@@ -249,6 +255,7 @@ export CLOUDFRONT_DIST_ID=YZYZYZYZYZYZ
 ```
 
 ### Development
+
 ```bash
 export S3_BUCKET=dev.mfeworld.com
 export CLOUDFRONT_DIST_ID=ZWZWZWZWZW

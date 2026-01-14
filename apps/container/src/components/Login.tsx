@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Typography,
-  Alert,
-} from '@mui/material';
+import { Box, Card, CardContent, TextField, Button, Typography, Alert } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
@@ -68,12 +60,7 @@ const Login: React.FC = () => {
               onChange={e => setPassword(e.target.value)}
               required
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 2 }}
-            >
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
               Sign In
             </Button>
           </form>

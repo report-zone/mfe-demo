@@ -21,25 +21,35 @@ const MFELoader: React.FC<MFELoaderProps> = ({ mfeName }) => {
       case 'home':
         // In production: return lazy(() => import('home-mfe'));
         // For now, return a placeholder
-        return lazy(() => import('./MFEPlaceholder').then(module => ({
-          default: () => module.default({ name: 'Home' })
-        })));
+        return lazy(() =>
+          import('./MFEPlaceholder').then(module => ({
+            default: () => module.default({ name: 'Home' }),
+          }))
+        );
       case 'preferences':
-        return lazy(() => import('./MFEPlaceholder').then(module => ({
-          default: () => module.default({ name: 'Preferences' })
-        })));
+        return lazy(() =>
+          import('./MFEPlaceholder').then(module => ({
+            default: () => module.default({ name: 'Preferences' }),
+          }))
+        );
       case 'account':
-        return lazy(() => import('./MFEPlaceholder').then(module => ({
-          default: () => module.default({ name: 'Account' })
-        })));
+        return lazy(() =>
+          import('./MFEPlaceholder').then(module => ({
+            default: () => module.default({ name: 'Account' }),
+          }))
+        );
       case 'admin':
-        return lazy(() => import('./MFEPlaceholder').then(module => ({
-          default: () => module.default({ name: 'Admin' })
-        })));
+        return lazy(() =>
+          import('./MFEPlaceholder').then(module => ({
+            default: () => module.default({ name: 'Admin' }),
+          }))
+        );
       default:
-        return lazy(() => import('./MFEPlaceholder').then(module => ({
-          default: () => module.default({ name: 'Not Found' })
-        })));
+        return lazy(() =>
+          import('./MFEPlaceholder').then(module => ({
+            default: () => module.default({ name: 'Not Found' }),
+          }))
+        );
     }
   };
 

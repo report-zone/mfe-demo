@@ -2,6 +2,24 @@
 
 An MFE architecture demo using React, TypeScript, React Router, Material UI v6, AWS Amplify and Cognito.
 
+## 📚 Documentation
+
+- **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
+- **[Developer Guide](./DEVELOPER.md)** - Comprehensive development documentation
+- **[Deployment Guide](./DEPLOYMENT.md)** - AWS deployment instructions
+
+## 🚀 Quick Start
+
+```bash
+# Install dependencies
+yarn install
+
+# Start the container app
+yarn dev:container
+
+# Open http://localhost:3000
+```
+
 ## Overview
 
 This project demonstrates a micro frontend (MFE) architecture using modern web technologies without relying on complex MFE libraries like single-spa or Module Federation. It uses import maps and supports independent development and deployment of each micro frontend.
@@ -225,6 +243,7 @@ aws s3 sync apps/<app-name>/dist s3://app.mfeworld.com/<app-name>/
 Please follow the PR naming convention: `step<N>-<meaningful-name>`
 
 Examples:
+
 - `step1-setup-monorepo`
 - `step2-add-authentication`
 - `step3-implement-mfe-loader`

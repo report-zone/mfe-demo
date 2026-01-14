@@ -38,8 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const currentUser = await getCurrentUser();
       const session = await fetchAuthSession();
-      const groups =
-        (session.tokens?.accessToken?.payload['cognito:groups'] as string[]) || [];
+      const groups = (session.tokens?.accessToken?.payload['cognito:groups'] as string[]) || [];
 
       setUser({
         username: currentUser.username,

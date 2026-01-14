@@ -30,18 +30,9 @@ const App: React.FC = () => {
           Notification Settings
         </Typography>
         <FormGroup>
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Email Notifications"
-          />
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Push Notifications"
-          />
-          <FormControlLabel
-            control={<Switch />}
-            label="SMS Notifications"
-          />
+          <FormControlLabel control={<Switch defaultChecked />} label="Email Notifications" />
+          <FormControlLabel control={<Switch defaultChecked />} label="Push Notifications" />
+          <FormControlLabel control={<Switch />} label="SMS Notifications" />
         </FormGroup>
 
         <Divider sx={{ my: 3 }} />
@@ -50,14 +41,8 @@ const App: React.FC = () => {
           Display Settings
         </Typography>
         <FormGroup>
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Dark Mode"
-          />
-          <FormControlLabel
-            control={<Switch defaultChecked />}
-            label="Compact View"
-          />
+          <FormControlLabel control={<Switch defaultChecked />} label="Dark Mode" />
+          <FormControlLabel control={<Switch defaultChecked />} label="Compact View" />
         </FormGroup>
       </Paper>
     </Box>
