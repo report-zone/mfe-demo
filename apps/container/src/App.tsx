@@ -1,13 +1,16 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box, Toolbar } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Loading from './components/Loading';
-import MFELoader from './components/MFELoader';
+import HomePage from './pages/HomePage';
+import PreferencesPage from './pages/PreferencesPage';
+import AccountPage from './pages/AccountPage';
+import AdminPage from './pages/AdminPage';
 
 const theme = createTheme({
   palette: {
@@ -56,7 +59,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <CssBaseline />
       <Header />
       <Navbar />
@@ -65,17 +68,15 @@ const AppContent: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - 240px)` },
-          ml: { sm: '240px' },
+          mt: 8, // Add margin-top to account for fixed header
         }}
       >
-        <Toolbar />
         <Routes>
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <MFELoader mfeName="home" />
+                <HomePage />
               </ProtectedRoute>
             }
           />
@@ -83,7 +84,7 @@ const AppContent: React.FC = () => {
             path="/preferences"
             element={
               <ProtectedRoute>
-                <MFELoader mfeName="preferences" />
+                <PreferencesPage />
               </ProtectedRoute>
             }
           />
@@ -91,7 +92,7 @@ const AppContent: React.FC = () => {
             path="/account"
             element={
               <ProtectedRoute>
-                <MFELoader mfeName="account" />
+                <AccountPage />
               </ProtectedRoute>
             }
           />
@@ -99,7 +100,7 @@ const AppContent: React.FC = () => {
             path="/admin"
             element={
               <ProtectedRoute requireAdmin>
-                <MFELoader mfeName="admin" />
+                <AdminPage />
               </ProtectedRoute>
             }
           />

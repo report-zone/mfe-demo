@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "concurrently \"yarn dev:container\" \"yarn dev:home\" \"yarn dev:preferences\" \"yarn dev:account\" \"yarn dev:admin\"",
     "dev:container": "yarn workspace @mfe-demo/container dev",
     "dev:home": "yarn workspace @mfe-demo/home dev",
     "dev:preferences": "yarn workspace @mfe-demo/preferences dev",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
