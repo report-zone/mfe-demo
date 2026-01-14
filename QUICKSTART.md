@@ -8,7 +8,10 @@ This is a micro frontend (MFE) architecture demonstration project.
 # Install dependencies
 yarn install
 
-# Start container app (includes MFE placeholders)
+# Start all apps (container + all 4 MFEs)
+yarn dev
+
+# OR start just container app
 yarn dev:container
 
 # Open http://localhost:3000
@@ -53,6 +56,7 @@ Container App (Shell)
 
 ```bash
 # Development
+yarn dev                   # Start all apps concurrently
 yarn dev:container        # Start container app
 yarn dev:home            # Start home MFE standalone
 yarn dev:preferences     # Start preferences MFE standalone

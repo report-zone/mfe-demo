@@ -14,7 +14,10 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 # Install dependencies
 yarn install
 
-# Start the container app
+# Start all applications (container + all 4 MFEs)
+yarn dev
+
+# OR start just the container app
 yarn dev:container
 
 # Open http://localhost:3000
@@ -104,6 +107,13 @@ Run all applications in development mode:
 ```bash
 yarn dev
 ```
+
+This will start all 5 applications concurrently:
+- Container (port 3000)
+- Home MFE (port 3001)
+- Preferences MFE (port 3002)
+- Account MFE (port 3003)
+- Admin MFE (port 3004)
 
 Run individual applications:
 
