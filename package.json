@@ -8,25 +8,24 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn workspaces foreach -pi run dev",
     "dev:container": "yarn workspace @mfe-demo/container dev",
     "dev:home": "yarn workspace @mfe-demo/home dev",
     "dev:preferences": "yarn workspace @mfe-demo/preferences dev",
     "dev:account": "yarn workspace @mfe-demo/account dev",
     "dev:admin": "yarn workspace @mfe-demo/admin dev",
-    "build": "yarn workspaces foreach -pt run build",
+    "build": "yarn build:container && yarn build:home && yarn build:preferences && yarn build:account && yarn build:admin",
     "build:container": "yarn workspace @mfe-demo/container build",
     "build:home": "yarn workspace @mfe-demo/home build",
     "build:preferences": "yarn workspace @mfe-demo/preferences build",
     "build:account": "yarn workspace @mfe-demo/account build",
     "build:admin": "yarn workspace @mfe-demo/admin build",
-    "test": "yarn workspaces foreach -pt run test",
-    "test:unit": "yarn workspaces foreach -pt run test:unit",
+    "test": "yarn workspace @mfe-demo/container test",
+    "test:unit": "yarn workspace @mfe-demo/container test:unit",
     "test:e2e": "yarn workspace @mfe-demo/container test:e2e",
-    "lint": "yarn workspaces foreach -pt run lint",
+    "lint": "eslint \"apps/**/*.{ts,tsx}\"",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
+    "clean": "rm -rf node_modules && cd apps/container && rm -rf node_modules dist && cd ../home && rm -rf node_modules dist && cd ../preferences && rm -rf node_modules dist && cd ../account && rm -rf node_modules dist && cd ../admin && rm -rf node_modules dist"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.19.0",
