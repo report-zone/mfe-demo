@@ -1,0 +1,45 @@
+{
+  "name": "mfe-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An MFE architecture demo using React, TypeScript, React Router, Amplify and Cognito",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspaces foreach -pi run dev",
+    "dev:container": "yarn workspace @mfe-demo/container dev",
+    "dev:home": "yarn workspace @mfe-demo/home dev",
+    "dev:preferences": "yarn workspace @mfe-demo/preferences dev",
+    "dev:account": "yarn workspace @mfe-demo/account dev",
+    "dev:admin": "yarn workspace @mfe-demo/admin dev",
+    "build": "yarn workspaces foreach -pt run build",
+    "build:container": "yarn workspace @mfe-demo/container build",
+    "build:home": "yarn workspace @mfe-demo/home build",
+    "build:preferences": "yarn workspace @mfe-demo/preferences build",
+    "build:account": "yarn workspace @mfe-demo/account build",
+    "build:admin": "yarn workspace @mfe-demo/admin build",
+    "test": "yarn workspaces foreach -pt run test",
+    "test:unit": "yarn workspaces foreach -pt run test:unit",
+    "test:e2e": "yarn workspace @mfe-demo/container test:e2e",
+    "lint": "yarn workspaces foreach -pt run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  }
+}
