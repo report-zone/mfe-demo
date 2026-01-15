@@ -15,6 +15,31 @@ import AdminPage from './pages/AdminPage';
 import { defaultTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 
+interface CustomThemeDefinition {
+  name: string;
+  version: string;
+  description?: string;
+  colors: {
+    primaryMain: string;
+    primaryLight: string;
+    primaryDark: string;
+    secondaryMain: string;
+    secondaryLight: string;
+    secondaryDark: string;
+    errorMain: string;
+    warningMain: string;
+    infoMain: string;
+    successMain: string;
+    backgroundDefault: string;
+    backgroundPaper: string;
+    textPrimary: string;
+    textSecondary: string;
+  };
+  componentOverrides: any;
+  muiComponentOverrides: Record<string, any>;
+  createdAt?: string;
+}
+
 interface StoredTheme {
   id: string;
   themeConfig?: unknown;
@@ -129,6 +154,62 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState(defaultTheme);
 
+  const createThemeFromDefinition = (config: CustomThemeDefinition) => {
+    return createTheme({
+      palette: {
+        primary: {
+          main: config.colors?.primaryMain || '#1976d2',
+          light: config.colors?.primaryLight || '#42a5f5',
+          dark: config.colors?.primaryDark || '#1565c0',
+        },
+        secondary: {
+          main: config.colors?.secondaryMain || '#dc004e',
+          light: config.colors?.secondaryLight || '#ff4081',
+          dark: config.colors?.secondaryDark || '#9a0036',
+        },
+        error: {
+          main: config.colors?.errorMain || '#d32f2f',
+        },
+        warning: {
+          main: config.colors?.warningMain || '#ed6c02',
+        },
+        info: {
+          main: config.colors?.infoMain || '#0288d1',
+        },
+        success: {
+          main: config.colors?.successMain || '#2e7d32',
+        },
+        background: {
+          default: config.colors?.backgroundDefault || '#ffffff',
+          paper: config.colors?.backgroundPaper || '#f5f5f5',
+        },
+        text: {
+          primary: config.colors?.textPrimary || '#000000',
+          secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
+        },
+      },
+      typography: {
+        fontSize: config.componentOverrides?.typography?.bodyFontSize || 16,
+        h1: {
+          fontSize: `${config.componentOverrides?.typography?.h1FontSize || 96}px`,
+        },
+        h2: {
+          fontSize: `${config.componentOverrides?.typography?.h2FontSize || 60}px`,
+        },
+        h3: {
+          fontSize: `${config.componentOverrides?.typography?.h3FontSize || 48}px`,
+        },
+        body1: {
+          fontSize: `${config.componentOverrides?.typography?.bodyFontSize || 16}px`,
+        },
+      },
+      shape: {
+        borderRadius: config.componentOverrides?.button?.borderRadius || 4,
+      },
+      components: config.muiComponentOverrides || {},
+    });
+  };
+
   useEffect(() => {
     // Load theme from localStorage on mount
     try {
@@ -152,7 +233,14 @@ const App: React.FC = () => {
           const themes: StoredTheme[] = JSON.parse(customThemes);
           const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
-            setCurrentTheme(createTheme(theme.themeConfig));
+            // Check if it's the new format
+            const config = theme.themeConfig as any;
+            if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
+              setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
+            } else {
+              // Old format, use directly
+              setCurrentTheme(createTheme(theme.themeConfig));
+            }
           }
         }
       }
@@ -165,7 +253,12 @@ const App: React.FC = () => {
       const themeEvent = event as ThemeChangeEvent;
       const theme = themeEvent.detail;
       if (theme && theme.themeConfig) {
-        setCurrentTheme(createTheme(theme.themeConfig));
+        const config = theme.themeConfig as any;
+        if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
+          setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
+        } else {
+          setCurrentTheme(createTheme(theme.themeConfig));
+        }
       }
     };
 
