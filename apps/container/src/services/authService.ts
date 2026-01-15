@@ -1,8 +1,8 @@
 /**
- * Local Authentication Service
+ * AWS Cognito Authentication Service Implementation
  *
- * This service wraps @aws-amplify/auth to provide a centralized
- * authentication layer for the application.
+ * This service implements IAuthService using AWS Amplify/Cognito,
+ * following the Dependency Inversion Principle (DIP).
  */
 
 import {
@@ -20,39 +20,20 @@ import {
   ResetPasswordInput,
   ConfirmResetPasswordInput,
 } from '@aws-amplify/auth';
-
-export interface AuthUser {
-  username: string;
-  email?: string;
-  groups?: string[];
-}
-
-export interface SignUpParams {
-  username: string;
-  password: string;
-  email: string;
-}
-
-export interface ConfirmSignUpParams {
-  username: string;
-  code: string;
-}
-
-export interface ResetPasswordParams {
-  username: string;
-}
-
-export interface ConfirmResetPasswordParams {
-  username: string;
-  code: string;
-  newPassword: string;
-}
+import {
+  IAuthService,
+  AuthUser,
+  SignUpParams,
+  ConfirmSignUpParams,
+  ResetPasswordParams,
+  ConfirmResetPasswordParams,
+} from './interfaces/IAuthService';
 
 /**
- * Authentication Service
- * Provides methods for user authentication and management
+ * AWS Cognito Authentication Service Implementation
+ * Implements IAuthService interface
  */
-export const authService = {
+class CognitoAuthService implements IAuthService {
   /**
    * Sign in a user with username and password
    */
@@ -63,14 +44,14 @@ export const authService = {
       options: { authFlowType: 'USER_PASSWORD_AUTH' }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
     };
     await amplifySignIn(signInInput);
-  },
+  }
 
   /**
    * Sign out the current user
    */
   async signOut(): Promise<void> {
     await amplifySignOut();
-  },
+  }
 
   /**
    * Sign up a new user
@@ -86,7 +67,7 @@ export const authService = {
       },
     };
     await amplifySignUp(signUpInput);
-  },
+  }
 
   /**
    * Confirm user sign up with verification code
@@ -97,7 +78,7 @@ export const authService = {
       confirmationCode: params.code,
     };
     await amplifyConfirmSignUp(confirmInput);
-  },
+  }
 
   /**
    * Initiate password reset process
@@ -107,7 +88,7 @@ export const authService = {
       username: params.username,
     };
     await amplifyResetPassword(resetInput);
-  },
+  }
 
   /**
    * Confirm password reset with verification code
@@ -119,7 +100,7 @@ export const authService = {
       newPassword: params.newPassword,
     };
     await amplifyConfirmResetPassword(confirmInput);
-  },
+  }
 
   /**
    * Get the current authenticated user
@@ -138,7 +119,7 @@ export const authService = {
     } catch {
       return null;
     }
-  },
+  }
 
   /**
    * Check if user is authenticated
@@ -146,7 +127,7 @@ export const authService = {
   async isAuthenticated(): Promise<boolean> {
     const user = await this.getCurrentUser();
     return user !== null;
-  },
+  }
 
   /**
    * Check if current user has admin privileges
@@ -154,7 +135,10 @@ export const authService = {
   async isAdmin(): Promise<boolean> {
     const user = await this.getCurrentUser();
     return user?.groups?.includes('admin') || false;
-  },
-};
+  }
+}
+
+// Export singleton instance
+export const authService: IAuthService = new CognitoAuthService();
 
 export default authService;

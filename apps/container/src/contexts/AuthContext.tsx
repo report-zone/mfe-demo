@@ -1,26 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
+import { User, IAuthContext } from './interfaces/IAuthContext';
 
-interface User {
-  username: string;
-  email?: string;
-  groups?: string[];
-}
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  signUp: (username: string, password: string, email: string) => Promise<void>;
-  confirmSignUp: (username: string, code: string) => Promise<void>;
-  resetPassword: (username: string) => Promise<void>;
-  confirmResetPassword: (username: string, code: string, newPassword: string) => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -32,30 +15,34 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: ReactNode;
+  authService?: IAuthService; // Allow injection for testing (Dependency Injection)
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ 
+  children, 
+  authService: injectedAuthService = authService 
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     try {
-      const currentUser = await authService.getCurrentUser();
+      const currentUser = await injectedAuthService.getCurrentUser();
       setUser(currentUser);
     } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [injectedAuthService]);
 
   useEffect(() => {
     checkUser();
-  }, []);
+  }, [checkUser]);
 
   const login = async (username: string, password: string) => {
     try {
-      await authService.signIn(username, password);
+      await injectedAuthService.signIn(username, password);
       await checkUser();
     } catch (error) {
       console.error('Login error:', error);
@@ -65,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authService.signOut();
+      await injectedAuthService.signOut();
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
@@ -75,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (username: string, password: string, email: string) => {
     try {
-      await authService.signUp({ username, password, email });
+      await injectedAuthService.signUp({ username, password, email });
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;
@@ -84,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const confirmSignup = async (username: string, code: string) => {
     try {
-      await authService.confirmSignUp({ username, code });
+      await injectedAuthService.confirmSignUp({ username, code });
     } catch (error) {
       console.error('Confirm sign up error:', error);
       throw error;
@@ -93,7 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const resetPass = async (username: string) => {
     try {
-      await authService.resetPassword({ username });
+      await injectedAuthService.resetPassword({ username });
     } catch (error) {
       console.error('Reset password error:', error);
       throw error;
@@ -102,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const confirmResetPass = async (username: string, code: string, newPassword: string) => {
     try {
-      await authService.confirmResetPassword({ username, code, newPassword });
+      await injectedAuthService.confirmResetPassword({ username, code, newPassword });
     } catch (error) {
       console.error('Confirm reset password error:', error);
       throw error;
