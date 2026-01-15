@@ -255,11 +255,19 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     }
 
     // Save to file system
+    const sanitizeFilename = (name: string): string => {
+      return name.toLowerCase()
+        .replace(/[/\\?%*:|"<>]/g, '-')  // Replace invalid filename characters
+        .replace(/\s+/g, '-')             // Replace spaces with hyphens
+        .replace(/-+/g, '-')              // Replace multiple hyphens with single
+        .replace(/^-|-$/g, '');           // Remove leading/trailing hyphens
+    };
+
     const blob = new Blob([JSON.stringify(finalConfig, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${editorState.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    link.download = `${sanitizeFilename(editorState.name)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -15,6 +15,17 @@ import AdminPage from './pages/AdminPage';
 import { defaultTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 
+interface StoredTheme {
+  id: string;
+  themeConfig?: unknown;
+}
+
+interface ThemeChangeEvent extends CustomEvent {
+  detail: {
+    themeConfig?: unknown;
+  };
+}
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAdmin?: boolean;
@@ -138,8 +149,8 @@ const App: React.FC = () => {
           }));
         } else if (customThemes) {
           // Load custom theme
-          const themes = JSON.parse(customThemes);
-          const theme = themes.find((t: { id: string; themeConfig?: unknown }) => t.id === selectedThemeId);
+          const themes: StoredTheme[] = JSON.parse(customThemes);
+          const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
             setCurrentTheme(createTheme(theme.themeConfig));
           }
@@ -150,16 +161,17 @@ const App: React.FC = () => {
     }
 
     // Listen for theme changes from preferences MFE
-    const handleThemeChange = (event: CustomEvent) => {
-      const theme = event.detail;
+    const handleThemeChange = (event: Event) => {
+      const themeEvent = event as ThemeChangeEvent;
+      const theme = themeEvent.detail;
       if (theme && theme.themeConfig) {
         setCurrentTheme(createTheme(theme.themeConfig));
       }
     };
 
-    window.addEventListener('themeChanged', handleThemeChange as EventListener);
+    window.addEventListener('themeChanged', handleThemeChange);
     return () => {
-      window.removeEventListener('themeChanged', handleThemeChange as EventListener);
+      window.removeEventListener('themeChanged', handleThemeChange);
     };
   }, []);
 
