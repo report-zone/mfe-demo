@@ -12,22 +12,23 @@ const App: React.FC = () => {
 
   // Determine active tab based on route
   const getTabValue = () => {
-    if (location.pathname.includes('/themes')) return 1;
+    const path = location.pathname;
+    if (path.includes('/themes') || path.endsWith('themes')) return 1;
     return 0;
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     if (newValue === 0) {
-      navigate('/general');
+      navigate('general');
     } else if (newValue === 1) {
-      navigate('/themes');
+      navigate('themes');
     }
   };
 
   React.useEffect(() => {
-    // Default to general tab if at root
-    if (location.pathname === '/') {
-      navigate('/general', { replace: true });
+    // Default to general tab if at root or preferences root
+    if (location.pathname === '/' || location.pathname === '/preferences' || location.pathname === '/preferences/') {
+      navigate('general', { replace: true });
     }
   }, [location.pathname, navigate]);
 
@@ -48,8 +49,8 @@ const App: React.FC = () => {
           </Tabs>
 
           <Routes>
-            <Route path="/general" element={<GeneralTab />} />
-            <Route path="/themes" element={<ThemesTab />} />
+            <Route path="general" element={<GeneralTab />} />
+            <Route path="themes" element={<ThemesTab />} />
             <Route path="/" element={<GeneralTab />} />
           </Routes>
         </Paper>
