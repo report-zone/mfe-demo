@@ -35,6 +35,46 @@ interface ThemeEditorDialogProps {
   initialTheme?: ThemeEditorState;
 }
 
+const defaultEditorState: ThemeEditorState = {
+  name: 'Custom Theme',
+  description: '',
+  primary: '#1976d2',
+  primaryLight: '#42a5f5',
+  primaryDark: '#1565c0',
+  secondary: '#dc004e',
+  secondaryLight: '#f73378',
+  secondaryDark: '#9a0036',
+  error: '#d32f2f',
+  warning: '#ed6c02',
+  info: '#0288d1',
+  success: '#2e7d32',
+  background: '#ffffff',
+  paper: '#ffffff',
+  mode: 'light',
+  borderRadius: 4,
+  fontSize: 14,
+  padding: 8,
+  h1FontSize: '2.5rem',
+  h2FontSize: '2rem',
+  h3FontSize: '1.75rem',
+  h4FontSize: '1.5rem',
+  jsonConfig: JSON.stringify({
+    palette: {
+      primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0' },
+      secondary: { main: '#dc004e', light: '#f73378', dark: '#9a0036' },
+    },
+    shape: { borderRadius: 4 },
+    typography: {
+      fontSize: 14,
+      h1: { fontSize: '2.5rem' },
+      h2: { fontSize: '2rem' },
+      h3: { fontSize: '1.75rem' },
+      h4: { fontSize: '1.5rem' },
+    },
+    spacing: 8,
+  }, null, 2),
+};
+
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -43,46 +83,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
-
-  const defaultEditorState: ThemeEditorState = {
-    name: 'Custom Theme',
-    description: '',
-    primary: '#1976d2',
-    primaryLight: '#42a5f5',
-    primaryDark: '#1565c0',
-    secondary: '#dc004e',
-    secondaryLight: '#f73378',
-    secondaryDark: '#9a0036',
-    error: '#d32f2f',
-    warning: '#ed6c02',
-    info: '#0288d1',
-    success: '#2e7d32',
-    background: '#ffffff',
-    paper: '#ffffff',
-    mode: 'light',
-    borderRadius: 4,
-    fontSize: 14,
-    padding: 8,
-    h1FontSize: '2.5rem',
-    h2FontSize: '2rem',
-    h3FontSize: '1.75rem',
-    h4FontSize: '1.5rem',
-    jsonConfig: JSON.stringify({
-      palette: {
-        primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0' },
-        secondary: { main: '#dc004e', light: '#f73378', dark: '#9a0036' },
-      },
-      shape: { borderRadius: 4 },
-      typography: {
-        fontSize: 14,
-        h1: { fontSize: '2.5rem' },
-        h2: { fontSize: '2rem' },
-        h3: { fontSize: '1.75rem' },
-        h4: { fontSize: '1.5rem' },
-      },
-      spacing: 8,
-    }, null, 2),
-  };
 
   const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
 

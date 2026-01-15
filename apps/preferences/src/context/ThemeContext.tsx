@@ -43,11 +43,13 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
 
   useEffect(() => {
     loadThemesFromStorage();
-    
-    // Load the selected theme ID from localStorage
+  }, []);
+
+  // Load selected theme after themes are loaded
+  useEffect(() => {
     try {
       const selectedThemeId = localStorage.getItem('selectedThemeId');
-      if (selectedThemeId) {
+      if (selectedThemeId && themes.length > 0) {
         const theme = themes.find(t => t.id === selectedThemeId);
         if (theme) {
           setCurrentTheme(theme);
@@ -56,7 +58,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
     } catch (error) {
       console.error('Error loading selected theme:', error);
     }
-  }, []);
+  }, [themes]);
 
   const setTheme = (theme: CustomTheme) => {
     setCurrentTheme(theme);

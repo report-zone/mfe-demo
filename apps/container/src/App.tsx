@@ -139,7 +139,7 @@ const App: React.FC = () => {
         } else if (customThemes) {
           // Load custom theme
           const themes = JSON.parse(customThemes);
-          const theme = themes.find((t: any) => t.id === selectedThemeId);
+          const theme = themes.find((t: { id: string; themeConfig?: unknown }) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
             setCurrentTheme(createTheme(theme.themeConfig));
           }
