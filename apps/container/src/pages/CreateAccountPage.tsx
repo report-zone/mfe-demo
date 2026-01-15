@@ -264,7 +264,7 @@ const CreateAccountPage: React.FC = () => {
               ) : (
                 <Box component="form" onSubmit={handleConfirmSignUp} noValidate>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    We've sent a verification code to <strong>{email}</strong>. Please enter it
+                    We&apos;ve sent a verification code to <strong>{email}</strong>. Please enter it
                     below to verify your account.
                   </Typography>
                   <TextField
@@ -301,7 +301,7 @@ const CreateAccountPage: React.FC = () => {
 
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Didn't receive the code?{' '}
+                      Didn&apos;t receive the code?{' '}
                       <Link
                         component="button"
                         type="button"

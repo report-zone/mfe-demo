@@ -215,7 +215,7 @@ const ResetPasswordPage: React.FC = () => {
               {activeStep === 1 && (
                 <Box component="form" onSubmit={handleVerifyCode} noValidate>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    We've sent a verification code to the email associated with your account. Please
+                    We&apos;ve sent a verification code to the email associated with your account. Please
                     enter it below.
                   </Typography>
                   <TextField
@@ -250,7 +250,7 @@ const ResetPasswordPage: React.FC = () => {
 
                   <Box sx={{ textAlign: 'center', mt: 2 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Didn't receive the code?{' '}
+                      Didn&apos;t receive the code?{' '}
                       <Link
                         component="button"
                         type="button"

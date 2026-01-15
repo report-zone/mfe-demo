@@ -2,12 +2,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
-// Mock AWS Amplify
-vi.mock('aws-amplify/auth', () => ({
-  signIn: vi.fn(),
-  signOut: vi.fn(),
-  getCurrentUser: vi.fn(),
-  fetchAuthSession: vi.fn(),
+// Mock the auth service
+vi.mock('../services/authService', () => ({
+  default: {
+    getCurrentUser: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    signUp: vi.fn(),
+    confirmSignUp: vi.fn(),
+    resetPassword: vi.fn(),
+    confirmResetPassword: vi.fn(),
+  },
 }));
 
 const TestComponent = () => {
@@ -27,8 +32,8 @@ const TestComponent = () => {
 
 describe('AuthContext', () => {
   it('should provide authentication state', async () => {
-    const { getCurrentUser } = await import('aws-amplify/auth');
-    vi.mocked(getCurrentUser).mockRejectedValue(new Error('Not authenticated'));
+    const authService = await import('../services/authService');
+    vi.mocked(authService.default.getCurrentUser).mockResolvedValue(null);
 
     render(
       <AuthProvider>
@@ -44,24 +49,12 @@ describe('AuthContext', () => {
   });
 
   it('should provide user information when authenticated', async () => {
-    const { getCurrentUser, fetchAuthSession } = await import('aws-amplify/auth');
-    vi.mocked(getCurrentUser).mockResolvedValue({
+    const authService = await import('../services/authService');
+    vi.mocked(authService.default.getCurrentUser).mockResolvedValue({
       username: 'testuser',
-      userId: '123',
-      signInDetails: {
-        loginId: 'test@example.com',
-      },
-    } as never);
-
-    vi.mocked(fetchAuthSession).mockResolvedValue({
-      tokens: {
-        accessToken: {
-          payload: {
-            'cognito:groups': ['user'],
-          },
-        },
-      },
-    } as never);
+      email: 'test@example.com',
+      groups: ['user'],
+    });
 
     render(
       <AuthProvider>
