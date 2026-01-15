@@ -35,7 +35,50 @@ interface CustomThemeDefinition {
     textPrimary: string;
     textSecondary: string;
   };
-  componentOverrides: unknown;
+  componentOverrides: {
+    button?: {
+      borderRadius?: number;
+      textTransform?: string;
+    };
+    paper?: {
+      borderRadius?: number;
+      elevation?: number;
+    };
+    card?: {
+      borderRadius?: number;
+      elevation?: number;
+    };
+    textField?: {
+      borderRadius?: number;
+    };
+    appBar?: {
+      elevation?: number;
+    };
+    drawer?: {
+      width?: number;
+    };
+    alert?: {
+      borderRadius?: number;
+    };
+    dialog?: {
+      borderRadius?: number;
+    };
+    tooltip?: {
+      fontSize?: number;
+    };
+    chip?: {
+      borderRadius?: number;
+    };
+    list?: {
+      padding?: number;
+    };
+    typography?: {
+      h1FontSize?: number;
+      h2FontSize?: number;
+      h3FontSize?: number;
+      bodyFontSize?: number;
+    };
+  };
   muiComponentOverrides: Record<string, unknown>;
   createdAt?: string;
 }
@@ -233,10 +276,16 @@ const App: React.FC = () => {
           const themes: StoredTheme[] = JSON.parse(customThemes);
           const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
-            // Check if it's the new format
-            const config = theme.themeConfig as Record<string, unknown>;
-            if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
-              setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
+            // Type guard to check if it's the new format
+            const config = theme.themeConfig;
+            const isNewFormat = (cfg: unknown): cfg is CustomThemeDefinition => {
+              if (typeof cfg !== 'object' || cfg === null) return false;
+              const obj = cfg as Record<string, unknown>;
+              return !!(obj.colors && obj.componentOverrides && obj.muiComponentOverrides);
+            };
+            
+            if (isNewFormat(config)) {
+              setCurrentTheme(createThemeFromDefinition(config));
             } else {
               // Old format, use directly
               setCurrentTheme(createTheme(theme.themeConfig));
@@ -253,9 +302,15 @@ const App: React.FC = () => {
       const themeEvent = event as ThemeChangeEvent;
       const theme = themeEvent.detail;
       if (theme && theme.themeConfig) {
-        const config = theme.themeConfig as Record<string, unknown>;
-        if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
-          setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
+        const config = theme.themeConfig;
+        const isNewFormat = (cfg: unknown): cfg is CustomThemeDefinition => {
+          if (typeof cfg !== 'object' || cfg === null) return false;
+          const obj = cfg as Record<string, unknown>;
+          return !!(obj.colors && obj.componentOverrides && obj.muiComponentOverrides);
+        };
+        
+        if (isNewFormat(config)) {
+          setCurrentTheme(createThemeFromDefinition(config));
         } else {
           setCurrentTheme(createTheme(theme.themeConfig));
         }
