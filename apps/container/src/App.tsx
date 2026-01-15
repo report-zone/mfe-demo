@@ -15,6 +15,10 @@ import AdminPage from './pages/AdminPage';
 import { defaultTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 
+// CustomThemeDefinition interface
+// Note: This interface is duplicated from preferences app's types to maintain
+// independence between MFEs. Each MFE should be able to run standalone.
+// The structure matches the theme JSON format defined in the requirements.
 interface CustomThemeDefinition {
   name: string;
   version: string;
@@ -197,6 +201,13 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState(defaultTheme);
 
+  // Type guard to check if theme config is in new format
+  const isNewThemeFormat = (cfg: unknown): cfg is CustomThemeDefinition => {
+    if (typeof cfg !== 'object' || cfg === null) return false;
+    const obj = cfg as Record<string, unknown>;
+    return !!(obj.colors && obj.componentOverrides && obj.muiComponentOverrides);
+  };
+
   const createThemeFromDefinition = (config: CustomThemeDefinition) => {
     return createTheme({
       palette: {
@@ -276,16 +287,8 @@ const App: React.FC = () => {
           const themes: StoredTheme[] = JSON.parse(customThemes);
           const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
-            // Type guard to check if it's the new format
-            const config = theme.themeConfig;
-            const isNewFormat = (cfg: unknown): cfg is CustomThemeDefinition => {
-              if (typeof cfg !== 'object' || cfg === null) return false;
-              const obj = cfg as Record<string, unknown>;
-              return !!(obj.colors && obj.componentOverrides && obj.muiComponentOverrides);
-            };
-            
-            if (isNewFormat(config)) {
-              setCurrentTheme(createThemeFromDefinition(config));
+            if (isNewThemeFormat(theme.themeConfig)) {
+              setCurrentTheme(createThemeFromDefinition(theme.themeConfig));
             } else {
               // Old format, use directly
               setCurrentTheme(createTheme(theme.themeConfig));
@@ -302,15 +305,8 @@ const App: React.FC = () => {
       const themeEvent = event as ThemeChangeEvent;
       const theme = themeEvent.detail;
       if (theme && theme.themeConfig) {
-        const config = theme.themeConfig;
-        const isNewFormat = (cfg: unknown): cfg is CustomThemeDefinition => {
-          if (typeof cfg !== 'object' || cfg === null) return false;
-          const obj = cfg as Record<string, unknown>;
-          return !!(obj.colors && obj.componentOverrides && obj.muiComponentOverrides);
-        };
-        
-        if (isNewFormat(config)) {
-          setCurrentTheme(createThemeFromDefinition(config));
+        if (isNewThemeFormat(theme.themeConfig)) {
+          setCurrentTheme(createThemeFromDefinition(theme.themeConfig));
         } else {
           setCurrentTheme(createTheme(theme.themeConfig));
         }
