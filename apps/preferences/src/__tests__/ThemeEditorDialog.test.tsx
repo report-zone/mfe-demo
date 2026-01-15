@@ -38,31 +38,55 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     vi.clearAllMocks();
   });
 
-  it('should render full theme JSON tab as first tab', () => {
+  it('should render full theme JSON tab as last tab', () => {
     renderThemeEditor();
     const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
     expect(fullThemeTab).toBeDefined();
   });
 
-  it('should display Monaco editor on full theme JSON tab', () => {
+  it('should display Monaco editor on full theme JSON tab', async () => {
     renderThemeEditor();
-    const monacoEditor = screen.getByTestId('monaco-editor');
-    expect(monacoEditor).toBeDefined();
+    
+    // Click on Full Theme JSON tab (last tab)
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor');
+      expect(monacoEditor).toBeDefined();
+    });
   });
 
-  it('should initialize full theme JSON with correct structure', () => {
+  it('should initialize full theme JSON with correct structure', async () => {
     renderThemeEditor();
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    const jsonValue = monacoEditor.value;
     
-    expect(jsonValue).toContain('"name"');
-    expect(jsonValue).toContain('"version"');
-    expect(jsonValue).toContain('"colors"');
-    expect(jsonValue).toContain('"overrides"');
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      const jsonValue = monacoEditor.value;
+      
+      expect(jsonValue).toContain('"name"');
+      expect(jsonValue).toContain('"version"');
+      expect(jsonValue).toContain('"colors"');
+      expect(jsonValue).toContain('"overrides"');
+    });
   });
 
   it('should update color fields when full theme JSON is edited', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Parse the initial JSON and modify it
@@ -88,6 +112,16 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
 
   it('should show error when full theme JSON is invalid', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Enter invalid JSON
@@ -103,6 +137,16 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
 
   it('should sync theme name changes to full theme JSON', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Find and change theme name
@@ -118,6 +162,16 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
 
   it('should sync description changes to full theme JSON', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Find and change description
@@ -133,6 +187,16 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
 
   it('should preserve overrides section when editing theme name', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Get initial JSON with overrides
@@ -167,8 +231,18 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     });
   });
 
-  it('should include all required fields in theme JSON', () => {
+  it('should include all required fields in theme JSON', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     const jsonValue = monacoEditor.value;
     const parsed = JSON.parse(jsonValue);
@@ -195,6 +269,16 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
   it('should prevent saving when full theme JSON has errors', async () => {
     const onClose = vi.fn();
     renderThemeEditor({ onClose });
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
     // Enter invalid JSON
@@ -214,8 +298,18 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('should format theme JSON with createdAt and modifiedAt timestamps', () => {
+  it('should format theme JSON with createdAt and modifiedAt timestamps', async () => {
     renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     const jsonValue = monacoEditor.value;
     const parsed = JSON.parse(jsonValue);
