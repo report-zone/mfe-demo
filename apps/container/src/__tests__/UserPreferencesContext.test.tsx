@@ -150,13 +150,12 @@ describe('UserPreferencesContext', () => {
 
   it('should throw error when used outside provider', () => {
     // Suppress console.error for this test
-    const originalError = console.error;
-    console.error = () => {};
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => {
       render(<TestComponent />);
     }).toThrow('useUserPreferences must be used within a UserPreferencesProvider');
 
-    console.error = originalError;
+    consoleErrorSpy.mockRestore();
   });
 });

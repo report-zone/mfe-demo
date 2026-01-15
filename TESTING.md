@@ -97,7 +97,7 @@ yarn test:unit:admin
 
 ```bash
 # Run container tests with coverage report
-yarn test:coverage
+yarn test:coverage:container
 ```
 
 ### Run E2E Tests

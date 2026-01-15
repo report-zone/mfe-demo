@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { getTestPassword } from '../support/commands';
+
 describe('Navigation', () => {
   beforeEach(() => {
     // For navigation tests, we need to be logged in
@@ -54,7 +56,7 @@ describe('Navigation', () => {
       // Login before each test
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
       });
@@ -92,7 +94,7 @@ describe('Navigation', () => {
       // Login before each test
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
       });
@@ -138,7 +140,7 @@ describe('Navigation', () => {
       // Login before each test
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
       });

@@ -28,6 +28,15 @@ Cypress.Commands.add('logout', () => {
   cy.url().should('include', '/login');
 });
 
+// Helper to get test password from environment variable
+export const getTestPassword = () => {
+  return Cypress.env('TEST_PASSWORD') || 'TestPassword123!';
+};
+
+export const getAdminPassword = () => {
+  return Cypress.env('ADMIN_PASSWORD') || 'AdminPassword123!';
+};
+
 // Add TypeScript definitions
 declare global {
   namespace Cypress {

@@ -28,7 +28,7 @@
     "test:unit:preferences": "yarn workspace @mfe-demo/preferences test:unit",
     "test:unit:account": "yarn workspace @mfe-demo/account test:unit",
     "test:unit:admin": "yarn workspace @mfe-demo/admin test:unit",
-    "test:coverage": "yarn workspace @mfe-demo/container test:unit --coverage",
+    "test:coverage:container": "yarn workspace @mfe-demo/container test:unit --coverage",
     "test:e2e": "yarn workspace @mfe-demo/container test:e2e",
     "lint": "eslint \"apps/**/*.{ts,tsx}\"",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",

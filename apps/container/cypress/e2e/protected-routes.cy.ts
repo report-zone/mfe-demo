@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { getTestPassword } from '../support/commands';
+
 describe('Protected Routes and Admin Access', () => {
   describe('Protected Routes - Authentication Required', () => {
     it('should redirect unauthenticated users from home page', () => {
@@ -26,7 +28,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         
         // Should be able to access home
@@ -48,7 +50,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
         
@@ -61,7 +63,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
         
@@ -100,7 +102,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
         
@@ -117,7 +119,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
         
@@ -180,7 +182,7 @@ describe('Protected Routes and Admin Access', () => {
       cy.visit('/login');
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
         

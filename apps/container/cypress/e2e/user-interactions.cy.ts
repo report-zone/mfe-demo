@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { getTestPassword } from '../support/commands';
+
 describe('User Interactions', () => {
   beforeEach(() => {
     cy.visit('/login');
@@ -85,7 +87,7 @@ describe('User Interactions', () => {
       // Login first to see header with user info
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
       });
@@ -110,7 +112,7 @@ describe('User Interactions', () => {
       // Login first
       cy.fixture('users').then((users) => {
         cy.get('input[name="username"]').type(users.credentials.validUsername);
-        cy.get('input[name="password"]').type(users.credentials.validPassword);
+        cy.get('input[name="password"]').type(getTestPassword());
         cy.get('button[type="submit"]').click();
         cy.url({ timeout: 15000 }).should('not.include', '/login');
       });
@@ -126,8 +128,8 @@ describe('User Interactions', () => {
     });
 
     it('should respond to keyboard navigation', () => {
-      // Tab through navigation items
-      cy.get('body').tab();
+      // Test keyboard accessibility by using Tab key
+      cy.get('body').type('{tab}');
       // Check that focus is working (exact implementation depends on MUI)
       cy.focused().should('exist');
     });
