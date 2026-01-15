@@ -1,14 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import {
-  signIn,
-  signOut,
-  signUp,
-  confirmSignUp,
-  resetPassword,
-  confirmResetPassword,
-  getCurrentUser,
-  fetchAuthSession,
-} from 'aws-amplify/auth';
+import authService from '../services/authService';
 
 interface User {
   username: string;
@@ -49,15 +40,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const currentUser = await getCurrentUser();
-      const session = await fetchAuthSession();
-      const groups = (session.tokens?.accessToken?.payload['cognito:groups'] as string[]) || [];
-
-      setUser({
-        username: currentUser.username,
-        email: currentUser.signInDetails?.loginId,
-        groups,
-      });
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
     } catch {
       setUser(null);
     } finally {
@@ -71,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      await signIn({ username, password });
+      await authService.signIn(username, password);
       await checkUser();
     } catch (error) {
       console.error('Login error:', error);
@@ -81,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await signOut();
+      await authService.signOut();
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
@@ -91,15 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (username: string, password: string, email: string) => {
     try {
-      await signUp({
-        username,
-        password,
-        options: {
-          userAttributes: {
-            email,
-          },
-        },
-      });
+      await authService.signUp({ username, password, email });
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;
@@ -108,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const confirmSignup = async (username: string, code: string) => {
     try {
-      await confirmSignUp({ username, confirmationCode: code });
+      await authService.confirmSignUp({ username, code });
     } catch (error) {
       console.error('Confirm sign up error:', error);
       throw error;
@@ -117,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const resetPass = async (username: string) => {
     try {
-      await resetPassword({ username });
+      await authService.resetPassword({ username });
     } catch (error) {
       console.error('Reset password error:', error);
       throw error;
@@ -126,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const confirmResetPass = async (username: string, code: string, newPassword: string) => {
     try {
-      await confirmResetPassword({ username, confirmationCode: code, newPassword });
+      await authService.confirmResetPassword({ username, code, newPassword });
     } catch (error) {
       console.error('Confirm reset password error:', error);
       throw error;
