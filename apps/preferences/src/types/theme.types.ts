@@ -1,11 +1,11 @@
-import { Theme } from '@mui/material/styles';
+import { Theme, ThemeOptions } from '@mui/material/styles';
 
 export interface CustomTheme {
   id: string;
   name: string;
   theme: Theme;
   isCustom: boolean;
-  themeConfig: Record<string, any>;
+  themeConfig: Theme | ThemeOptions;
 }
 
 export interface ThemeEditorState {

@@ -9,6 +9,8 @@ import {
   CardContent,
   CardActions,
   Grid,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -20,6 +22,7 @@ const ThemesTab: React.FC = () => {
   const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
 
   const handleCreateTheme = () => {
     setEditorOpen(true);
@@ -29,24 +32,29 @@ const ThemesTab: React.FC = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    input.onchange = (e: any) => {
-      const file = e.target.files[0];
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (event: any) => {
+        reader.onload = (event: ProgressEvent<FileReader>) => {
           try {
-            const config = JSON.parse(event.target.result);
-            const theme = {
-              id: `loaded-${Date.now()}`,
-              name: config.name || file.name.replace('.json', ''),
-              theme: config,
-              isCustom: true,
-              themeConfig: config,
-            };
-            addCustomTheme(theme);
-            loadThemesFromStorage();
+            const result = event.target?.result;
+            if (typeof result === 'string') {
+              const config = JSON.parse(result);
+              const theme = {
+                id: `loaded-${Date.now()}`,
+                name: config.name || file.name.replace('.json', ''),
+                theme: config,
+                isCustom: true,
+                themeConfig: config,
+              };
+              addCustomTheme(theme);
+              loadThemesFromStorage();
+              setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
+            }
           } catch (error) {
-            alert('Error loading theme file. Please ensure it is a valid JSON file.');
+            setSnackbar({ open: true, message: 'Error loading theme file. Please ensure it is a valid JSON file.', severity: 'error' });
           }
         };
         reader.readAsText(file);
@@ -116,6 +124,18 @@ const ThemesTab: React.FC = () => {
       </Paper>
 
       <ThemeEditorDialog open={editorOpen} onClose={() => setEditorOpen(false)} />
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -14,6 +14,11 @@ import {
   Grid,
   Divider,
   Alert,
+  Snackbar,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Dialog as ConfirmDialog,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
@@ -38,6 +43,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [jsonError, setJsonError] = useState<string>('');
   const [monacoSettings, setMonacoSettings] = useState({ theme: 'vs-light' });
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
+  const [confirmClose, setConfirmClose] = useState(false);
 
   const [editorState, setEditorState] = useState<ThemeEditorState>(
     initialTheme || {
@@ -120,15 +127,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       try {
         JSON.parse(value);
         setJsonError('');
-      } catch (e: any) {
-        setJsonError(e.message);
+      } catch (e) {
+        setJsonError(e instanceof Error ? e.message : 'Invalid JSON');
       }
     }
   };
 
   const handleSave = () => {
     if (jsonError) {
-      alert('Please fix JSON errors before saving');
+      setSnackbar({ open: true, message: 'Please fix JSON errors before saving', severity: 'error' });
       return;
     }
 
@@ -142,46 +149,55 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     });
 
     setHasUnsavedChanges(false);
-    onClose();
+    setSnackbar({ open: true, message: 'Theme saved successfully!', severity: 'success' });
+    setTimeout(() => onClose(), 1000);
   };
 
   const handleClose = () => {
     if (hasUnsavedChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
-        onClose();
-      }
+      setConfirmClose(true);
     } else {
       onClose();
     }
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmClose(false);
+    onClose();
   };
 
   const handleLoadTheme = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    input.onchange = (e: any) => {
-      const file = e.target.files[0];
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (event: any) => {
+        reader.onload = (event: ProgressEvent<FileReader>) => {
           try {
-            const config = JSON.parse(event.target.result);
-            setEditorState({
-              name: config.name || 'Loaded Theme',
-              primary: config.palette?.primary?.main || '#1976d2',
-              secondary: config.palette?.secondary?.main || '#dc004e',
-              error: config.palette?.error?.main || '#d32f2f',
-              warning: config.palette?.warning?.main || '#ed6c02',
-              info: config.palette?.info?.main || '#0288d1',
-              success: config.palette?.success?.main || '#2e7d32',
-              background: config.palette?.background?.default || '#ffffff',
-              paper: config.palette?.background?.paper || '#ffffff',
-              mode: config.palette?.mode || 'light',
-              jsonConfig: JSON.stringify(config, null, 2),
-            });
-            setHasUnsavedChanges(true);
+            const result = event.target?.result;
+            if (typeof result === 'string') {
+              const config = JSON.parse(result);
+              setEditorState({
+                name: config.name || 'Loaded Theme',
+                primary: config.palette?.primary?.main || '#1976d2',
+                secondary: config.palette?.secondary?.main || '#dc004e',
+                error: config.palette?.error?.main || '#d32f2f',
+                warning: config.palette?.warning?.main || '#ed6c02',
+                info: config.palette?.info?.main || '#0288d1',
+                success: config.palette?.success?.main || '#2e7d32',
+                background: config.palette?.background?.default || '#ffffff',
+                paper: config.palette?.background?.paper || '#ffffff',
+                mode: config.palette?.mode || 'light',
+                jsonConfig: JSON.stringify(config, null, 2),
+              });
+              setHasUnsavedChanges(true);
+              setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
+            }
           } catch (error) {
-            alert('Error loading theme file');
+            setSnackbar({ open: true, message: 'Error loading theme file', severity: 'error' });
           }
         };
         reader.readAsText(file);
@@ -425,6 +441,34 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           </Grid>
         </Grid>
       </Box>
+
+      {/* Confirm Close Dialog */}
+      <ConfirmDialog open={confirmClose} onClose={() => setConfirmClose(false)}>
+        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogContent>
+          <Typography>
+            You have unsaved changes. Are you sure you want to close without saving?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmClose(false)}>Cancel</Button>
+          <Button onClick={handleConfirmClose} color="error" variant="contained">
+            Close Without Saving
+          </Button>
+        </DialogActions>
+      </ConfirmDialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 };
