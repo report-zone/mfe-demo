@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
+import {
+  signIn,
+  signOut,
+  signUp,
+  confirmSignUp,
+  resetPassword,
+  confirmResetPassword,
+  getCurrentUser,
+  fetchAuthSession,
+} from 'aws-amplify/auth';
 
 interface User {
   username: string;
@@ -14,6 +23,10 @@ interface AuthContextType {
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  signUp: (username: string, password: string, email: string) => Promise<void>;
+  confirmSignUp: (username: string, code: string) => Promise<void>;
+  resetPassword: (username: string) => Promise<void>;
+  confirmResetPassword: (username: string, code: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,6 +89,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signup = async (username: string, password: string, email: string) => {
+    try {
+      await signUp({
+        username,
+        password,
+        options: {
+          userAttributes: {
+            email,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Sign up error:', error);
+      throw error;
+    }
+  };
+
+  const confirmSignup = async (username: string, code: string) => {
+    try {
+      await confirmSignUp({ username, confirmationCode: code });
+    } catch (error) {
+      console.error('Confirm sign up error:', error);
+      throw error;
+    }
+  };
+
+  const resetPass = async (username: string) => {
+    try {
+      await resetPassword({ username });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      throw error;
+    }
+  };
+
+  const confirmResetPass = async (username: string, code: string, newPassword: string) => {
+    try {
+      await confirmResetPassword({ username, confirmationCode: code, newPassword });
+    } catch (error) {
+      console.error('Confirm reset password error:', error);
+      throw error;
+    }
+  };
+
   const isAuthenticated = !!user;
   const isAdmin = user?.groups?.includes('admin') || false;
 
@@ -88,6 +145,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isLoading,
         login,
         logout,
+        signUp: signup,
+        confirmSignUp: confirmSignup,
+        resetPassword: resetPass,
+        confirmResetPassword: confirmResetPass,
       }}
     >
       {children}
