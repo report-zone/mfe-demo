@@ -766,8 +766,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                       Use this editor to provide detailed MUI component overrides. This will be saved in the 
-                      "muiComponentOverrides" section of your theme JSON. Changes are immediately reflected in 
-                      the live preview. Example structure: {"{"}"MuiButton": {"{"}"styleOverrides": {"{"}"root": {"{"}"textTransform": "none"{"}"}{"}"}{"}"}{"}"}{"}"}
+                      &quot;muiComponentOverrides&quot; section of your theme JSON. Changes are immediately reflected in 
+                      the live preview. Example structure: {`{"MuiButton": {"styleOverrides": {"root": {"textTransform": "none"}}}}`}
                     </Typography>
                   </Box>
                 )}

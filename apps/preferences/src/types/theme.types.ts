@@ -74,7 +74,7 @@ export interface CustomThemeDefinition {
       bodyFontSize?: number;
     };
   };
-  muiComponentOverrides: Record<string, any>;
+  muiComponentOverrides: Record<string, unknown>;
   createdAt?: string;
 }
 

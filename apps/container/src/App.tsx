@@ -35,8 +35,8 @@ interface CustomThemeDefinition {
     textPrimary: string;
     textSecondary: string;
   };
-  componentOverrides: any;
-  muiComponentOverrides: Record<string, any>;
+  componentOverrides: unknown;
+  muiComponentOverrides: Record<string, unknown>;
   createdAt?: string;
 }
 
@@ -234,7 +234,7 @@ const App: React.FC = () => {
           const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
             // Check if it's the new format
-            const config = theme.themeConfig as any;
+            const config = theme.themeConfig as Record<string, unknown>;
             if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
               setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
             } else {
@@ -253,7 +253,7 @@ const App: React.FC = () => {
       const themeEvent = event as ThemeChangeEvent;
       const theme = themeEvent.detail;
       if (theme && theme.themeConfig) {
-        const config = theme.themeConfig as any;
+        const config = theme.themeConfig as Record<string, unknown>;
         if (config.colors && config.componentOverrides && config.muiComponentOverrides) {
           setCurrentTheme(createThemeFromDefinition(config as CustomThemeDefinition));
         } else {
