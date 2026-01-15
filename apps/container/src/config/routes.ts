@@ -54,18 +54,11 @@ export const protectedRoutes: RouteConfig[] = [
 
 /**
  * Public Routes Configuration
+ * Note: Public routes don't specify elements here as they're handled
+ * directly in App.tsx with their own logic
  */
-export const publicRoutes: RouteConfig[] = [
-  {
-    path: '/login',
-    label: 'Login',
-  },
-  {
-    path: '/create-account',
-    label: 'Create Account',
-  },
-  {
-    path: '/reset-password',
-    label: 'Reset Password',
-  },
-];
+export const publicRoutes = [
+  '/login',
+  '/create-account',
+  '/reset-password',
+] as const;

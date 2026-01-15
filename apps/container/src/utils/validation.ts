@@ -38,9 +38,12 @@ export const validatePasswordMatch = (password: string, confirmPassword: string)
 
 /**
  * Validates email format
+ * Note: This is a basic email validation. For production use with complex requirements,
+ * consider using a dedicated email validation library.
  */
 export const validateEmail = (email: string): ValidationResult => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // More comprehensive email regex that handles most common cases
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
   if (!emailRegex.test(email)) {
     return {
       isValid: false,

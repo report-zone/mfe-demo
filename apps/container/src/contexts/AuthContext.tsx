@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
 import { User, IAuthContext } from './interfaces/IAuthContext';
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     try {
       const currentUser = await injectedAuthService.getCurrentUser();
       setUser(currentUser);
@@ -34,12 +34,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [injectedAuthService]);
 
   useEffect(() => {
     checkUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkUser]);
 
   const login = async (username: string, password: string) => {
     try {
