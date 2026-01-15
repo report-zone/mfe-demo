@@ -6,6 +6,12 @@ export default defineConfig({
   server: {
     port: 3002,
     host: true,
+    fs: {
+      strict: false,
+    },
+  },
+  optimizeDeps: {
+    include: ['monaco-editor'],
   },
   build: {
     outDir: 'dist',
