@@ -87,20 +87,115 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [jsonError, setJsonError] = useState<string>('');
+  const [fullThemeJsonError, setFullThemeJsonError] = useState<string>('');
   const [monacoSettings, setMonacoSettings] = useState({ theme: 'vs-light' });
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
 
   const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
+  const [fullThemeJson, setFullThemeJson] = useState<string>('');
+
+  // Convert editorState to full theme JSON (matching themeFormat.json)
+  const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
+    try {
+      let muiOverrides = {};
+      try {
+        muiOverrides = JSON.parse(state.jsonConfig);
+      } catch (e) {
+        console.warn('Invalid JSON config for MUI overrides');
+      }
+
+      const fullTheme = {
+        name: state.name,
+        version: state.version,
+        description: state.description || '',
+        createdAt: new Date().toISOString(),
+        modifiedAt: new Date().toISOString(),
+        colors: {
+          primaryMain: state.primary,
+          primaryLight: state.primaryLight || '#42a5f5',
+          primaryDark: state.primaryDark || '#1565c0',
+          secondaryMain: state.secondary,
+          secondaryLight: state.secondaryLight || '#ff4081',
+          secondaryDark: state.secondaryDark || '#9a0036',
+          errorMain: state.error,
+          warningMain: state.warning,
+          infoMain: state.info,
+          successMain: state.success,
+          backgroundDefault: state.background,
+          backgroundPaper: state.paper,
+          textPrimary: state.textPrimary,
+          textSecondary: state.textSecondary,
+        },
+        overrides: muiOverrides,
+      };
+
+      return JSON.stringify(fullTheme, null, 2);
+    } catch (error) {
+      console.error('Error converting editor state to full theme JSON:', error);
+      return '{}';
+    }
+  };
+
+  // Convert full theme JSON back to editorState
+  const convertFullThemeJsonToEditorState = (jsonString: string): ThemeEditorState | null => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      
+      return {
+        name: parsed.name || 'Custom Theme',
+        version: parsed.version || '1.0.0',
+        description: parsed.description || '',
+        primary: parsed.colors?.primaryMain || '#1976d2',
+        primaryLight: parsed.colors?.primaryLight || '#42a5f5',
+        primaryDark: parsed.colors?.primaryDark || '#1565c0',
+        secondary: parsed.colors?.secondaryMain || '#dc004e',
+        secondaryLight: parsed.colors?.secondaryLight || '#ff4081',
+        secondaryDark: parsed.colors?.secondaryDark || '#9a0036',
+        error: parsed.colors?.errorMain || '#d32f2f',
+        warning: parsed.colors?.warningMain || '#ed6c02',
+        info: parsed.colors?.infoMain || '#0288d1',
+        success: parsed.colors?.successMain || '#2e7d32',
+        background: parsed.colors?.backgroundDefault || '#ffffff',
+        paper: parsed.colors?.backgroundPaper || '#f5f5f5',
+        textPrimary: parsed.colors?.textPrimary || '#000000',
+        textSecondary: parsed.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
+        mode: 'light',
+        borderRadius: 4,
+        fontSize: 14,
+        padding: 8,
+        buttonTextTransform: 'uppercase',
+        paperElevation: 1,
+        cardElevation: 1,
+        appBarElevation: 4,
+        drawerWidth: 240,
+        dialogBorderRadius: 8,
+        chipBorderRadius: 16,
+        listPadding: 8,
+        tooltipFontSize: 12,
+        h1FontSize: 96,
+        h2FontSize: 60,
+        h3FontSize: 48,
+        bodyFontSize: 16,
+        jsonConfig: JSON.stringify(parsed.overrides || {}, null, 2),
+      };
+    } catch (error) {
+      console.error('Error converting full theme JSON to editor state:', error);
+      return null;
+    }
+  };
 
   // Reset state when dialog opens
   React.useEffect(() => {
     if (open) {
-      setEditorState(initialTheme || defaultEditorState);
+      const initialState = initialTheme || defaultEditorState;
+      setEditorState(initialState);
+      setFullThemeJson(convertEditorStateToFullThemeJson(initialState));
       setActiveTab(0);
       setHasUnsavedChanges(false);
       setJsonError('');
+      setFullThemeJsonError('');
     }
   }, [open, initialTheme]);
 
@@ -193,13 +288,17 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         processedValue = isNaN(numValue) ? 0 : numValue;
       }
     }
-    setEditorState((prev) => ({ ...prev, [field]: processedValue }));
+    const newState = { ...editorState, [field]: processedValue };
+    setEditorState(newState);
+    setFullThemeJson(convertEditorStateToFullThemeJson(newState));
     setHasUnsavedChanges(true);
   };
 
   const handleJsonChange = (value: string | undefined) => {
     if (value !== undefined) {
-      setEditorState((prev) => ({ ...prev, jsonConfig: value }));
+      const newState = { ...editorState, jsonConfig: value };
+      setEditorState(newState);
+      setFullThemeJson(convertEditorStateToFullThemeJson(newState));
       setHasUnsavedChanges(true);
 
       // Validate JSON
@@ -208,6 +307,24 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         setJsonError('');
       } catch (e) {
         setJsonError(e instanceof Error ? e.message : 'Invalid JSON');
+      }
+    }
+  };
+
+  const handleFullThemeJsonChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setFullThemeJson(value);
+      setHasUnsavedChanges(true);
+
+      // Validate and sync to editorState
+      try {
+        const newState = convertFullThemeJsonToEditorState(value);
+        if (newState) {
+          setEditorState(newState);
+          setFullThemeJsonError('');
+        }
+      } catch (e) {
+        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON');
       }
     }
   };
@@ -291,7 +408,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   };
 
   const handleSave = () => {
-    if (jsonError) {
+    if (jsonError || fullThemeJsonError) {
       setSnackbar({ open: true, message: 'Please fix JSON errors before saving', severity: 'error' });
       return;
     }
@@ -470,6 +587,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
+                <Tab label="Full Theme JSON" />
                 <Tab label="Primary" />
                 <Tab label="Secondary" />
                 <Tab label="Status" />
@@ -480,6 +598,60 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
               <Box sx={{ mt: 3 }}>
                 {activeTab === 0 && (
+                  <Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography variant="h6">Full Theme JSON Editor</Typography>
+                      <IconButton onClick={() => setShowMonacoSettings(!showMonacoSettings)}>
+                        <SettingsIcon />
+                      </IconButton>
+                    </Box>
+
+                    {showMonacoSettings && (
+                      <Box sx={{ mb: 2 }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            setMonacoSettings({
+                              theme: monacoSettings.theme === 'vs-light' ? 'vs-dark' : 'vs-light',
+                            })
+                          }
+                        >
+                          Toggle Theme ({monacoSettings.theme})
+                        </Button>
+                      </Box>
+                    )}
+
+                    <Box sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
+                      <Editor
+                        height="500px"
+                        language="json"
+                        value={fullThemeJson}
+                        onChange={handleFullThemeJsonChange}
+                        theme={monacoSettings.theme}
+                        options={{
+                          minimap: { enabled: false },
+                          scrollBeyondLastLine: false,
+                          formatOnPaste: true,
+                          formatOnType: true,
+                        }}
+                      />
+                    </Box>
+
+                    {fullThemeJsonError && (
+                      <Alert severity="error" sx={{ mt: 2 }}>
+                        {fullThemeJsonError}
+                      </Alert>
+                    )}
+
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                      This editor shows the complete theme in the format matching themeFormat.json. 
+                      All changes made here are immediately reflected in the other tabs and the live preview. 
+                      Similarly, changes in other tabs update this JSON view.
+                    </Typography>
+                  </Box>
+                )}
+
+                {activeTab === 1 && (
                   <Box>
                     <ColorPicker
                       label="Primary Main"
@@ -502,6 +674,26 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 {activeTab === 1 && (
                   <Box>
                     <ColorPicker
+                      label="Primary Main"
+                      value={editorState.primary}
+                      onChange={(v) => handleFieldChange('primary', v)}
+                    />
+                    <ColorPicker
+                      label="Primary Light"
+                      value={editorState.primaryLight || '#42a5f5'}
+                      onChange={(v) => handleFieldChange('primaryLight', v)}
+                    />
+                    <ColorPicker
+                      label="Primary Dark"
+                      value={editorState.primaryDark || '#1565c0'}
+                      onChange={(v) => handleFieldChange('primaryDark', v)}
+                    />
+                  </Box>
+                )}
+
+                {activeTab === 2 && (
+                  <Box>
+                    <ColorPicker
                       label="Secondary Main"
                       value={editorState.secondary}
                       onChange={(v) => handleFieldChange('secondary', v)}
@@ -519,7 +711,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 2 && (
+                {activeTab === 3 && (
                   <Box>
                     <ColorPicker
                       label="Error Color"
@@ -544,7 +736,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 3 && (
+                {activeTab === 4 && (
                   <Box>
                     <ColorPicker
                       label="Background Color"
@@ -569,7 +761,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 4 && (
+                {activeTab === 5 && (
                   <Box>
                     <Typography variant="h6" gutterBottom>
                       Component Configuration
@@ -720,7 +912,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 5 && (
+                {activeTab === 6 && (
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                       <Typography variant="h6">MUI Component Overrides (Advanced JSON)</Typography>
