@@ -17,12 +17,14 @@ import { createTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useThemeContext } from '../context/ThemeContext';
+import { CustomThemeDefinition } from '../types/theme.types';
 import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
 
 const ThemesTab: React.FC = () => {
-  const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage } =
+  const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage, removeCustomTheme } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
@@ -44,15 +46,70 @@ const ThemesTab: React.FC = () => {
           try {
             const result = event.target?.result;
             if (typeof result === 'string') {
-              const config = JSON.parse(result);
-              const createdTheme = createTheme(config);
+              const config: CustomThemeDefinition = JSON.parse(result);
+              
+              // Convert CustomThemeDefinition to MUI theme
+              const muiTheme = createTheme({
+                palette: {
+                  primary: {
+                    main: config.colors?.primaryMain || '#1976d2',
+                    light: config.colors?.primaryLight || '#42a5f5',
+                    dark: config.colors?.primaryDark || '#1565c0',
+                  },
+                  secondary: {
+                    main: config.colors?.secondaryMain || '#dc004e',
+                    light: config.colors?.secondaryLight || '#ff4081',
+                    dark: config.colors?.secondaryDark || '#9a0036',
+                  },
+                  error: {
+                    main: config.colors?.errorMain || '#d32f2f',
+                  },
+                  warning: {
+                    main: config.colors?.warningMain || '#ed6c02',
+                  },
+                  info: {
+                    main: config.colors?.infoMain || '#0288d1',
+                  },
+                  success: {
+                    main: config.colors?.successMain || '#2e7d32',
+                  },
+                  background: {
+                    default: config.colors?.backgroundDefault || '#ffffff',
+                    paper: config.colors?.backgroundPaper || '#f5f5f5',
+                  },
+                  text: {
+                    primary: config.colors?.textPrimary || '#000000',
+                    secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
+                  },
+                },
+                typography: {
+                  fontSize: config.componentOverrides?.typography?.bodyFontSize || 16,
+                  h1: {
+                    fontSize: `${config.componentOverrides?.typography?.h1FontSize || 96}px`,
+                  },
+                  h2: {
+                    fontSize: `${config.componentOverrides?.typography?.h2FontSize || 60}px`,
+                  },
+                  h3: {
+                    fontSize: `${config.componentOverrides?.typography?.h3FontSize || 48}px`,
+                  },
+                  body1: {
+                    fontSize: `${config.componentOverrides?.typography?.bodyFontSize || 16}px`,
+                  },
+                },
+                shape: {
+                  borderRadius: config.componentOverrides?.button?.borderRadius || 4,
+                },
+                components: config.muiComponentOverrides || {},
+              });
+              
               const theme = {
                 id: `loaded-${Date.now()}`,
                 name: config.name || file.name.replace('.json', ''),
                 description: config.description || '',
-                theme: createdTheme,
+                theme: muiTheme,
                 isCustom: true,
-                themeConfig: createdTheme,
+                themeConfig: config,
               };
               addCustomTheme(theme);
               loadThemesFromStorage();
@@ -66,6 +123,14 @@ const ThemesTab: React.FC = () => {
       }
     };
     input.click();
+  };
+
+  const handleDeleteTheme = (themeId: string) => {
+    if (window.confirm('Are you sure you want to delete this custom theme?')) {
+      removeCustomTheme(themeId);
+      loadThemesFromStorage();
+      setSnackbar({ open: true, message: 'Theme deleted successfully!', severity: 'success' });
+    }
   };
 
   return (
@@ -132,6 +197,21 @@ const ThemesTab: React.FC = () => {
                   <Tooltip title={theme.description} placement="left">
                     <IconButton size="small" sx={{ ml: 1 }}>
                       <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                {theme.isCustom && (
+                  <Tooltip title="Delete custom theme" placement="left">
+                    <IconButton 
+                      size="small" 
+                      sx={{ ml: 1 }} 
+                      color="error"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteTheme(theme.id);
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 )}

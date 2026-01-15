@@ -7,6 +7,7 @@ interface ThemeContextType {
   themes: CustomTheme[];
   setTheme: (theme: CustomTheme) => void;
   addCustomTheme: (theme: CustomTheme) => void;
+  removeCustomTheme: (themeId: string) => void;
   loadThemesFromStorage: () => void;
 }
 
@@ -87,6 +88,25 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
     }
   };
 
+  const removeCustomTheme = (themeId: string) => {
+    try {
+      const storedThemes = localStorage.getItem('customThemes');
+      const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
+      const updatedCustomThemes = existingCustomThemes.filter((t: CustomTheme) => t.id !== themeId);
+      
+      // Save to localStorage
+      localStorage.setItem('customThemes', JSON.stringify(updatedCustomThemes));
+      setThemes([...defaultThemes, ...updatedCustomThemes]);
+      
+      // If the deleted theme was selected, switch to default
+      if (currentTheme.id === themeId) {
+        setTheme(defaultThemes[0]);
+      }
+    } catch (error) {
+      console.error('Error removing theme from storage:', error);
+    }
+  };
+
   return (
     <ThemeContext.Provider
       value={{
@@ -94,6 +114,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         themes,
         setTheme,
         addCustomTheme,
+        removeCustomTheme,
         loadThemesFromStorage,
       }}
     >
