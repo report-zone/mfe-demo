@@ -28,11 +28,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SettingsIcon from '@mui/icons-material/Settings';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Editor from '@monaco-editor/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import { ThemeEditorState, CustomThemeDefinition } from '../types/theme.types';
-import { useThemeContext } from '../context/ThemeContext';
 
 interface ThemeEditorDialogProps {
   open: boolean;
@@ -77,13 +77,124 @@ const defaultEditorState: ThemeEditorState = {
   bodyFontSize: 16,
   jsonConfig: JSON.stringify({
     MuiAccordion: {},
-    MuiAccordionSummary: {},
+    MuiAccordionActions: {},
     MuiAccordionDetails: {},
+    MuiAccordionSummary: {},
+    MuiAlert: {},
+    MuiAlertTitle: {},
+    MuiAppBar: {},
+    MuiAutocomplete: {},
+    MuiAvatar: {},
+    MuiAvatarGroup: {},
+    MuiBackdrop: {},
+    MuiBadge: {},
+    MuiBottomNavigation: {},
+    MuiBottomNavigationAction: {},
+    MuiBreadcrumbs: {},
+    MuiButton: {},
+    MuiButtonBase: {},
+    MuiButtonGroup: {},
+    MuiCard: {},
+    MuiCardActionArea: {},
+    MuiCardActions: {},
+    MuiCardContent: {},
+    MuiCardHeader: {},
+    MuiCardMedia: {},
+    MuiCheckbox: {},
+    MuiChip: {},
+    MuiCircularProgress: {},
+    MuiCollapse: {},
+    MuiContainer: {},
+    MuiCssBaseline: {},
+    MuiDialog: {},
+    MuiDialogActions: {},
+    MuiDialogContent: {},
+    MuiDialogContentText: {},
+    MuiDialogTitle: {},
+    MuiDivider: {},
+    MuiDrawer: {},
+    MuiFab: {},
+    MuiFilledInput: {},
+    MuiFormControl: {},
+    MuiFormControlLabel: {},
+    MuiFormGroup: {},
+    MuiFormHelperText: {},
+    MuiFormLabel: {},
+    MuiGrid: {},
+    MuiIcon: {},
+    MuiIconButton: {},
+    MuiImageList: {},
+    MuiImageListItem: {},
+    MuiImageListItemBar: {},
+    MuiInput: {},
+    MuiInputAdornment: {},
+    MuiInputBase: {},
+    MuiInputLabel: {},
+    MuiLinearProgress: {},
+    MuiLink: {},
+    MuiList: {},
+    MuiListItem: {},
+    MuiListItemAvatar: {},
+    MuiListItemButton: {},
+    MuiListItemIcon: {},
+    MuiListItemSecondaryAction: {},
+    MuiListItemText: {},
+    MuiListSubheader: {},
+    MuiMenu: {},
+    MuiMenuItem: {},
+    MuiMenuList: {},
+    MuiMobileStepper: {},
+    MuiModal: {},
+    MuiNativeSelect: {},
+    MuiOutlinedInput: {},
+    MuiPagination: {},
+    MuiPaginationItem: {},
+    MuiPaper: {},
+    MuiPopover: {},
+    MuiPopper: {},
+    MuiRadio: {},
+    MuiRadioGroup: {},
+    MuiRating: {},
+    MuiScopedCssBaseline: {},
+    MuiSelect: {},
+    MuiSkeleton: {},
+    MuiSlider: {},
+    MuiSnackbar: {},
+    MuiSnackbarContent: {},
+    MuiSpeedDial: {},
+    MuiSpeedDialAction: {},
+    MuiSpeedDialIcon: {},
+    MuiStack: {},
+    MuiStep: {},
+    MuiStepButton: {},
+    MuiStepConnector: {},
+    MuiStepContent: {},
+    MuiStepIcon: {},
+    MuiStepLabel: {},
+    MuiStepper: {},
+    MuiSvgIcon: {},
+    MuiSwitch: {},
+    MuiTab: {},
+    MuiTable: {},
+    MuiTableBody: {},
+    MuiTableCell: {},
+    MuiTableContainer: {},
+    MuiTableFooter: {},
+    MuiTableHead: {},
+    MuiTablePagination: {},
+    MuiTableRow: {},
+    MuiTableSortLabel: {},
+    MuiTabs: {},
+    MuiTextField: {},
+    MuiToggleButton: {},
+    MuiToggleButtonGroup: {},
+    MuiToolbar: {},
+    MuiTooltip: {},
+    MuiTypography: {},
   }, null, 2),
 };
 
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
-  const { addCustomTheme, loadThemesFromStorage } = useThemeContext();
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [jsonError, setJsonError] = useState<string>('');
@@ -436,23 +547,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    // Also add to theme list
-    const theme = generateTheme();
-    const customTheme = {
-      id: `custom-${Date.now()}`,
-      name: editorState.name,
-      description: editorState.description,
-      theme: theme,
-      isCustom: true,
-      themeConfig: themeDefinition,
-    };
-    
-    addCustomTheme(customTheme);
-    loadThemesFromStorage();
-
     setHasUnsavedChanges(false);
-    setSnackbar({ open: true, message: 'Theme saved and added to themes list!', severity: 'success' });
+    setSnackbar({ open: true, message: 'Theme saved to file system!', severity: 'success' });
     setTimeout(() => onClose(), 1000);
+  };
+
+  const handleResetToDefaults = () => {
+    setEditorState(defaultEditorState);
+    setFullThemeJson(convertEditorStateToFullThemeJson(defaultEditorState));
+    setHasUnsavedChanges(true);
+    setSnackbar({ open: true, message: 'Reset to default values!', severity: 'info' });
   };
 
   const handleClose = () => {
@@ -544,8 +648,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Theme Editor
           </Typography>
+          <Button color="inherit" startIcon={<RestartAltIcon />} onClick={handleResetToDefaults}>
+            Reset to Default
+          </Button>
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-            Load and Edit Theme
+            Load Theme
           </Button>
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
             Save
@@ -588,71 +695,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
-                <Tab label="Full Theme JSON" />
                 <Tab label="Primary" />
                 <Tab label="Secondary" />
                 <Tab label="Status" />
                 <Tab label="Background" />
                 <Tab label="Components" />
-                <Tab label="Advanced JSON" />
+                <Tab label="Full Theme JSON" />
               </Tabs>
 
               <Box sx={{ mt: 3 }}>
                 {activeTab === 0 && (
-                  <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="h6">Full Theme JSON Editor</Typography>
-                      <IconButton onClick={() => setShowMonacoSettings(!showMonacoSettings)}>
-                        <SettingsIcon />
-                      </IconButton>
-                    </Box>
-
-                    {showMonacoSettings && (
-                      <Box sx={{ mb: 2 }}>
-                        <Button
-                          variant="outlined"
-                          onClick={() =>
-                            setMonacoSettings({
-                              theme: monacoSettings.theme === 'vs-light' ? 'vs-dark' : 'vs-light',
-                            })
-                          }
-                        >
-                          Toggle Theme ({monacoSettings.theme})
-                        </Button>
-                      </Box>
-                    )}
-
-                    <Box sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
-                      <Editor
-                        height="500px"
-                        language="json"
-                        value={fullThemeJson}
-                        onChange={handleFullThemeJsonChange}
-                        theme={monacoSettings.theme}
-                        options={{
-                          minimap: { enabled: false },
-                          scrollBeyondLastLine: false,
-                          formatOnPaste: true,
-                          formatOnType: true,
-                        }}
-                      />
-                    </Box>
-
-                    {fullThemeJsonError && (
-                      <Alert severity="error" sx={{ mt: 2 }}>
-                        {fullThemeJsonError}
-                      </Alert>
-                    )}
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      This editor shows the complete theme in the format matching themeFormat.json. 
-                      All changes made here are immediately reflected in the other tabs and the live preview. 
-                      Similarly, changes in other tabs update this JSON view.
-                    </Typography>
-                  </Box>
-                )}
-
-                {activeTab === 1 && (
                   <Box>
                     <ColorPicker
                       label="Primary Main"
@@ -672,7 +724,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 2 && (
+                {activeTab === 1 && (
                   <Box>
                     <ColorPicker
                       label="Secondary Main"
@@ -692,7 +744,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 3 && (
+                {activeTab === 2 && (
                   <Box>
                     <ColorPicker
                       label="Error Color"
@@ -717,7 +769,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 4 && (
+                {activeTab === 3 && (
                   <Box>
                     <ColorPicker
                       label="Background Color"
@@ -742,7 +794,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   </Box>
                 )}
 
-                {activeTab === 5 && (
+                {activeTab === 4 && (
                   <Box>
                     <Typography variant="h6" gutterBottom>
                       Component Configuration
@@ -888,15 +940,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     />
                     
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      For advanced MUI component overrides, use the Advanced JSON tab.
+                      For advanced MUI component overrides, use the Full Theme JSON tab.
                     </Typography>
                   </Box>
                 )}
 
-                {activeTab === 6 && (
+                {activeTab === 5 && (
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="h6">MUI Component Overrides (Advanced JSON)</Typography>
+                      <Typography variant="h6">Full Theme JSON Editor</Typography>
                       <IconButton onClick={() => setShowMonacoSettings(!showMonacoSettings)}>
                         <SettingsIcon />
                       </IconButton>
@@ -919,28 +971,30 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
                     <Box sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
                       <Editor
-                        height="400px"
+                        height="500px"
                         language="json"
-                        value={editorState.jsonConfig}
-                        onChange={handleJsonChange}
+                        value={fullThemeJson}
+                        onChange={handleFullThemeJsonChange}
                         theme={monacoSettings.theme}
                         options={{
                           minimap: { enabled: false },
                           scrollBeyondLastLine: false,
+                          formatOnPaste: true,
+                          formatOnType: true,
                         }}
                       />
                     </Box>
 
-                    {jsonError && (
+                    {fullThemeJsonError && (
                       <Alert severity="error" sx={{ mt: 2 }}>
-                        {jsonError}
+                        {fullThemeJsonError}
                       </Alert>
                     )}
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      Use this editor to provide detailed MUI component overrides. This will be saved in the 
-                      &quot;muiComponentOverrides&quot; section of your theme JSON. Changes are immediately reflected in 
-                      the live preview. Example structure: {`{"MuiButton": {"styleOverrides": {"root": {"textTransform": "none"}}}}`}
+                      This editor shows the complete theme in the format matching themeFormat.json. 
+                      All changes made here are immediately reflected in the other tabs and the live preview. 
+                      Similarly, changes in other tabs update this JSON view.
                     </Typography>
                   </Box>
                 )}
