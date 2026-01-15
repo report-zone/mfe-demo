@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box, createTheme } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
@@ -116,8 +116,55 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [currentTheme, setCurrentTheme] = useState(defaultTheme);
+
+  useEffect(() => {
+    // Load theme from localStorage on mount
+    try {
+      const selectedThemeId = localStorage.getItem('selectedThemeId');
+      const customThemes = localStorage.getItem('customThemes');
+      
+      if (selectedThemeId) {
+        // Check if it's a default theme
+        if (selectedThemeId === 'light') {
+          setCurrentTheme(defaultTheme);
+        } else if (selectedThemeId === 'dark') {
+          setCurrentTheme(createTheme({
+            palette: {
+              mode: 'dark',
+              primary: { main: '#90caf9' },
+              secondary: { main: '#f48fb1' },
+            },
+          }));
+        } else if (customThemes) {
+          // Load custom theme
+          const themes = JSON.parse(customThemes);
+          const theme = themes.find((t: any) => t.id === selectedThemeId);
+          if (theme && theme.themeConfig) {
+            setCurrentTheme(createTheme(theme.themeConfig));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading theme:', error);
+    }
+
+    // Listen for theme changes from preferences MFE
+    const handleThemeChange = (event: CustomEvent) => {
+      const theme = event.detail;
+      if (theme && theme.themeConfig) {
+        setCurrentTheme(createTheme(theme.themeConfig));
+      }
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange as EventListener);
+    return () => {
+      window.removeEventListener('themeChanged', handleThemeChange as EventListener);
+    };
+  }, []);
+
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={currentTheme}>
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>

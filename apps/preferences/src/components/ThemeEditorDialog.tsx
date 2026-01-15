@@ -28,7 +28,6 @@ import Editor from '@monaco-editor/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import { ThemeEditorState } from '../types/theme.types';
-import { useThemeContext } from '../context/ThemeContext';
 
 interface ThemeEditorDialogProps {
   open: boolean;
@@ -37,7 +36,6 @@ interface ThemeEditorDialogProps {
 }
 
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
-  const { addCustomTheme } = useThemeContext();
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [jsonError, setJsonError] = useState<string>('');
@@ -46,47 +44,57 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
 
-  const [editorState, setEditorState] = useState<ThemeEditorState>(
-    initialTheme || {
-      name: 'Custom Theme',
-      description: '',
-      primary: '#1976d2',
-      primaryLight: '#42a5f5',
-      primaryDark: '#1565c0',
-      secondary: '#dc004e',
-      secondaryLight: '#f73378',
-      secondaryDark: '#9a0036',
-      error: '#d32f2f',
-      warning: '#ed6c02',
-      info: '#0288d1',
-      success: '#2e7d32',
-      background: '#ffffff',
-      paper: '#ffffff',
-      mode: 'light',
-      borderRadius: 4,
-      fontSize: 14,
-      padding: 8,
-      h1FontSize: '2.5rem',
-      h2FontSize: '2rem',
-      h3FontSize: '1.75rem',
-      h4FontSize: '1.5rem',
-      jsonConfig: JSON.stringify({
-        palette: {
-          primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0' },
-          secondary: { main: '#dc004e', light: '#f73378', dark: '#9a0036' },
-        },
-        shape: { borderRadius: 4 },
-        typography: {
-          fontSize: 14,
-          h1: { fontSize: '2.5rem' },
-          h2: { fontSize: '2rem' },
-          h3: { fontSize: '1.75rem' },
-          h4: { fontSize: '1.5rem' },
-        },
-        spacing: 8,
-      }, null, 2),
+  const defaultEditorState: ThemeEditorState = {
+    name: 'Custom Theme',
+    description: '',
+    primary: '#1976d2',
+    primaryLight: '#42a5f5',
+    primaryDark: '#1565c0',
+    secondary: '#dc004e',
+    secondaryLight: '#f73378',
+    secondaryDark: '#9a0036',
+    error: '#d32f2f',
+    warning: '#ed6c02',
+    info: '#0288d1',
+    success: '#2e7d32',
+    background: '#ffffff',
+    paper: '#ffffff',
+    mode: 'light',
+    borderRadius: 4,
+    fontSize: 14,
+    padding: 8,
+    h1FontSize: '2.5rem',
+    h2FontSize: '2rem',
+    h3FontSize: '1.75rem',
+    h4FontSize: '1.5rem',
+    jsonConfig: JSON.stringify({
+      palette: {
+        primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0' },
+        secondary: { main: '#dc004e', light: '#f73378', dark: '#9a0036' },
+      },
+      shape: { borderRadius: 4 },
+      typography: {
+        fontSize: 14,
+        h1: { fontSize: '2.5rem' },
+        h2: { fontSize: '2rem' },
+        h3: { fontSize: '1.75rem' },
+        h4: { fontSize: '1.5rem' },
+      },
+      spacing: 8,
+    }, null, 2),
+  };
+
+  const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
+
+  // Reset state when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      setEditorState(initialTheme || defaultEditorState);
+      setActiveTab(0);
+      setHasUnsavedChanges(false);
+      setJsonError('');
     }
-  );
+  }, [open, initialTheme]);
 
   // Generate theme from editor state
   const generateTheme = () => {
@@ -199,18 +207,66 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       return;
     }
 
-    const theme = generateTheme();
-    addCustomTheme({
-      id: `custom-${Date.now()}`,
+    // Create theme config for saving
+    const themeConfig = {
       name: editorState.name,
       description: editorState.description,
-      theme,
-      isCustom: true,
-      themeConfig: theme,
-    });
+      palette: {
+        mode: editorState.mode,
+        primary: {
+          main: editorState.primary,
+          light: editorState.primaryLight,
+          dark: editorState.primaryDark,
+        },
+        secondary: {
+          main: editorState.secondary,
+          light: editorState.secondaryLight,
+          dark: editorState.secondaryDark,
+        },
+        error: { main: editorState.error },
+        warning: { main: editorState.warning },
+        info: { main: editorState.info },
+        success: { main: editorState.success },
+        background: {
+          default: editorState.background,
+          paper: editorState.paper,
+        },
+      },
+      shape: { borderRadius: editorState.borderRadius || 4 },
+      typography: {
+        fontSize: editorState.fontSize || 14,
+        h1: { fontSize: editorState.h1FontSize || '2.5rem' },
+        h2: { fontSize: editorState.h2FontSize || '2rem' },
+        h3: { fontSize: editorState.h3FontSize || '1.75rem' },
+        h4: { fontSize: editorState.h4FontSize || '1.5rem' },
+      },
+      spacing: editorState.padding || 8,
+    };
+
+    // Merge with JSON config if provided
+    let finalConfig = themeConfig;
+    if (editorState.jsonConfig && editorState.jsonConfig !== '{}') {
+      try {
+        const jsonConfig = JSON.parse(editorState.jsonConfig);
+        finalConfig = { ...themeConfig, ...jsonConfig };
+      } catch (e) {
+        console.warn('Invalid JSON config, using base theme');
+      }
+    }
+
+    // Save to file system
+    const blob = new Blob([JSON.stringify(finalConfig, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${editorState.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
     setHasUnsavedChanges(false);
-    setSnackbar({ open: true, message: 'Theme saved successfully!', severity: 'success' });
+    setSnackbar({ open: true, message: 'Theme saved to file system!', severity: 'success' });
     setTimeout(() => onClose(), 1000);
   };
 
@@ -290,7 +346,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             Theme Editor
           </Typography>
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-            Load Theme
+            Load and Edit Theme
           </Button>
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
             Save
