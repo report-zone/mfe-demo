@@ -165,7 +165,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const handleFieldChange = (field: keyof ThemeEditorState, value: string) => {
     // Convert numeric string values to numbers for appropriate fields
     let processedValue: string | number = value;
-    if (field === 'borderRadius' || field === 'fontSize' || field === 'padding') {
+    if (field === 'borderRadius' || field === 'padding') {
+      // Use parseInt for integer pixel values
+      const numValue = parseInt(value, 10);
+      processedValue = isNaN(numValue) ? 0 : numValue;
+    } else if (field === 'fontSize') {
+      // Use parseFloat for fontSize to allow decimal values
       const numValue = parseFloat(value);
       processedValue = isNaN(numValue) ? 0 : numValue;
     }
