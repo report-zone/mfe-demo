@@ -50,11 +50,13 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
   };
 
   const addCustomTheme = (theme: CustomTheme) => {
-    const customThemes = themes.filter((t) => t.isCustom);
-    const updatedCustomThemes = [...customThemes, theme];
-    
-    // Save to localStorage
+    // Get custom themes from localStorage to ensure we have the latest
     try {
+      const storedThemes = localStorage.getItem('customThemes');
+      const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
+      const updatedCustomThemes = [...existingCustomThemes, theme];
+      
+      // Save to localStorage
       localStorage.setItem('customThemes', JSON.stringify(updatedCustomThemes));
       setThemes([...defaultThemes, ...updatedCustomThemes]);
     } catch (error) {

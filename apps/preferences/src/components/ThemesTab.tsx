@@ -12,6 +12,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useThemeContext } from '../context/ThemeContext';
@@ -42,12 +43,13 @@ const ThemesTab: React.FC = () => {
             const result = event.target?.result;
             if (typeof result === 'string') {
               const config = JSON.parse(result);
+              const createdTheme = createTheme(config);
               const theme = {
                 id: `loaded-${Date.now()}`,
                 name: config.name || file.name.replace('.json', ''),
-                theme: config,
+                theme: createdTheme,
                 isCustom: true,
-                themeConfig: config,
+                themeConfig: createdTheme,
               };
               addCustomTheme(theme);
               loadThemesFromStorage();
