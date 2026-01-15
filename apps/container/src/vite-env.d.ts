@@ -9,3 +9,10 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Type declaration for MFE modules
+declare module '@mfe-demo/preferences' {
+  import { ComponentType } from 'react';
+  const component: ComponentType;
+  export default component;
+}
