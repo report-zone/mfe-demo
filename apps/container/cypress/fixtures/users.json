@@ -1,0 +1,17 @@
+{
+  "users": {
+    "testUser": {
+      "username": "testuser",
+      "email": "testuser@example.com"
+    },
+    "adminUser": {
+      "username": "adminuser",
+      "email": "admin@example.com"
+    }
+  },
+  "credentials": {
+    "validUsername": "testuser",
+    "invalidUsername": "wronguser"
+  },
+  "note": "Passwords should be provided via environment variables: CYPRESS_TEST_PASSWORD and CYPRESS_ADMIN_PASSWORD"
+}
