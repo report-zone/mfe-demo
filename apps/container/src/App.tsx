@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
@@ -13,18 +13,7 @@ import HomePage from './pages/HomePage';
 import PreferencesPage from './pages/PreferencesPage';
 import AccountPage from './pages/AccountPage';
 import AdminPage from './pages/AdminPage';
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-});
+import { defaultTheme } from './config/theme';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -128,7 +117,7 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>

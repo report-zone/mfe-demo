@@ -1,8 +1,8 @@
 /**
- * Local Authentication Service
+ * AWS Cognito Authentication Service Implementation
  *
- * This service wraps @aws-amplify/auth to provide a centralized
- * authentication layer for the application.
+ * This service implements IAuthService using AWS Amplify/Cognito,
+ * following the Dependency Inversion Principle (DIP).
  */
 
 import {
@@ -20,39 +20,20 @@ import {
   ResetPasswordInput,
   ConfirmResetPasswordInput,
 } from '@aws-amplify/auth';
-
-export interface AuthUser {
-  username: string;
-  email?: string;
-  groups?: string[];
-}
-
-export interface SignUpParams {
-  username: string;
-  password: string;
-  email: string;
-}
-
-export interface ConfirmSignUpParams {
-  username: string;
-  code: string;
-}
-
-export interface ResetPasswordParams {
-  username: string;
-}
-
-export interface ConfirmResetPasswordParams {
-  username: string;
-  code: string;
-  newPassword: string;
-}
+import {
+  IAuthService,
+  AuthUser,
+  SignUpParams,
+  ConfirmSignUpParams,
+  ResetPasswordParams,
+  ConfirmResetPasswordParams,
+} from './interfaces/IAuthService';
 
 /**
- * Authentication Service
- * Provides methods for user authentication and management
+ * AWS Cognito Authentication Service Implementation
+ * Implements IAuthService interface
  */
-export const authService = {
+class CognitoAuthService implements IAuthService {
   /**
    * Sign in a user with username and password
    */
@@ -154,7 +135,10 @@ export const authService = {
   async isAdmin(): Promise<boolean> {
     const user = await this.getCurrentUser();
     return user?.groups?.includes('admin') || false;
-  },
-};
+  }
+}
+
+// Export singleton instance
+export const authService: IAuthService = new CognitoAuthService();
 
 export default authService;

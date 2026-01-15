@@ -1,5 +1,6 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { CircularProgress, Box } from '@mui/material';
+import { getMFEComponent } from '../config/mfeRegistry';
 
 interface MFELoaderProps {
   mfeName: string;
@@ -12,48 +13,16 @@ const LoadingFallback = () => (
   </Box>
 );
 
-// Dynamic MFE loader using import maps
+/**
+ * MFE Loader Component
+ * 
+ * Following the Open/Closed Principle (OCP),
+ * this component uses the MFE registry to load micro frontends.
+ * New MFEs can be added to the registry without modifying this component.
+ */
 const MFELoader: React.FC<MFELoaderProps> = ({ mfeName }) => {
-  // In production, this would load from import maps
-  // For development, we'll use lazy loading from local packages
-  const getMFEComponent = () => {
-    switch (mfeName) {
-      case 'home':
-        // In production: return lazy(() => import('home-mfe'));
-        // For now, return a placeholder
-        return lazy(() =>
-          import('./MFEPlaceholder').then(module => ({
-            default: () => module.default({ name: 'Home' }),
-          }))
-        );
-      case 'preferences':
-        return lazy(() =>
-          import('./MFEPlaceholder').then(module => ({
-            default: () => module.default({ name: 'Preferences' }),
-          }))
-        );
-      case 'account':
-        return lazy(() =>
-          import('./MFEPlaceholder').then(module => ({
-            default: () => module.default({ name: 'Account' }),
-          }))
-        );
-      case 'admin':
-        return lazy(() =>
-          import('./MFEPlaceholder').then(module => ({
-            default: () => module.default({ name: 'Admin' }),
-          }))
-        );
-      default:
-        return lazy(() =>
-          import('./MFEPlaceholder').then(module => ({
-            default: () => module.default({ name: 'Not Found' }),
-          }))
-        );
-    }
-  };
-
-  const MFEComponent = getMFEComponent();
+  // Get the component from the registry (extensible, no switch statement)
+  const MFEComponent = getMFEComponent(mfeName);
 
   return (
     <Suspense fallback={<LoadingFallback />}>
