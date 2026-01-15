@@ -103,15 +103,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       try {
         muiOverrides = JSON.parse(state.jsonConfig);
       } catch (e) {
-        console.warn('Invalid JSON config for MUI overrides');
+        console.warn(`Failed to parse MUI overrides JSON: ${e instanceof Error ? e.message : 'Unknown error'}`);
       }
 
+      const now = new Date().toISOString();
       const fullTheme = {
         name: state.name,
         version: state.version,
         description: state.description || '',
-        createdAt: new Date().toISOString(),
-        modifiedAt: new Date().toISOString(),
+        createdAt: now,
+        modifiedAt: now,
         colors: {
           primaryMain: state.primary,
           primaryLight: state.primaryLight || '#42a5f5',
@@ -133,7 +134,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       return JSON.stringify(fullTheme, null, 2);
     } catch (error) {
-      console.error('Error converting editor state to full theme JSON:', error);
+      console.error(`Error converting editor state to full theme JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return '{}';
     }
   };
@@ -181,7 +182,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         jsonConfig: JSON.stringify(parsed.overrides || {}, null, 2),
       };
     } catch (error) {
-      console.error('Error converting full theme JSON to editor state:', error);
+      console.error(`Error parsing full theme JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     }
   };
@@ -648,26 +649,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       All changes made here are immediately reflected in the other tabs and the live preview. 
                       Similarly, changes in other tabs update this JSON view.
                     </Typography>
-                  </Box>
-                )}
-
-                {activeTab === 1 && (
-                  <Box>
-                    <ColorPicker
-                      label="Primary Main"
-                      value={editorState.primary}
-                      onChange={(v) => handleFieldChange('primary', v)}
-                    />
-                    <ColorPicker
-                      label="Primary Light"
-                      value={editorState.primaryLight || '#42a5f5'}
-                      onChange={(v) => handleFieldChange('primaryLight', v)}
-                    />
-                    <ColorPicker
-                      label="Primary Dark"
-                      value={editorState.primaryDark || '#1565c0'}
-                      onChange={(v) => handleFieldChange('primaryDark', v)}
-                    />
                   </Box>
                 )}
 
