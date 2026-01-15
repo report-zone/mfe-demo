@@ -31,7 +31,7 @@ const ThemesTab: React.FC = () => {
     setEditorOpen(true);
   };
 
-  const handleLoadTheme = () => {
+  const handleLoadAndAddTheme = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -56,7 +56,7 @@ const ThemesTab: React.FC = () => {
               };
               addCustomTheme(theme);
               loadThemesFromStorage();
-              setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
+              setSnackbar({ open: true, message: 'Theme loaded and added to selection!', severity: 'success' });
             }
           } catch (error) {
             setSnackbar({ open: true, message: 'Error loading theme file. Please ensure it is a valid JSON file.', severity: 'error' });
@@ -81,8 +81,8 @@ const ThemesTab: React.FC = () => {
             >
               Create Custom Theme
             </Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-              Load Theme
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={handleLoadAndAddTheme}>
+              Load Custom Theme
             </Button>
           </Stack>
         </Box>
