@@ -12,8 +12,7 @@ const App: React.FC = () => {
 
   // Determine active tab based on route
   const getTabValue = () => {
-    const path = location.pathname;
-    if (path.includes('/themes') || path.endsWith('themes')) return 1;
+    if (location.pathname.includes('themes')) return 1;
     return 0;
   };
 
@@ -25,9 +24,14 @@ const App: React.FC = () => {
     }
   };
 
+  // Helper to check if we're at a root path
+  const isRootPath = (pathname: string) => {
+    return pathname === '/' || pathname === '/preferences' || pathname === '/preferences/';
+  };
+
   React.useEffect(() => {
     // Default to general tab if at root or preferences root
-    if (location.pathname === '/' || location.pathname === '/preferences' || location.pathname === '/preferences/') {
+    if (isRootPath(location.pathname)) {
       navigate('general', { replace: true });
     }
   }, [location.pathname, navigate]);
