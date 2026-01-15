@@ -197,7 +197,6 @@ const defaultEditorState: ThemeEditorState = {
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [jsonError, setJsonError] = useState<string>('');
   const [fullThemeJsonError, setFullThemeJsonError] = useState<string>('');
   const [monacoSettings, setMonacoSettings] = useState({ theme: 'vs-light' });
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
@@ -306,7 +305,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setFullThemeJson(convertEditorStateToFullThemeJson(initialState));
       setActiveTab(0);
       setHasUnsavedChanges(false);
-      setJsonError('');
       setFullThemeJsonError('');
     }
   }, [open, initialTheme]);
@@ -406,23 +404,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     setHasUnsavedChanges(true);
   };
 
-  const handleJsonChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      const newState = { ...editorState, jsonConfig: value };
-      setEditorState(newState);
-      setFullThemeJson(convertEditorStateToFullThemeJson(newState));
-      setHasUnsavedChanges(true);
-
-      // Validate JSON
-      try {
-        JSON.parse(value);
-        setJsonError('');
-      } catch (e) {
-        setJsonError(e instanceof Error ? e.message : 'Invalid JSON');
-      }
-    }
-  };
-
   const handleFullThemeJsonChange = (value: string | undefined) => {
     if (value !== undefined) {
       setFullThemeJson(value);
@@ -520,7 +501,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   };
 
   const handleSave = () => {
-    if (jsonError || fullThemeJsonError) {
+    if (fullThemeJsonError) {
       setSnackbar({ open: true, message: 'Please fix JSON errors before saving', severity: 'error' });
       return;
     }
