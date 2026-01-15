@@ -44,14 +44,14 @@ class CognitoAuthService implements IAuthService {
       options: { authFlowType: 'USER_PASSWORD_AUTH' }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
     };
     await amplifySignIn(signInInput);
-  },
+  }
 
   /**
    * Sign out the current user
    */
   async signOut(): Promise<void> {
     await amplifySignOut();
-  },
+  }
 
   /**
    * Sign up a new user
@@ -67,7 +67,7 @@ class CognitoAuthService implements IAuthService {
       },
     };
     await amplifySignUp(signUpInput);
-  },
+  }
 
   /**
    * Confirm user sign up with verification code
@@ -78,7 +78,7 @@ class CognitoAuthService implements IAuthService {
       confirmationCode: params.code,
     };
     await amplifyConfirmSignUp(confirmInput);
-  },
+  }
 
   /**
    * Initiate password reset process
@@ -88,7 +88,7 @@ class CognitoAuthService implements IAuthService {
       username: params.username,
     };
     await amplifyResetPassword(resetInput);
-  },
+  }
 
   /**
    * Confirm password reset with verification code
@@ -100,7 +100,7 @@ class CognitoAuthService implements IAuthService {
       newPassword: params.newPassword,
     };
     await amplifyConfirmResetPassword(confirmInput);
-  },
+  }
 
   /**
    * Get the current authenticated user
@@ -119,7 +119,7 @@ class CognitoAuthService implements IAuthService {
     } catch {
       return null;
     }
-  },
+  }
 
   /**
    * Check if user is authenticated
@@ -127,7 +127,7 @@ class CognitoAuthService implements IAuthService {
   async isAuthenticated(): Promise<boolean> {
     const user = await this.getCurrentUser();
     return user !== null;
-  },
+  }
 
   /**
    * Check if current user has admin privileges
