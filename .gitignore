@@ -36,6 +36,8 @@ bin-release/
 
 # Environment files
 .env
+.env.development
+.env.production
 
 # Cypress
 cypress/videos
