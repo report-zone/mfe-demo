@@ -163,7 +163,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const previewTheme = generateTheme();
 
   const handleFieldChange = (field: keyof ThemeEditorState, value: string) => {
-    setEditorState((prev) => ({ ...prev, [field]: value }));
+    // Convert numeric string values to numbers for appropriate fields
+    let processedValue: string | number = value;
+    if (field === 'borderRadius' || field === 'fontSize' || field === 'padding') {
+      const numValue = parseFloat(value);
+      processedValue = isNaN(numValue) ? 0 : numValue;
+    }
+    setEditorState((prev) => ({ ...prev, [field]: processedValue }));
     setHasUnsavedChanges(true);
   };
 
