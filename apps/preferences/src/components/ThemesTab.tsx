@@ -5,16 +5,19 @@ import {
   Paper,
   Button,
   Stack,
-  Card,
-  CardContent,
-  CardActions,
   Grid,
   Snackbar,
   Alert,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import InfoIcon from '@mui/icons-material/Info';
 import { useThemeContext } from '../context/ThemeContext';
 import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
@@ -47,6 +50,7 @@ const ThemesTab: React.FC = () => {
               const theme = {
                 id: `loaded-${Date.now()}`,
                 name: config.name || file.name.replace('.json', ''),
+                description: config.description || '',
                 theme: createdTheme,
                 isCustom: true,
                 themeConfig: createdTheme,
@@ -88,37 +92,54 @@ const ThemesTab: React.FC = () => {
           Choose from default themes or create your own custom theme.
         </Typography>
 
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          {themes.map((theme) => (
-            <Grid item xs={12} sm={6} md={4} key={theme.id}>
-              <Card
-                variant="outlined"
+        <Paper variant="outlined" sx={{ p: 2, mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Select Theme
+          </Typography>
+          <RadioGroup
+            value={currentTheme.id}
+            onChange={(e) => {
+              const theme = themes.find((t) => t.id === e.target.value);
+              if (theme) setTheme(theme);
+            }}
+          >
+            {themes.map((theme) => (
+              <Box
+                key={theme.id}
                 sx={{
-                  border: currentTheme.id === theme.id ? '2px solid' : '1px solid',
-                  borderColor: currentTheme.id === theme.id ? 'primary.main' : 'divider',
+                  display: 'flex',
+                  alignItems: 'center',
+                  py: 1,
+                  borderBottom: theme.id !== themes[themes.length - 1].id ? '1px solid' : 'none',
+                  borderColor: 'divider',
                 }}
               >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {theme.name}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {theme.isCustom ? 'Custom Theme' : 'Default Theme'}
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button
-                    size="small"
-                    variant={currentTheme.id === theme.id ? 'contained' : 'outlined'}
-                    onClick={() => setTheme(theme)}
-                  >
-                    {currentTheme.id === theme.id ? 'Active' : 'Select'}
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                <FormControlLabel
+                  value={theme.id}
+                  control={<Radio />}
+                  label={
+                    <Box>
+                      <Typography variant="body1" fontWeight="medium">
+                        {theme.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {theme.isCustom ? 'Custom Theme' : 'Default Theme'}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ flex: 1 }}
+                />
+                {theme.description && (
+                  <Tooltip title={theme.description} placement="left">
+                    <IconButton size="small" sx={{ ml: 1 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
+            ))}
+          </RadioGroup>
+        </Paper>
 
         <Box sx={{ mt: 4 }}>
           <ComponentShowcase />

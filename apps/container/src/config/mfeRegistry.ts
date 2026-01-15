@@ -28,10 +28,7 @@ export const mfeRegistry: Record<string, MFEConfig> = {
   },
   preferences: {
     name: 'Preferences',
-    loadComponent: () =>
-      import('../components/MFEPlaceholder').then(module => ({
-        default: () => module.default({ name: 'Preferences' }),
-      })),
+    loadComponent: () => import('@mfe-demo/preferences'),
     description: 'User preferences micro frontend',
   },
   account: {

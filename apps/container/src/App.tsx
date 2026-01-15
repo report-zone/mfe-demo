@@ -10,10 +10,10 @@ import CreateAccountPage from './pages/CreateAccountPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Loading from './components/Loading';
 import HomePage from './pages/HomePage';
-import PreferencesPage from './pages/PreferencesPage';
 import AccountPage from './pages/AccountPage';
 import AdminPage from './pages/AdminPage';
 import { defaultTheme } from './config/theme';
+import MFELoader from './components/MFELoader';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -79,10 +79,10 @@ const AppContent: React.FC = () => {
                     }
                   />
                   <Route
-                    path="/preferences"
+                    path="/preferences/*"
                     element={
                       <ProtectedRoute>
-                        <PreferencesPage />
+                        <MFELoader mfeName="preferences" />
                       </ProtectedRoute>
                     }
                   />

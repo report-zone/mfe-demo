@@ -49,8 +49,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [editorState, setEditorState] = useState<ThemeEditorState>(
     initialTheme || {
       name: 'Custom Theme',
+      description: '',
       primary: '#1976d2',
+      primaryLight: '#42a5f5',
+      primaryDark: '#1565c0',
       secondary: '#dc004e',
+      secondaryLight: '#f73378',
+      secondaryDark: '#9a0036',
       error: '#d32f2f',
       warning: '#ed6c02',
       info: '#0288d1',
@@ -58,7 +63,28 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       background: '#ffffff',
       paper: '#ffffff',
       mode: 'light',
-      jsonConfig: '{}',
+      borderRadius: 4,
+      fontSize: 14,
+      padding: 8,
+      h1FontSize: '2.5rem',
+      h2FontSize: '2rem',
+      h3FontSize: '1.75rem',
+      h4FontSize: '1.5rem',
+      jsonConfig: JSON.stringify({
+        palette: {
+          primary: { main: '#1976d2', light: '#42a5f5', dark: '#1565c0' },
+          secondary: { main: '#dc004e', light: '#f73378', dark: '#9a0036' },
+        },
+        shape: { borderRadius: 4 },
+        typography: {
+          fontSize: 14,
+          h1: { fontSize: '2.5rem' },
+          h2: { fontSize: '2rem' },
+          h3: { fontSize: '1.75rem' },
+          h4: { fontSize: '1.5rem' },
+        },
+        spacing: 8,
+      }, null, 2),
     }
   );
 
@@ -70,9 +96,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           mode: editorState.mode,
           primary: {
             main: editorState.primary,
+            light: editorState.primaryLight,
+            dark: editorState.primaryDark,
           },
           secondary: {
             main: editorState.secondary,
+            light: editorState.secondaryLight,
+            dark: editorState.secondaryDark,
           },
           error: {
             main: editorState.error,
@@ -91,6 +121,25 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             paper: editorState.paper,
           },
         },
+        shape: {
+          borderRadius: editorState.borderRadius || 4,
+        },
+        typography: {
+          fontSize: editorState.fontSize || 14,
+          h1: {
+            fontSize: editorState.h1FontSize || '2.5rem',
+          },
+          h2: {
+            fontSize: editorState.h2FontSize || '2rem',
+          },
+          h3: {
+            fontSize: editorState.h3FontSize || '1.75rem',
+          },
+          h4: {
+            fontSize: editorState.h4FontSize || '1.5rem',
+          },
+        },
+        spacing: editorState.padding || 8,
       };
 
       // Try to merge with JSON config
@@ -143,6 +192,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     addCustomTheme({
       id: `custom-${Date.now()}`,
       name: editorState.name,
+      description: editorState.description,
       theme,
       isCustom: true,
       themeConfig: theme,
@@ -182,8 +232,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
               const config = JSON.parse(result);
               setEditorState({
                 name: config.name || 'Loaded Theme',
+                description: config.description || '',
                 primary: config.palette?.primary?.main || '#1976d2',
+                primaryLight: config.palette?.primary?.light || '#42a5f5',
+                primaryDark: config.palette?.primary?.dark || '#1565c0',
                 secondary: config.palette?.secondary?.main || '#dc004e',
+                secondaryLight: config.palette?.secondary?.light || '#f73378',
+                secondaryDark: config.palette?.secondary?.dark || '#9a0036',
                 error: config.palette?.error?.main || '#d32f2f',
                 warning: config.palette?.warning?.main || '#ed6c02',
                 info: config.palette?.info?.main || '#0288d1',
@@ -191,6 +246,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 background: config.palette?.background?.default || '#ffffff',
                 paper: config.palette?.background?.paper || '#ffffff',
                 mode: config.palette?.mode || 'light',
+                borderRadius: config.shape?.borderRadius || 4,
+                fontSize: config.typography?.fontSize || 14,
+                padding: config.spacing || 8,
+                h1FontSize: config.typography?.h1?.fontSize || '2.5rem',
+                h2FontSize: config.typography?.h2?.fontSize || '2rem',
+                h3FontSize: config.typography?.h3?.fontSize || '1.75rem',
+                h4FontSize: config.typography?.h4?.fontSize || '1.5rem',
                 jsonConfig: JSON.stringify(config, null, 2),
               });
               setHasUnsavedChanges(true);
@@ -231,6 +293,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           label="Theme Name"
           value={editorState.name}
           onChange={(e) => handleFieldChange('name', e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          fullWidth
+          label="Theme Description"
+          value={editorState.description || ''}
+          onChange={(e) => handleFieldChange('description', e.target.value)}
+          multiline
+          rows={2}
+          placeholder="Describe your theme..."
           sx={{ mb: 3 }}
         />
 
@@ -248,19 +320,43 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
               <Box sx={{ mt: 3 }}>
                 {activeTab === 0 && (
-                  <ColorPicker
-                    label="Primary Color"
-                    value={editorState.primary}
-                    onChange={(v) => handleFieldChange('primary', v)}
-                  />
+                  <Box>
+                    <ColorPicker
+                      label="Primary Main"
+                      value={editorState.primary}
+                      onChange={(v) => handleFieldChange('primary', v)}
+                    />
+                    <ColorPicker
+                      label="Primary Light"
+                      value={editorState.primaryLight || '#42a5f5'}
+                      onChange={(v) => handleFieldChange('primaryLight', v)}
+                    />
+                    <ColorPicker
+                      label="Primary Dark"
+                      value={editorState.primaryDark || '#1565c0'}
+                      onChange={(v) => handleFieldChange('primaryDark', v)}
+                    />
+                  </Box>
                 )}
 
                 {activeTab === 1 && (
-                  <ColorPicker
-                    label="Secondary Color"
-                    value={editorState.secondary}
-                    onChange={(v) => handleFieldChange('secondary', v)}
-                  />
+                  <Box>
+                    <ColorPicker
+                      label="Secondary Main"
+                      value={editorState.secondary}
+                      onChange={(v) => handleFieldChange('secondary', v)}
+                    />
+                    <ColorPicker
+                      label="Secondary Light"
+                      value={editorState.secondaryLight || '#f73378'}
+                      onChange={(v) => handleFieldChange('secondaryLight', v)}
+                    />
+                    <ColorPicker
+                      label="Secondary Dark"
+                      value={editorState.secondaryDark || '#9a0036'}
+                      onChange={(v) => handleFieldChange('secondaryDark', v)}
+                    />
+                  </Box>
                 )}
 
                 {activeTab === 2 && (
@@ -306,36 +402,78 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 {activeTab === 4 && (
                   <Box>
                     <Typography variant="h6" gutterBottom>
-                      Component Overrides
+                      Component Configuration
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      Use the Advanced JSON tab to add component overrides.
+                    
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                      General Settings
                     </Typography>
-                    <Typography variant="body2" paragraph>
-                      Common Component Names:
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Border Radius (px)"
+                      value={editorState.borderRadius || 4}
+                      onChange={(e) => handleFieldChange('borderRadius', e.target.value)}
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Base Font Size (px)"
+                      value={editorState.fontSize || 14}
+                      onChange={(e) => handleFieldChange('fontSize', e.target.value)}
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Spacing Unit (px)"
+                      value={editorState.padding || 8}
+                      onChange={(e) => handleFieldChange('padding', e.target.value)}
+                      sx={{ mb: 3 }}
+                    />
+                    
+                    <Divider sx={{ my: 2 }} />
+                    
+                    <Typography variant="subtitle2" gutterBottom>
+                      Typography Overrides
                     </Typography>
-                    <ul>
-                      <li>
-                        <Typography variant="body2">
-                          Action: MuiButton, MuiIconButton, MuiFab, MuiButtonGroup
-                        </Typography>
-                      </li>
-                      <li>
-                        <Typography variant="body2">
-                          Input: MuiTextField, MuiInput, MuiCheckbox, MuiRadio, MuiSwitch
-                        </Typography>
-                      </li>
-                      <li>
-                        <Typography variant="body2">
-                          Navigation: MuiAppBar, MuiDrawer, MuiTabs, MuiTab
-                        </Typography>
-                      </li>
-                      <li>
-                        <Typography variant="body2">
-                          Data Display: MuiTypography, MuiCard, MuiChip, MuiList
-                        </Typography>
-                      </li>
-                    </ul>
+                    <TextField
+                      fullWidth
+                      label="H1 Font Size"
+                      value={editorState.h1FontSize || '2.5rem'}
+                      onChange={(e) => handleFieldChange('h1FontSize', e.target.value)}
+                      placeholder="e.g., 2.5rem, 40px"
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="H2 Font Size"
+                      value={editorState.h2FontSize || '2rem'}
+                      onChange={(e) => handleFieldChange('h2FontSize', e.target.value)}
+                      placeholder="e.g., 2rem, 32px"
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="H3 Font Size"
+                      value={editorState.h3FontSize || '1.75rem'}
+                      onChange={(e) => handleFieldChange('h3FontSize', e.target.value)}
+                      placeholder="e.g., 1.75rem, 28px"
+                      sx={{ mb: 2 }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="H4 Font Size"
+                      value={editorState.h4FontSize || '1.5rem'}
+                      onChange={(e) => handleFieldChange('h4FontSize', e.target.value)}
+                      placeholder="e.g., 1.5rem, 24px"
+                      sx={{ mb: 2 }}
+                    />
+                    
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                      For more advanced component overrides, use the Advanced JSON tab.
+                    </Typography>
                   </Box>
                 )}
 
