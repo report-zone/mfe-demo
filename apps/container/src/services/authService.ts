@@ -1,6 +1,6 @@
 /**
  * Local Authentication Service
- * 
+ *
  * This service wraps @aws-amplify/auth to provide a centralized
  * authentication layer for the application.
  */
@@ -57,7 +57,11 @@ export const authService = {
    * Sign in a user with username and password
    */
   async signIn(username: string, password: string): Promise<void> {
-    const signInInput: SignInInput = { username, password };
+    const signInInput: SignInInput = {
+      username,
+      password,
+      options: { authFlowType: 'USER_PASSWORD_AUTH' }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
+    };
     await amplifySignIn(signInInput);
   },
 
