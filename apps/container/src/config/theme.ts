@@ -26,6 +26,8 @@ export const defaultTheme: Theme = createTheme({
 
 /**
  * Dark theme configuration
+ * Note: This is intentionally duplicated from preferences app defaultThemes.ts
+ * to maintain MFE independence - each MFE should be able to run standalone.
  */
 export const darkTheme: Theme = createTheme({
   palette: {
