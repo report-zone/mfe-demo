@@ -405,7 +405,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     }
   };
 
-  const previewTheme = generateTheme();
+  const previewTheme = React.useMemo(() => generateTheme(), [editorState]);
 
   const handleFieldChange = (field: keyof ThemeEditorState, value: string | number) => {
     // Convert numeric string values to numbers for appropriate fields
