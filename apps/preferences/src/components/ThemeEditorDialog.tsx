@@ -212,6 +212,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
   const [pendingSave, setPendingSave] = useState<{ filename: string; themeDefinition: CustomThemeDefinition } | null>(null);
+  const [showRenameDialog, setShowRenameDialog] = useState(false);
+  const [newFilename, setNewFilename] = useState('');
 
   // Convert editorState to full theme JSON (matching themeFormat.json)
   const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
@@ -604,9 +606,51 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const handleOverwriteRename = () => {
     setShowOverwriteDialog(false);
-    setPendingSave(null);
-    // Theme editor dialog remains open so user can rename and save again
-    setSnackbar({ open: true, message: 'Please rename the theme and save again', severity: 'info' });
+    // Open rename dialog instead of just showing a notification
+    if (pendingSave) {
+      // Pre-fill with current filename without extension
+      const baseFilename = pendingSave.filename.replace(/\.json$/, '');
+      setNewFilename(baseFilename);
+      setShowRenameDialog(true);
+    }
+  };
+
+  const handleRenameConfirm = () => {
+    if (!newFilename.trim()) {
+      setSnackbar({ open: true, message: 'Please enter a filename', severity: 'error' });
+      return;
+    }
+
+    if (pendingSave) {
+      // Sanitize the new filename
+      const sanitizeFilename = (name: string): string => {
+        return name.toLowerCase()
+          .replace(/[/\\?%*:|"<>]/g, '-')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+      };
+
+      const sanitized = sanitizeFilename(newFilename.trim());
+      const filename = sanitized.endsWith('.json') ? sanitized : `${sanitized}.json`;
+      
+      // Check if this filename was also saved before
+      const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
+      if (savedThemes.includes(filename)) {
+        setSnackbar({ open: true, message: `Filename "${filename}" was also used in this session. Please choose a different name.`, severity: 'error' });
+        return;
+      }
+
+      performSave(filename, pendingSave.themeDefinition);
+      setShowRenameDialog(false);
+      setPendingSave(null);
+      setNewFilename('');
+    }
+  };
+
+  const handleRenameCancel = () => {
+    setShowRenameDialog(false);
+    setNewFilename('');
   };
 
   const handleResetToDefaults = () => {
@@ -1123,17 +1167,54 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         <DialogContent>
           <Typography>
             A file named &quot;{pendingSave?.filename}&quot; was already saved during this session. 
-            Note: This only tracks files saved in the current session, not all files on your file system. 
-            Do you want to overwrite it or rename your theme?
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            <strong>Note:</strong> Due to browser limitations, the &quot;Overwrite&quot; option will download the file again. 
+            Your browser may automatically rename it (e.g., &quot;theme (1).json&quot;). 
+            You&apos;ll need to manually replace the original file if needed.
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Alternatively, you can save with a different filename to avoid conflicts.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowOverwriteDialog(false)}>Cancel</Button>
           <Button onClick={handleOverwriteRename} color="primary" variant="outlined">
-            Rename Theme
+            Save As Different Name
           </Button>
           <Button onClick={handleOverwriteConfirm} color="warning" variant="contained">
-            Overwrite
+            Download Again
+          </Button>
+        </DialogActions>
+      </ConfirmDialog>
+
+      {/* Rename Theme Dialog */}
+      <ConfirmDialog open={showRenameDialog} onClose={handleRenameCancel}>
+        <DialogTitle>Save As Different Filename</DialogTitle>
+        <DialogContent>
+          <Typography gutterBottom>
+            Enter a new filename for your theme:
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            label="Filename"
+            value={newFilename}
+            onChange={(e) => setNewFilename(e.target.value)}
+            placeholder="my-custom-theme"
+            helperText="The .json extension will be added automatically"
+            sx={{ mt: 2 }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleRenameConfirm();
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleRenameCancel}>Cancel</Button>
+          <Button onClick={handleRenameConfirm} color="primary" variant="contained">
+            Save
           </Button>
         </DialogActions>
       </ConfirmDialog>

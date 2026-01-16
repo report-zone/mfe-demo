@@ -51,6 +51,7 @@ const ThemesTab: React.FC = () => {
               // Convert CustomThemeDefinition to MUI theme
               const muiTheme = createTheme({
                 palette: {
+                  mode: config.palette?.mode || 'light',
                   primary: {
                     main: config.colors?.primaryMain || '#1976d2',
                     light: config.colors?.primaryLight || '#42a5f5',
