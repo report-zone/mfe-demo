@@ -2,6 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { logError } from '../utils/errorHandler';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -10,7 +11,7 @@ const Header: React.FC = () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      logError('Header - Logout', error);
     }
   };
 

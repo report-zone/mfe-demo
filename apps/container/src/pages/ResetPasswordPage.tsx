@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, LockReset } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { validatePassword, validatePasswordMatch } from '../utils/validation';
 
 const steps = ['Enter Username', 'Verify Code', 'Reset Password'];
 
@@ -79,13 +80,15 @@ const ResetPasswordPage: React.FC = () => {
     setError('');
     setSuccess('');
 
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+    const passwordMatchResult = validatePasswordMatch(newPassword, confirmPassword);
+    if (!passwordMatchResult.isValid) {
+      setError(passwordMatchResult.error!);
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters long');
+    const passwordResult = validatePassword(newPassword);
+    if (!passwordResult.isValid) {
+      setError(passwordResult.error!);
       return;
     }
 

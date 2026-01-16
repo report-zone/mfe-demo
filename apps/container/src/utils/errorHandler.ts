@@ -3,7 +3,12 @@
  * 
  * Following Single Responsibility Principle (SRP),
  * error handling logic is centralized and reusable.
+ * 
+ * Following Dependency Inversion Principle (DIP),
+ * uses ILoggerService interface for logging instead of console directly.
  */
+
+import { logger } from '../services/loggerService';
 
 export interface ErrorDetails {
   message: string;
@@ -38,11 +43,12 @@ export const createErrorDetails = (error: unknown): ErrorDetails => {
 };
 
 /**
- * Log error with context
+ * Log error with context using logger service
  */
 export const logError = (context: string, error: unknown): void => {
   const errorDetails = createErrorDetails(error);
-  console.error(`[${context}]`, errorDetails.message, errorDetails.originalError);
+  const errorObj = error instanceof Error ? error : undefined;
+  logger.error(errorDetails.message, context, errorObj);
 };
 
 /**
