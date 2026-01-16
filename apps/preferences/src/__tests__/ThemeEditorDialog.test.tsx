@@ -431,4 +431,67 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
       expect(parsed.palette.mode).toBe('dark');
     });
   });
+
+  it('should update palette mode dropdown when changed via monaco editor', async () => {
+    renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
+    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    
+    // Verify initial mode is light in the JSON
+    const initialJson = JSON.parse(monacoEditor.value);
+    expect(initialJson.palette.mode).toBe('light');
+    
+    // Update JSON to dark mode
+    const updatedJson = {
+      ...initialJson,
+      palette: {
+        mode: 'dark',
+      },
+    };
+    
+    // Update Monaco editor
+    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
+    
+    // Verify the JSON was updated
+    await waitFor(() => {
+      const currentJson = JSON.parse(monacoEditor.value);
+      expect(currentJson.palette.mode).toBe('dark');
+    });
+    
+    // Click on Background tab to check dropdown
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[3]); // Background tab
+    
+    // Wait for the tab content to render
+    await waitFor(() => {
+      const modeButton = screen.getByRole('combobox', { hidden: true });
+      expect(modeButton).toBeDefined();
+    });
+    
+    // Open the dropdown
+    const modeButton = screen.getByRole('combobox', { hidden: true });
+    fireEvent.mouseDown(modeButton);
+    
+    // Verify that 'Dark' option exists and can be found
+    // If the dropdown was correctly synced, dark should be the selected option
+    await waitFor(() => {
+      // Both options should be available
+      const lightOption = screen.getByRole('option', { name: /light/i });
+      const darkOption = screen.getByRole('option', { name: /dark/i });
+      expect(lightOption).toBeDefined();
+      expect(darkOption).toBeDefined();
+      
+      // Check if dark option is selected (aria-selected="true")
+      expect(darkOption.getAttribute('aria-selected')).toBe('true');
+    });
+  });
 });
