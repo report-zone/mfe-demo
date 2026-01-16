@@ -23,15 +23,19 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Collapse,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Editor from '@monaco-editor/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
+import ComponentShowcase from './ComponentShowcase';
 import { ThemeEditorState, CustomThemeDefinition } from '../types/theme.types';
 
 interface ThemeEditorDialogProps {
@@ -202,9 +206,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
+  const [livePreviewExpanded, setLivePreviewExpanded] = useState(false);
 
   const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
   const [fullThemeJson, setFullThemeJson] = useState<string>('');
+  const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
 
   // Convert editorState to full theme JSON (matching themeFormat.json)
   const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
@@ -306,8 +312,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setActiveTab(0);
       setHasUnsavedChanges(false);
       setFullThemeJsonError('');
+      setLivePreviewExpanded(false);
+      setIsEditingExistingTheme(!!initialTheme);
     }
   }, [open, initialTheme]);
+
+  // Helper function to bump version
+  const bumpVersion = (version: string): string => {
+    const parts = version.split('.');
+    if (parts.length === 3) {
+      const major = parseInt(parts[0], 10) || 0;
+      const minor = parseInt(parts[1], 10) || 0;
+      const patch = parseInt(parts[2], 10) || 0;
+      return `${major}.${minor}.${patch + 1}`;
+    }
+    return version;
+  };
 
   // Generate theme from editor state for live preview
   const generateTheme = () => {
@@ -415,6 +435,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         if (newState) {
           setEditorState(newState);
           setFullThemeJsonError('');
+        } else {
+          setFullThemeJsonError('Invalid JSON format');
         }
       } catch (e) {
         setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON');
@@ -506,8 +528,21 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       return;
     }
 
+    // Bump version if editing existing theme
+    let finalEditorState = editorState;
+    if (isEditingExistingTheme) {
+      const bumpedVersion = bumpVersion(editorState.version);
+      finalEditorState = { ...editorState, version: bumpedVersion };
+      setEditorState(finalEditorState);
+    }
+
     // Create custom theme definition
     const themeDefinition = exportToCustomThemeDefinition();
+    
+    // Update version in theme definition if bumped
+    if (isEditingExistingTheme) {
+      themeDefinition.version = finalEditorState.version;
+    }
 
     // Download as JSON file
     const sanitizeFilename = (name: string): string => {
@@ -522,7 +557,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${sanitizeFilename(editorState.name)}.json`;
+    link.download = `${sanitizeFilename(finalEditorState.name)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -629,11 +664,18 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Theme Editor
           </Typography>
+          <Button 
+            color="inherit" 
+            startIcon={livePreviewExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />} 
+            onClick={() => setLivePreviewExpanded(!livePreviewExpanded)}
+          >
+            {livePreviewExpanded ? 'Hide' : 'Show'} Preview
+          </Button>
           <Button color="inherit" startIcon={<RestartAltIcon />} onClick={handleResetToDefaults}>
-            Reset to Default
+            Reset
           </Button>
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-            Load Theme
+            Open
           </Button>
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
             Save
@@ -673,7 +715,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={7}>
+          <Grid item xs={12} md={livePreviewExpanded ? 7 : 12}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
                 <Tab label="Primary" />
@@ -983,52 +1025,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
-              <Typography variant="h6" gutterBottom>
-                Live Preview
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-
-              <ThemeProvider theme={previewTheme}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="h4" gutterBottom>
-                    Theme Preview
+          {livePreviewExpanded && (
+            <Grid item xs={12} md={5}>
+              <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Live Preview
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    This preview shows how your theme will look in the application.
-                  </Typography>
-
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Button variant="contained" color="primary">
-                      Primary
-                    </Button>
-                    <Button variant="contained" color="secondary">
-                      Secondary
-                    </Button>
-                    <Button variant="outlined">Outlined</Button>
-                  </Box>
-
-                  <Box sx={{ mt: 2 }}>
-                    <TextField fullWidth label="Text Field" />
-                  </Box>
-
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="success">Success Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="error">Error Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="warning">Warning Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="info">Info Alert</Alert>
-                  </Box>
+                  <IconButton onClick={() => setLivePreviewExpanded(false)}>
+                    <ExpandLessIcon />
+                  </IconButton>
                 </Box>
-              </ThemeProvider>
-            </Paper>
-          </Grid>
+                
+                <Divider sx={{ mb: 2 }} />
+                <ThemeProvider theme={previewTheme}>
+                  <Box sx={{ p: 1 }}>
+                    <ComponentShowcase />
+                  </Box>
+                </ThemeProvider>
+              </Paper>
+            </Grid>
+          )}
         </Grid>
       </Box>
 
