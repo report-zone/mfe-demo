@@ -25,6 +25,17 @@ export const defaultTheme: Theme = createTheme({
 });
 
 /**
+ * Dark theme configuration
+ */
+export const darkTheme: Theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: { main: '#90caf9' },
+    secondary: { main: '#f48fb1' },
+  },
+});
+
+/**
  * Create a custom theme with overrides
  * Allows extending the default theme without modification
  */

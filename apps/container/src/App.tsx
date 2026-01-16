@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, Box, createTheme } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
@@ -12,7 +12,7 @@ import Loading from './components/Loading';
 import HomePage from './pages/HomePage';
 import AccountPage from './pages/AccountPage';
 import AdminPage from './pages/AdminPage';
-import { defaultTheme } from './config/theme';
+import { defaultTheme, darkTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 import { ThemeConverter } from './services/ThemeConverter';
 import { logger } from './services/loggerService';
@@ -155,13 +155,7 @@ const App: React.FC = () => {
           if (selectedThemeId === 'light') {
             setCurrentTheme(defaultTheme);
           } else if (selectedThemeId === 'dark') {
-            setCurrentTheme(createTheme({
-              palette: {
-                mode: 'dark',
-                primary: { main: '#90caf9' },
-                secondary: { main: '#f48fb1' },
-              },
-            }));
+            setCurrentTheme(darkTheme);
           }
         }
       }
