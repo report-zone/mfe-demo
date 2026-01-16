@@ -210,6 +210,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
   const [fullThemeJson, setFullThemeJson] = useState<string>('');
   const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
+  const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
+  const [pendingSave, setPendingSave] = useState<{ filename: string; themeDefinition: CustomThemeDefinition } | null>(null);
 
   // Convert editorState to full theme JSON (matching themeFormat.json)
   const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
@@ -460,6 +462,9 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       name: state.name,
       version: state.version,
       description: state.description,
+      palette: {
+        mode: state.mode || 'light',
+      },
       colors: {
         primaryMain: state.primary,
         primaryLight: state.primaryLight || '#42a5f5',
@@ -551,19 +556,57 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         .replace(/^-|-$/g, '');
     };
 
+    const filename = `${sanitizeFilename(finalEditorState.name)}.json`;
+    
+    // Check if we've saved a file with this name before in this session
+    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
+    if (savedThemes.includes(filename)) {
+      // Show overwrite dialog
+      setPendingSave({ filename, themeDefinition });
+      setShowOverwriteDialog(true);
+      return;
+    }
+
+    // Proceed with save
+    performSave(filename, themeDefinition);
+  };
+
+  const performSave = (filename: string, themeDefinition: CustomThemeDefinition) => {
     const blob = new Blob([JSON.stringify(themeDefinition, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${sanitizeFilename(finalEditorState.name)}.json`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
+    // Track saved filename in session storage
+    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
+    if (!savedThemes.includes(filename)) {
+      savedThemes.push(filename);
+      sessionStorage.setItem('savedThemeFilenames', JSON.stringify(savedThemes));
+    }
+
     setHasUnsavedChanges(false);
     setSnackbar({ open: true, message: 'Theme saved to file system!', severity: 'success' });
     setTimeout(() => onClose(), 1000);
+  };
+
+  const handleOverwriteConfirm = () => {
+    if (pendingSave) {
+      performSave(pendingSave.filename, pendingSave.themeDefinition);
+      setPendingSave(null);
+      setShowOverwriteDialog(false);
+    }
+  };
+
+  const handleOverwriteRename = () => {
+    setShowOverwriteDialog(false);
+    setPendingSave(null);
+    // Theme editor dialog remains open so user can rename and save again
+    setSnackbar({ open: true, message: 'Please rename the theme and save again', severity: 'info' });
   };
 
   const handleResetToDefaults = () => {
@@ -1070,6 +1113,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Button onClick={() => setConfirmClose(false)}>Cancel</Button>
           <Button onClick={handleConfirmClose} color="error" variant="contained">
             Close Without Saving
+          </Button>
+        </DialogActions>
+      </ConfirmDialog>
+
+      {/* Overwrite File Dialog */}
+      <ConfirmDialog open={showOverwriteDialog} onClose={() => setShowOverwriteDialog(false)}>
+        <DialogTitle>File Already Exists</DialogTitle>
+        <DialogContent>
+          <Typography>
+            A file named &quot;{pendingSave?.filename}&quot; was already saved during this session. 
+            Note: This only tracks files saved in the current session, not all files on your file system. 
+            Do you want to overwrite it or rename your theme?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowOverwriteDialog(false)}>Cancel</Button>
+          <Button onClick={handleOverwriteRename} color="primary" variant="outlined">
+            Rename Theme
+          </Button>
+          <Button onClick={handleOverwriteConfirm} color="warning" variant="contained">
+            Overwrite
           </Button>
         </DialogActions>
       </ConfirmDialog>

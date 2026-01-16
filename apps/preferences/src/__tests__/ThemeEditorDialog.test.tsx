@@ -494,4 +494,58 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
       expect(darkOption.getAttribute('aria-selected')).toBe('true');
     });
   });
+
+  it('should include palette mode in saved theme JSON file', async () => {
+    // Mock Blob to capture the content
+    const originalBlob = global.Blob;
+    let capturedBlobContent: string | null = null;
+    
+    global.Blob = vi.fn((content: BlobPart[], options?: BlobPropertyBag) => {
+      if (content && content.length > 0) {
+        capturedBlobContent = content[0] as string;
+      }
+      return new originalBlob(content, options);
+    }) as unknown as typeof Blob;
+
+    renderThemeEditor();
+    
+    // Navigate to Background tab and change mode to dark
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[3]); // Background tab
+    
+    await waitFor(() => {
+      const modeButton = screen.getByRole('combobox', { hidden: true });
+      expect(modeButton).toBeDefined();
+    });
+    
+    const modeButton = screen.getByRole('combobox', { hidden: true });
+    fireEvent.mouseDown(modeButton);
+    
+    await waitFor(() => {
+      const darkOption = screen.getByRole('option', { name: /dark/i });
+      expect(darkOption).toBeDefined();
+    });
+    
+    const darkOption = screen.getByRole('option', { name: /dark/i });
+    fireEvent.click(darkOption);
+    
+    // Click Save button
+    const saveButton = screen.getByRole('button', { name: /save/i });
+    fireEvent.click(saveButton);
+    
+    // Wait for the Blob to be created
+    await waitFor(() => {
+      expect(capturedBlobContent).not.toBeNull();
+    }, { timeout: 3000 });
+    
+    // Verify that the saved JSON includes palette.mode
+    if (capturedBlobContent) {
+      const themeJson = JSON.parse(capturedBlobContent);
+      expect(themeJson.palette).toBeDefined();
+      expect(themeJson.palette.mode).toBe('dark');
+    }
+    
+    // Restore original Blob
+    global.Blob = originalBlob;
+  });
 });
