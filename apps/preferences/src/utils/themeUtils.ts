@@ -214,27 +214,5 @@ export const bumpVersion = (version: string): string => {
  * Following Single Responsibility Principle: Only handles cloning
  */
 export const cloneThemeDefinition = (definition: CustomThemeDefinition): CustomThemeDefinition => {
-  return {
-    name: definition.name,
-    version: definition.version,
-    description: definition.description,
-    palette: definition.palette ? { ...definition.palette } : undefined,
-    colors: { ...definition.colors },
-    componentOverrides: {
-      button: definition.componentOverrides.button ? { ...definition.componentOverrides.button } : undefined,
-      paper: definition.componentOverrides.paper ? { ...definition.componentOverrides.paper } : undefined,
-      card: definition.componentOverrides.card ? { ...definition.componentOverrides.card } : undefined,
-      textField: definition.componentOverrides.textField ? { ...definition.componentOverrides.textField } : undefined,
-      appBar: definition.componentOverrides.appBar ? { ...definition.componentOverrides.appBar } : undefined,
-      drawer: definition.componentOverrides.drawer ? { ...definition.componentOverrides.drawer } : undefined,
-      alert: definition.componentOverrides.alert ? { ...definition.componentOverrides.alert } : undefined,
-      dialog: definition.componentOverrides.dialog ? { ...definition.componentOverrides.dialog } : undefined,
-      tooltip: definition.componentOverrides.tooltip ? { ...definition.componentOverrides.tooltip } : undefined,
-      chip: definition.componentOverrides.chip ? { ...definition.componentOverrides.chip } : undefined,
-      list: definition.componentOverrides.list ? { ...definition.componentOverrides.list } : undefined,
-      typography: definition.componentOverrides.typography ? { ...definition.componentOverrides.typography } : undefined,
-    },
-    muiComponentOverrides: { ...definition.muiComponentOverrides },
-    createdAt: definition.createdAt,
-  };
+  return JSON.parse(JSON.stringify(definition));
 };

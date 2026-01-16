@@ -9,6 +9,11 @@
 import { CustomThemeDefinition } from '../types/theme.types';
 
 /**
+ * Session storage key for tracking saved theme filenames
+ */
+const SAVED_THEMES_SESSION_KEY = 'savedThemeFilenames';
+
+/**
  * Sanitizes a filename to make it safe for file systems
  * Following Single Responsibility Principle: Only handles filename sanitization
  */
@@ -91,7 +96,7 @@ export const loadThemeFromFile = (): Promise<CustomThemeDefinition> => {
  */
 export const isFilenameSavedInSession = (filename: string): boolean => {
   try {
-    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
+    const savedThemes = JSON.parse(sessionStorage.getItem(SAVED_THEMES_SESSION_KEY) || '[]');
     return savedThemes.includes(filename);
   } catch {
     return false;
@@ -104,10 +109,10 @@ export const isFilenameSavedInSession = (filename: string): boolean => {
  */
 export const trackSavedFilename = (filename: string): void => {
   try {
-    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
+    const savedThemes = JSON.parse(sessionStorage.getItem(SAVED_THEMES_SESSION_KEY) || '[]');
     if (!savedThemes.includes(filename)) {
       savedThemes.push(filename);
-      sessionStorage.setItem('savedThemeFilenames', JSON.stringify(savedThemes));
+      sessionStorage.setItem(SAVED_THEMES_SESSION_KEY, JSON.stringify(savedThemes));
     }
   } catch (error) {
     console.error('Failed to track saved filename:', error);

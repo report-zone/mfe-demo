@@ -101,8 +101,24 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const updateThemeDefinition = (updates: Partial<CustomThemeDefinition> | ((prev: CustomThemeDefinition) => CustomThemeDefinition)) => {
     setThemeDefinition(prev => {
-      const updated = typeof updates === 'function' ? updates(prev) : { ...prev, ...updates };
-      return updated;
+      if (typeof updates === 'function') {
+        return updates(prev);
+      }
+      
+      // Deep merge for nested objects like colors and componentOverrides
+      const updated = cloneThemeDefinition(prev);
+      return {
+        ...updated,
+        ...updates,
+        // Preserve nested structures if not explicitly updated
+        colors: updates.colors ? { ...updated.colors, ...updates.colors } : updated.colors,
+        componentOverrides: updates.componentOverrides 
+          ? { ...updated.componentOverrides, ...updates.componentOverrides } 
+          : updated.componentOverrides,
+        muiComponentOverrides: updates.muiComponentOverrides 
+          ? { ...updated.muiComponentOverrides, ...updates.muiComponentOverrides } 
+          : updated.muiComponentOverrides,
+      };
     });
     setHasUnsavedChanges(true);
   };
