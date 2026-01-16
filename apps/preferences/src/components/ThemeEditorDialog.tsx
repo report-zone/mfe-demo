@@ -609,7 +609,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     // Open rename dialog instead of just showing a notification
     if (pendingSave) {
       // Pre-fill with current filename without extension
-      const baseFilename = pendingSave.filename.replace('.json', '');
+      const baseFilename = pendingSave.filename.replace(/\.json$/, '');
       setNewFilename(baseFilename);
       setShowRenameDialog(true);
     }
@@ -1204,7 +1204,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             placeholder="my-custom-theme"
             helperText="The .json extension will be added automatically"
             sx={{ mt: 2 }}
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 handleRenameConfirm();
               }
