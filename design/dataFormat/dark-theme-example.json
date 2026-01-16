@@ -1,0 +1,89 @@
+{
+  "name": "Dark Mode Test Theme",
+  "version": "1.0.0",
+  "description": "A dark theme to test palette mode application",
+  "palette": {
+    "mode": "dark"
+  },
+  "colors": {
+    "primaryMain": "#90caf9",
+    "primaryLight": "#e3f2fd",
+    "primaryDark": "#42a5f5",
+    "secondaryMain": "#f48fb1",
+    "secondaryLight": "#ffc1e3",
+    "secondaryDark": "#f06292",
+    "errorMain": "#f44336",
+    "warningMain": "#ff9800",
+    "infoMain": "#2196f3",
+    "successMain": "#4caf50",
+    "backgroundDefault": "#121212",
+    "backgroundPaper": "#1e1e1e",
+    "textPrimary": "#ffffff",
+    "textSecondary": "rgba(255, 255, 255, 0.7)"
+  },
+  "componentOverrides": {
+    "button": {
+      "borderRadius": 4,
+      "textTransform": "uppercase"
+    },
+    "paper": {
+      "borderRadius": 4,
+      "elevation": 1
+    },
+    "card": {
+      "borderRadius": 4,
+      "elevation": 1
+    },
+    "textField": {
+      "borderRadius": 4
+    },
+    "appBar": {
+      "elevation": 4
+    },
+    "drawer": {
+      "width": 240
+    },
+    "alert": {
+      "borderRadius": 4
+    },
+    "dialog": {
+      "borderRadius": 8
+    },
+    "tooltip": {
+      "fontSize": 12
+    },
+    "chip": {
+      "borderRadius": 16
+    },
+    "list": {
+      "padding": 8
+    },
+    "typography": {
+      "h1FontSize": 96,
+      "h2FontSize": 60,
+      "h3FontSize": 48,
+      "bodyFontSize": 16
+    }
+  },
+  "muiComponentOverrides": {
+    "MuiButton": {
+      "styleOverrides": {
+        "root": {
+          "borderRadius": "4px",
+          "textTransform": "uppercase"
+        }
+      }
+    },
+    "MuiCard": {
+      "styleOverrides": {
+        "root": {
+          "borderRadius": "4px"
+        }
+      },
+      "defaultProps": {
+        "elevation": 1
+      }
+    }
+  },
+  "createdAt": "2026-01-16T21:25:00.000Z"
+}
