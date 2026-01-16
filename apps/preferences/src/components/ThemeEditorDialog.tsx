@@ -605,7 +605,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const handleOverwriteRename = () => {
     setShowOverwriteDialog(false);
     setPendingSave(null);
-    // Keep the dialog open so user can rename
+    // Theme editor dialog remains open so user can rename and save again
     setSnackbar({ open: true, message: 'Please rename the theme and save again', severity: 'info' });
   };
 
@@ -1122,7 +1122,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         <DialogTitle>File Already Exists</DialogTitle>
         <DialogContent>
           <Typography>
-            A file named &quot;{pendingSave?.filename}&quot; was already saved in this session. 
+            A file named &quot;{pendingSave?.filename}&quot; was already saved during this session. 
+            Note: This only tracks files saved in the current session, not all files on your file system. 
             Do you want to overwrite it or rename your theme?
           </Typography>
         </DialogContent>
