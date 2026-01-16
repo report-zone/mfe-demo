@@ -32,565 +32,181 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Editor from '@monaco-editor/react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import ComponentShowcase from './ComponentShowcase';
-import { ThemeEditorState, CustomThemeDefinition } from '../types/theme.types';
+import { CustomThemeDefinition } from '../types/theme.types';
+import {
+  createDefaultThemeDefinition,
+  convertThemeDefinitionToMuiTheme,
+  bumpVersion,
+  cloneThemeDefinition,
+  validateThemeDefinition,
+} from '../utils/themeUtils';
+import {
+  sanitizeFilename,
+  downloadThemeAsFile,
+  loadThemeFromFile,
+  isFilenameSavedInSession,
+  trackSavedFilename,
+} from '../utils/themeFileOperations';
 
 interface ThemeEditorDialogProps {
   open: boolean;
   onClose: () => void;
-  initialTheme?: ThemeEditorState;
+  initialTheme?: CustomThemeDefinition;
 }
 
-const defaultEditorState: ThemeEditorState = {
-  name: 'Custom Theme',
-  version: '1.0.0',
-  description: '',
-  primary: '#1976d2',
-  primaryLight: '#42a5f5',
-  primaryDark: '#1565c0',
-  secondary: '#dc004e',
-  secondaryLight: '#ff4081',
-  secondaryDark: '#9a0036',
-  error: '#d32f2f',
-  warning: '#ed6c02',
-  info: '#0288d1',
-  success: '#2e7d32',
-  background: '#ffffff',
-  paper: '#f5f5f5',
-  textPrimary: '#000000',
-  textSecondary: 'rgba(0, 0, 0, 0.6)',
-  mode: 'light',
-  borderRadius: 4,
-  fontSize: 14,
-  padding: 8,
-  buttonTextTransform: 'uppercase',
-  paperElevation: 1,
-  cardElevation: 1,
-  appBarElevation: 4,
-  drawerWidth: 240,
-  dialogBorderRadius: 8,
-  chipBorderRadius: 16,
-  listPadding: 8,
-  tooltipFontSize: 12,
-  h1FontSize: 96,
-  h2FontSize: 60,
-  h3FontSize: 48,
-  bodyFontSize: 16,
-  jsonConfig: JSON.stringify({
-    MuiAccordion: {},
-    MuiAccordionActions: {},
-    MuiAccordionDetails: {},
-    MuiAccordionSummary: {},
-    MuiAlert: {},
-    MuiAlertTitle: {},
-    MuiAppBar: {},
-    MuiAutocomplete: {},
-    MuiAvatar: {},
-    MuiAvatarGroup: {},
-    MuiBackdrop: {},
-    MuiBadge: {},
-    MuiBottomNavigation: {},
-    MuiBottomNavigationAction: {},
-    MuiBreadcrumbs: {},
-    MuiButton: {},
-    MuiButtonBase: {},
-    MuiButtonGroup: {},
-    MuiCard: {},
-    MuiCardActionArea: {},
-    MuiCardActions: {},
-    MuiCardContent: {},
-    MuiCardHeader: {},
-    MuiCardMedia: {},
-    MuiCheckbox: {},
-    MuiChip: {},
-    MuiCircularProgress: {},
-    MuiCollapse: {},
-    MuiContainer: {},
-    MuiCssBaseline: {},
-    MuiDialog: {},
-    MuiDialogActions: {},
-    MuiDialogContent: {},
-    MuiDialogContentText: {},
-    MuiDialogTitle: {},
-    MuiDivider: {},
-    MuiDrawer: {},
-    MuiFab: {},
-    MuiFilledInput: {},
-    MuiFormControl: {},
-    MuiFormControlLabel: {},
-    MuiFormGroup: {},
-    MuiFormHelperText: {},
-    MuiFormLabel: {},
-    MuiGrid: {},
-    MuiIcon: {},
-    MuiIconButton: {},
-    MuiImageList: {},
-    MuiImageListItem: {},
-    MuiImageListItemBar: {},
-    MuiInput: {},
-    MuiInputAdornment: {},
-    MuiInputBase: {},
-    MuiInputLabel: {},
-    MuiLinearProgress: {},
-    MuiLink: {},
-    MuiList: {},
-    MuiListItem: {},
-    MuiListItemAvatar: {},
-    MuiListItemButton: {},
-    MuiListItemIcon: {},
-    MuiListItemSecondaryAction: {},
-    MuiListItemText: {},
-    MuiListSubheader: {},
-    MuiMenu: {},
-    MuiMenuItem: {},
-    MuiMenuList: {},
-    MuiMobileStepper: {},
-    MuiModal: {},
-    MuiNativeSelect: {},
-    MuiOutlinedInput: {},
-    MuiPagination: {},
-    MuiPaginationItem: {},
-    MuiPaper: {},
-    MuiPopover: {},
-    MuiPopper: {},
-    MuiRadio: {},
-    MuiRadioGroup: {},
-    MuiRating: {},
-    MuiScopedCssBaseline: {},
-    MuiSelect: {},
-    MuiSkeleton: {},
-    MuiSlider: {},
-    MuiSnackbar: {},
-    MuiSnackbarContent: {},
-    MuiSpeedDial: {},
-    MuiSpeedDialAction: {},
-    MuiSpeedDialIcon: {},
-    MuiStack: {},
-    MuiStep: {},
-    MuiStepButton: {},
-    MuiStepConnector: {},
-    MuiStepContent: {},
-    MuiStepIcon: {},
-    MuiStepLabel: {},
-    MuiStepper: {},
-    MuiSvgIcon: {},
-    MuiSwitch: {},
-    MuiTab: {},
-    MuiTable: {},
-    MuiTableBody: {},
-    MuiTableCell: {},
-    MuiTableContainer: {},
-    MuiTableFooter: {},
-    MuiTableHead: {},
-    MuiTablePagination: {},
-    MuiTableRow: {},
-    MuiTableSortLabel: {},
-    MuiTabs: {},
-    MuiTextField: {},
-    MuiToggleButton: {},
-    MuiToggleButtonGroup: {},
-    MuiToolbar: {},
-    MuiTooltip: {},
-    MuiTypography: {},
-  }, null, 2),
-};
+
 
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [fullThemeJsonError, setFullThemeJsonError] = useState<string>('');
+  const [themeJsonError, setThemeJsonError] = useState<string>('');
   const [monacoSettings, setMonacoSettings] = useState({ theme: 'vs-light' });
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
   const [livePreviewExpanded, setLivePreviewExpanded] = useState(false);
 
-  const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
-  const [fullThemeJson, setFullThemeJson] = useState<string>('');
+  const [themeDefinition, setThemeDefinition] = useState<CustomThemeDefinition>(createDefaultThemeDefinition());
   const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
   const [pendingSave, setPendingSave] = useState<{ filename: string; themeDefinition: CustomThemeDefinition } | null>(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [newFilename, setNewFilename] = useState('');
 
-  // Convert editorState to full theme JSON (matching themeFormat.json)
-  const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
-    try {
-      let muiOverrides = {};
-      try {
-        muiOverrides = JSON.parse(state.jsonConfig);
-      } catch (e) {
-        console.warn(`Failed to parse MUI overrides JSON: ${e instanceof Error ? e.message : 'Unknown error'}`);
-      }
-
-      const now = new Date().toISOString();
-      const fullTheme = {
-        name: state.name,
-        version: state.version,
-        description: state.description || '',
-        createdAt: now,
-        modifiedAt: now,
-        palette: {
-          mode: state.mode || 'light',
-        },
-        colors: {
-          primaryMain: state.primary,
-          primaryLight: state.primaryLight || '#42a5f5',
-          primaryDark: state.primaryDark || '#1565c0',
-          secondaryMain: state.secondary,
-          secondaryLight: state.secondaryLight || '#ff4081',
-          secondaryDark: state.secondaryDark || '#9a0036',
-          errorMain: state.error,
-          warningMain: state.warning,
-          infoMain: state.info,
-          successMain: state.success,
-          backgroundDefault: state.background,
-          backgroundPaper: state.paper,
-          textPrimary: state.textPrimary,
-          textSecondary: state.textSecondary,
-        },
-        overrides: muiOverrides,
-      };
-
-      return JSON.stringify(fullTheme, null, 2);
-    } catch (error) {
-      console.error(`Error converting editor state to full theme JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return '{}';
-    }
-  };
-
-  // Convert full theme JSON back to editorState
-  const convertFullThemeJsonToEditorState = (jsonString: string): ThemeEditorState | null => {
-    try {
-      const parsed = JSON.parse(jsonString);
-      
-      return {
-        name: parsed.name || 'Custom Theme',
-        version: parsed.version || '1.0.0',
-        description: parsed.description || '',
-        primary: parsed.colors?.primaryMain || '#1976d2',
-        primaryLight: parsed.colors?.primaryLight || '#42a5f5',
-        primaryDark: parsed.colors?.primaryDark || '#1565c0',
-        secondary: parsed.colors?.secondaryMain || '#dc004e',
-        secondaryLight: parsed.colors?.secondaryLight || '#ff4081',
-        secondaryDark: parsed.colors?.secondaryDark || '#9a0036',
-        error: parsed.colors?.errorMain || '#d32f2f',
-        warning: parsed.colors?.warningMain || '#ed6c02',
-        info: parsed.colors?.infoMain || '#0288d1',
-        success: parsed.colors?.successMain || '#2e7d32',
-        background: parsed.colors?.backgroundDefault || '#ffffff',
-        paper: parsed.colors?.backgroundPaper || '#f5f5f5',
-        textPrimary: parsed.colors?.textPrimary || '#000000',
-        textSecondary: parsed.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-        mode: parsed.palette?.mode || 'light',
-        borderRadius: 4,
-        fontSize: 14,
-        padding: 8,
-        buttonTextTransform: 'uppercase',
-        paperElevation: 1,
-        cardElevation: 1,
-        appBarElevation: 4,
-        drawerWidth: 240,
-        dialogBorderRadius: 8,
-        chipBorderRadius: 16,
-        listPadding: 8,
-        tooltipFontSize: 12,
-        h1FontSize: 96,
-        h2FontSize: 60,
-        h3FontSize: 48,
-        bodyFontSize: 16,
-        jsonConfig: JSON.stringify(parsed.overrides || {}, null, 2),
-      };
-    } catch (error) {
-      console.error(`Error parsing full theme JSON: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return null;
-    }
-  };
-
   // Reset state when dialog opens
   React.useEffect(() => {
     if (open) {
-      const initialState = initialTheme || defaultEditorState;
-      setEditorState(initialState);
-      setFullThemeJson(convertEditorStateToFullThemeJson(initialState));
+      const initialDefinition = initialTheme || createDefaultThemeDefinition();
+      setThemeDefinition(initialDefinition);
       setActiveTab(0);
       setHasUnsavedChanges(false);
-      setFullThemeJsonError('');
+      setThemeJsonError('');
       setLivePreviewExpanded(false);
       setIsEditingExistingTheme(!!initialTheme);
     }
   }, [open, initialTheme]);
 
-  // Helper function to bump version
-  const bumpVersion = (version: string): string => {
-    const parts = version.split('.');
-    if (parts.length === 3) {
-      const major = parseInt(parts[0], 10) || 0;
-      const minor = parseInt(parts[1], 10) || 0;
-      const patch = parseInt(parts[2], 10) || 0;
-      return `${major}.${minor}.${patch + 1}`;
+  // Generate theme from definition for live preview
+  const previewTheme = React.useMemo(() => {
+    try {
+      return convertThemeDefinitionToMuiTheme(themeDefinition);
+    } catch (error) {
+      console.error('Error generating preview theme:', error);
+      return convertThemeDefinitionToMuiTheme(createDefaultThemeDefinition());
     }
-    return version;
+  }, [themeDefinition]);
+
+  const updateThemeDefinition = (updates: Partial<CustomThemeDefinition> | ((prev: CustomThemeDefinition) => CustomThemeDefinition)) => {
+    setThemeDefinition(prev => {
+      if (typeof updates === 'function') {
+        return updates(prev);
+      }
+      
+      // Deep merge for nested objects like colors and componentOverrides
+      const updated = cloneThemeDefinition(prev);
+      return {
+        ...updated,
+        ...updates,
+        // Preserve nested structures if not explicitly updated
+        colors: updates.colors ? { ...updated.colors, ...updates.colors } : updated.colors,
+        componentOverrides: updates.componentOverrides 
+          ? { ...updated.componentOverrides, ...updates.componentOverrides } 
+          : updated.componentOverrides,
+        muiComponentOverrides: updates.muiComponentOverrides 
+          ? { ...updated.muiComponentOverrides, ...updates.muiComponentOverrides } 
+          : updated.muiComponentOverrides,
+      };
+    });
+    setHasUnsavedChanges(true);
   };
 
-  // Generate theme from editor state for live preview
-  const generateTheme = React.useCallback(() => {
-    try {
-      // Parse muiComponentOverrides from jsonConfig
-      let muiOverrides = {};
-      try {
-        muiOverrides = JSON.parse(editorState.jsonConfig);
-      } catch (e) {
-        console.warn('Invalid JSON config for MUI overrides');
+  const handleColorChange = (path: string, value: string) => {
+    const keys = path.split('.');
+    updateThemeDefinition(prev => {
+      const updated = cloneThemeDefinition(prev);
+      
+      // Type-safe navigation through the nested structure
+      if (keys[0] === 'colors' && keys.length === 2) {
+        const colorKey = keys[1] as keyof CustomThemeDefinition['colors'];
+        updated.colors[colorKey] = value;
       }
+      
+      return updated;
+    });
+  };
 
-      const themeConfig = {
-        palette: {
-          mode: editorState.mode,
-          primary: {
-            main: editorState.primary,
-            light: editorState.primaryLight,
-            dark: editorState.primaryDark,
-          },
-          secondary: {
-            main: editorState.secondary,
-            light: editorState.secondaryLight,
-            dark: editorState.secondaryDark,
-          },
-          error: {
-            main: editorState.error,
-          },
-          warning: {
-            main: editorState.warning,
-          },
-          info: {
-            main: editorState.info,
-          },
-          success: {
-            main: editorState.success,
-          },
-          background: {
-            default: editorState.background,
-            paper: editorState.paper,
-          },
-          text: {
-            primary: editorState.textPrimary,
-            secondary: editorState.textSecondary,
-          },
-        },
-        shape: {
-          borderRadius: editorState.borderRadius || 4,
-        },
-        typography: {
-          fontSize: editorState.bodyFontSize || 16,
-          h1: {
-            fontSize: `${editorState.h1FontSize || 96}px`,
-          },
-          h2: {
-            fontSize: `${editorState.h2FontSize || 60}px`,
-          },
-          h3: {
-            fontSize: `${editorState.h3FontSize || 48}px`,
-          },
-          body1: {
-            fontSize: `${editorState.bodyFontSize || 16}px`,
-          },
-        },
-        spacing: editorState.padding || 8,
-        components: muiOverrides,
-      };
-
-      return createTheme(themeConfig);
-    } catch (error) {
-      console.error('Error generating theme:', error);
-      return createTheme();
-    }
-  }, [editorState]);
-
-  const previewTheme = React.useMemo(() => generateTheme(), [generateTheme]);
-
-  const handleFieldChange = (field: keyof ThemeEditorState, value: string | number) => {
-    // Convert numeric string values to numbers for appropriate fields
-    let processedValue: string | number = value;
-    if (typeof value === 'string') {
-      if (field === 'borderRadius' || field === 'padding' || field === 'paperElevation' || 
-          field === 'cardElevation' || field === 'appBarElevation' || field === 'drawerWidth' || 
-          field === 'dialogBorderRadius' || field === 'chipBorderRadius' || field === 'listPadding' ||
-          field === 'tooltipFontSize' || field === 'h1FontSize' || field === 'h2FontSize' || 
-          field === 'h3FontSize' || field === 'bodyFontSize') {
-        const numValue = parseInt(value, 10);
-        processedValue = isNaN(numValue) ? 0 : numValue;
+  const handleComponentOverrideChange = (component: string, property: string, value: string | number) => {
+    updateThemeDefinition(prev => {
+      const updated = cloneThemeDefinition(prev);
+      
+      // Type-safe component override updates
+      type ComponentKey = keyof CustomThemeDefinition['componentOverrides'];
+      const componentKey = component as ComponentKey;
+      
+      if (!updated.componentOverrides[componentKey]) {
+        updated.componentOverrides[componentKey] = {} as Record<string, string | number>;
       }
-    }
-    const newState = { ...editorState, [field]: processedValue };
-    setEditorState(newState);
-    setFullThemeJson(convertEditorStateToFullThemeJson(newState));
-    setHasUnsavedChanges(true);
+      
+      const componentOverride = updated.componentOverrides[componentKey];
+      if (componentOverride) {
+        (componentOverride as Record<string, string | number>)[property] = value;
+      }
+      
+      return updated;
+    });
   };
 
   const handleFullThemeJsonChange = (value: string | undefined) => {
     if (value !== undefined) {
-      setFullThemeJson(value);
       setHasUnsavedChanges(true);
 
-      // Validate and sync to editorState
       try {
-        JSON.parse(value); // First validate JSON is parseable
-        const newState = convertFullThemeJsonToEditorState(value);
-        if (newState) {
-          setEditorState(newState);
-          setFullThemeJsonError('');
+        const parsed = JSON.parse(value) as CustomThemeDefinition;
+        const validation = validateThemeDefinition(parsed);
+        
+        if (validation.isValid) {
+          setThemeDefinition(parsed);
+          setThemeJsonError('');
         } else {
-          setFullThemeJsonError('Invalid theme format: missing required fields');
+          setThemeJsonError(validation.error || 'Invalid theme format');
         }
       } catch (e) {
-        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
+        setThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
       }
     }
   };
 
-  const exportToCustomThemeDefinition = (state: ThemeEditorState = editorState): CustomThemeDefinition => {
-    // Parse muiComponentOverrides from jsonConfig
-    let muiOverrides = {};
-    try {
-      muiOverrides = JSON.parse(state.jsonConfig);
-    } catch (e) {
-      console.warn('Invalid JSON config for MUI overrides');
-    }
-
-    return {
-      name: state.name,
-      version: state.version,
-      description: state.description,
-      palette: {
-        mode: state.mode || 'light',
-      },
-      colors: {
-        primaryMain: state.primary,
-        primaryLight: state.primaryLight || '#42a5f5',
-        primaryDark: state.primaryDark || '#1565c0',
-        secondaryMain: state.secondary,
-        secondaryLight: state.secondaryLight || '#ff4081',
-        secondaryDark: state.secondaryDark || '#9a0036',
-        errorMain: state.error,
-        warningMain: state.warning,
-        infoMain: state.info,
-        successMain: state.success,
-        backgroundDefault: state.background,
-        backgroundPaper: state.paper,
-        textPrimary: state.textPrimary,
-        textSecondary: state.textSecondary,
-      },
-      componentOverrides: {
-        button: {
-          borderRadius: state.borderRadius || 4,
-          textTransform: state.buttonTextTransform || 'uppercase',
-        },
-        paper: {
-          borderRadius: state.borderRadius || 4,
-          elevation: state.paperElevation || 1,
-        },
-        card: {
-          borderRadius: state.borderRadius || 4,
-          elevation: state.cardElevation || 1,
-        },
-        textField: {
-          borderRadius: state.borderRadius || 4,
-        },
-        appBar: {
-          elevation: state.appBarElevation || 4,
-        },
-        drawer: {
-          width: state.drawerWidth || 240,
-        },
-        alert: {
-          borderRadius: state.borderRadius || 4,
-        },
-        dialog: {
-          borderRadius: state.dialogBorderRadius || 8,
-        },
-        tooltip: {
-          fontSize: state.tooltipFontSize || 12,
-        },
-        chip: {
-          borderRadius: state.chipBorderRadius || 16,
-        },
-        list: {
-          padding: state.listPadding || 8,
-        },
-        typography: {
-          h1FontSize: state.h1FontSize || 96,
-          h2FontSize: state.h2FontSize || 60,
-          h3FontSize: state.h3FontSize || 48,
-          bodyFontSize: state.bodyFontSize || 16,
-        },
-      },
-      muiComponentOverrides: muiOverrides,
-      createdAt: new Date().toISOString(),
-    };
-  };
-
   const handleSave = () => {
-    if (fullThemeJsonError) {
+    if (themeJsonError) {
       setSnackbar({ open: true, message: 'Please fix JSON errors before saving', severity: 'error' });
       return;
     }
 
-    // Bump version if editing existing theme
-    let finalEditorState = editorState;
+    const finalDefinition = isEditingExistingTheme 
+      ? { ...cloneThemeDefinition(themeDefinition), version: bumpVersion(themeDefinition.version) }
+      : cloneThemeDefinition(themeDefinition);
+    
     if (isEditingExistingTheme) {
-      const bumpedVersion = bumpVersion(editorState.version);
-      finalEditorState = { ...editorState, version: bumpedVersion };
-      setEditorState(finalEditorState);
+      setThemeDefinition(finalDefinition);
     }
 
-    // Create custom theme definition with the final state
-    const themeDefinition = exportToCustomThemeDefinition(finalEditorState);
-
-    // Download as JSON file
-    const sanitizeFilename = (name: string): string => {
-      return name.toLowerCase()
-        .replace(/[/\\?%*:|"<>]/g, '-')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
-    };
-
-    const filename = `${sanitizeFilename(finalEditorState.name)}.json`;
+    const filename = `${sanitizeFilename(finalDefinition.name)}.json`;
     
-    // Check if we've saved a file with this name before in this session
-    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
-    if (savedThemes.includes(filename)) {
-      // Show overwrite dialog
-      setPendingSave({ filename, themeDefinition });
+    if (isFilenameSavedInSession(filename)) {
+      setPendingSave({ filename, themeDefinition: finalDefinition });
       setShowOverwriteDialog(true);
       return;
     }
 
-    // Proceed with save
-    performSave(filename, themeDefinition);
+    performSave(filename, finalDefinition);
   };
 
-  const performSave = (filename: string, themeDefinition: CustomThemeDefinition) => {
-    const blob = new Blob([JSON.stringify(themeDefinition, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    // Track saved filename in session storage
-    const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
-    if (!savedThemes.includes(filename)) {
-      savedThemes.push(filename);
-      sessionStorage.setItem('savedThemeFilenames', JSON.stringify(savedThemes));
-    }
-
+  const performSave = (filename: string, definition: CustomThemeDefinition) => {
+    downloadThemeAsFile(definition, filename);
+    trackSavedFilename(filename);
     setHasUnsavedChanges(false);
     setSnackbar({ open: true, message: 'Theme saved to file system!', severity: 'success' });
     setTimeout(() => onClose(), 1000);
@@ -606,9 +222,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const handleOverwriteRename = () => {
     setShowOverwriteDialog(false);
-    // Open rename dialog instead of just showing a notification
     if (pendingSave) {
-      // Pre-fill with current filename without extension
       const baseFilename = pendingSave.filename.replace(/\.json$/, '');
       setNewFilename(baseFilename);
       setShowRenameDialog(true);
@@ -622,21 +236,10 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     }
 
     if (pendingSave) {
-      // Sanitize the new filename
-      const sanitizeFilename = (name: string): string => {
-        return name.toLowerCase()
-          .replace(/[/\\?%*:|"<>]/g, '-')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
-      };
-
       const sanitized = sanitizeFilename(newFilename.trim());
       const filename = sanitized.endsWith('.json') ? sanitized : `${sanitized}.json`;
       
-      // Check if this filename was also saved before
-      const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
-      if (savedThemes.includes(filename)) {
+      if (isFilenameSavedInSession(filename)) {
         setSnackbar({ open: true, message: `Filename "${filename}" was also used in this session. Please choose a different name.`, severity: 'error' });
         return;
       }
@@ -654,8 +257,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   };
 
   const handleResetToDefaults = () => {
-    setEditorState(defaultEditorState);
-    setFullThemeJson(convertEditorStateToFullThemeJson(defaultEditorState));
+    setThemeDefinition(createDefaultThemeDefinition());
     setHasUnsavedChanges(true);
     setSnackbar({ open: true, message: 'Reset to default values!', severity: 'info' });
   };
@@ -673,70 +275,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     onClose();
   };
 
-  const handleLoadTheme = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event: ProgressEvent<FileReader>) => {
-          try {
-            const result = event.target?.result;
-            if (typeof result === 'string') {
-              const config: CustomThemeDefinition = JSON.parse(result);
-              
-              // Load from new format
-              setEditorState({
-                name: config.name || 'Loaded Theme',
-                version: config.version || '1.0.0',
-                description: config.description || '',
-                primary: config.colors?.primaryMain || '#1976d2',
-                primaryLight: config.colors?.primaryLight || '#42a5f5',
-                primaryDark: config.colors?.primaryDark || '#1565c0',
-                secondary: config.colors?.secondaryMain || '#dc004e',
-                secondaryLight: config.colors?.secondaryLight || '#ff4081',
-                secondaryDark: config.colors?.secondaryDark || '#9a0036',
-                error: config.colors?.errorMain || '#d32f2f',
-                warning: config.colors?.warningMain || '#ed6c02',
-                info: config.colors?.infoMain || '#0288d1',
-                success: config.colors?.successMain || '#2e7d32',
-                background: config.colors?.backgroundDefault || '#ffffff',
-                paper: config.colors?.backgroundPaper || '#f5f5f5',
-                textPrimary: config.colors?.textPrimary || '#000000',
-                textSecondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-                mode: config.palette?.mode || 'light',
-                borderRadius: config.componentOverrides?.button?.borderRadius || 4,
-                fontSize: 14,
-                padding: 8,
-                buttonTextTransform: config.componentOverrides?.button?.textTransform || 'uppercase',
-                paperElevation: config.componentOverrides?.paper?.elevation || 1,
-                cardElevation: config.componentOverrides?.card?.elevation || 1,
-                appBarElevation: config.componentOverrides?.appBar?.elevation || 4,
-                drawerWidth: config.componentOverrides?.drawer?.width || 240,
-                dialogBorderRadius: config.componentOverrides?.dialog?.borderRadius || 8,
-                chipBorderRadius: config.componentOverrides?.chip?.borderRadius || 16,
-                listPadding: config.componentOverrides?.list?.padding || 8,
-                tooltipFontSize: config.componentOverrides?.tooltip?.fontSize || 12,
-                h1FontSize: config.componentOverrides?.typography?.h1FontSize || 96,
-                h2FontSize: config.componentOverrides?.typography?.h2FontSize || 60,
-                h3FontSize: config.componentOverrides?.typography?.h3FontSize || 48,
-                bodyFontSize: config.componentOverrides?.typography?.bodyFontSize || 16,
-                jsonConfig: JSON.stringify(config.muiComponentOverrides || {}, null, 2),
-              });
-              setHasUnsavedChanges(true);
-              setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
-            }
-          } catch (error) {
-            setSnackbar({ open: true, message: 'Error loading theme file', severity: 'error' });
-          }
-        };
-        reader.readAsText(file);
+  const handleLoadTheme = async () => {
+    try {
+      const definition = await loadThemeFromFile();
+      const validation = validateThemeDefinition(definition);
+      
+      if (!validation.isValid) {
+        setSnackbar({ open: true, message: validation.error || 'Invalid theme file', severity: 'error' });
+        return;
       }
-    };
-    input.click();
+      
+      setThemeDefinition(definition);
+      setHasUnsavedChanges(true);
+      setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: error instanceof Error ? error.message : 'Error loading theme file', severity: 'error' });
+    }
   };
 
   return (
@@ -774,16 +328,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             <TextField
               fullWidth
               label="Theme Name"
-              value={editorState.name}
-              onChange={(e) => handleFieldChange('name', e.target.value)}
+              value={themeDefinition.name}
+              onChange={(e) => updateThemeDefinition({ name: e.target.value })}
             />
           </Grid>
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
               label="Version"
-              value={editorState.version}
-              onChange={(e) => handleFieldChange('version', e.target.value)}
+              value={themeDefinition.version}
+              onChange={(e) => updateThemeDefinition({ version: e.target.value })}
               placeholder="e.g., 1.0.0"
             />
           </Grid>
@@ -791,8 +345,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         <TextField
           fullWidth
           label="Theme Description"
-          value={editorState.description || ''}
-          onChange={(e) => handleFieldChange('description', e.target.value)}
+          value={themeDefinition.description || ''}
+          onChange={(e) => updateThemeDefinition({ description: e.target.value })}
           multiline
           rows={2}
           placeholder="Describe your theme..."
@@ -816,18 +370,18 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   <Box>
                     <ColorPicker
                       label="Primary Main"
-                      value={editorState.primary}
-                      onChange={(v) => handleFieldChange('primary', v)}
+                      value={themeDefinition.colors.primaryMain}
+                      onChange={(v) => handleColorChange('colors.primaryMain', v)}
                     />
                     <ColorPicker
                       label="Primary Light"
-                      value={editorState.primaryLight || '#42a5f5'}
-                      onChange={(v) => handleFieldChange('primaryLight', v)}
+                      value={themeDefinition.colors.primaryLight}
+                      onChange={(v) => handleColorChange('colors.primaryLight', v)}
                     />
                     <ColorPicker
                       label="Primary Dark"
-                      value={editorState.primaryDark || '#1565c0'}
-                      onChange={(v) => handleFieldChange('primaryDark', v)}
+                      value={themeDefinition.colors.primaryDark}
+                      onChange={(v) => handleColorChange('colors.primaryDark', v)}
                     />
                   </Box>
                 )}
@@ -836,18 +390,18 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   <Box>
                     <ColorPicker
                       label="Secondary Main"
-                      value={editorState.secondary}
-                      onChange={(v) => handleFieldChange('secondary', v)}
+                      value={themeDefinition.colors.secondaryMain}
+                      onChange={(v) => handleColorChange('colors.secondaryMain', v)}
                     />
                     <ColorPicker
                       label="Secondary Light"
-                      value={editorState.secondaryLight || '#f73378'}
-                      onChange={(v) => handleFieldChange('secondaryLight', v)}
+                      value={themeDefinition.colors.secondaryLight}
+                      onChange={(v) => handleColorChange('colors.secondaryLight', v)}
                     />
                     <ColorPicker
                       label="Secondary Dark"
-                      value={editorState.secondaryDark || '#9a0036'}
-                      onChange={(v) => handleFieldChange('secondaryDark', v)}
+                      value={themeDefinition.colors.secondaryDark}
+                      onChange={(v) => handleColorChange('colors.secondaryDark', v)}
                     />
                   </Box>
                 )}
@@ -856,23 +410,23 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                   <Box>
                     <ColorPicker
                       label="Error Color"
-                      value={editorState.error}
-                      onChange={(v) => handleFieldChange('error', v)}
+                      value={themeDefinition.colors.errorMain}
+                      onChange={(v) => handleColorChange('colors.errorMain', v)}
                     />
                     <ColorPicker
                       label="Warning Color"
-                      value={editorState.warning}
-                      onChange={(v) => handleFieldChange('warning', v)}
+                      value={themeDefinition.colors.warningMain}
+                      onChange={(v) => handleColorChange('colors.warningMain', v)}
                     />
                     <ColorPicker
                       label="Info Color"
-                      value={editorState.info}
-                      onChange={(v) => handleFieldChange('info', v)}
+                      value={themeDefinition.colors.infoMain}
+                      onChange={(v) => handleColorChange('colors.infoMain', v)}
                     />
                     <ColorPicker
                       label="Success Color"
-                      value={editorState.success}
-                      onChange={(v) => handleFieldChange('success', v)}
+                      value={themeDefinition.colors.successMain}
+                      onChange={(v) => handleColorChange('colors.successMain', v)}
                     />
                   </Box>
                 )}
@@ -882,9 +436,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     <FormControl fullWidth sx={{ mb: 3 }}>
                       <InputLabel>Palette Mode</InputLabel>
                       <Select
-                        value={editorState.mode || 'light'}
+                        value={themeDefinition.palette?.mode || 'light'}
                         label="Palette Mode"
-                        onChange={(e) => handleFieldChange('mode', e.target.value)}
+                        onChange={(e) => updateThemeDefinition(prev => ({
+                          ...prev,
+                          palette: { ...prev.palette, mode: e.target.value as 'light' | 'dark' }
+                        }))}
                       >
                         <MenuItem value="light">Light</MenuItem>
                         <MenuItem value="dark">Dark</MenuItem>
@@ -892,23 +449,23 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </FormControl>
                     <ColorPicker
                       label="Background Color"
-                      value={editorState.background}
-                      onChange={(v) => handleFieldChange('background', v)}
+                      value={themeDefinition.colors.backgroundDefault}
+                      onChange={(v) => handleColorChange('colors.backgroundDefault', v)}
                     />
                     <ColorPicker
                       label="Paper Color"
-                      value={editorState.paper}
-                      onChange={(v) => handleFieldChange('paper', v)}
+                      value={themeDefinition.colors.backgroundPaper}
+                      onChange={(v) => handleColorChange('colors.backgroundPaper', v)}
                     />
                     <ColorPicker
                       label="Text Primary Color"
-                      value={editorState.textPrimary}
-                      onChange={(v) => handleFieldChange('textPrimary', v)}
+                      value={themeDefinition.colors.textPrimary}
+                      onChange={(v) => handleColorChange('colors.textPrimary', v)}
                     />
                     <ColorPicker
                       label="Text Secondary Color"
-                      value={editorState.textSecondary}
-                      onChange={(v) => handleFieldChange('textSecondary', v)}
+                      value={themeDefinition.colors.textSecondary}
+                      onChange={(v) => handleColorChange('colors.textSecondary', v)}
                     />
                   </Box>
                 )}
@@ -926,16 +483,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       fullWidth
                       type="number"
                       label="Border Radius (px)"
-                      value={editorState.borderRadius || 4}
-                      onChange={(e) => handleFieldChange('borderRadius', e.target.value)}
+                      value={themeDefinition.componentOverrides.button?.borderRadius || 4}
+                      onChange={(e) => handleComponentOverrideChange('button', 'borderRadius', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <FormControl fullWidth sx={{ mb: 3 }}>
                       <InputLabel>Text Transform</InputLabel>
                       <Select
-                        value={editorState.buttonTextTransform || 'uppercase'}
+                        value={themeDefinition.componentOverrides.button?.textTransform || 'uppercase'}
                         label="Text Transform"
-                        onChange={(e) => handleFieldChange('buttonTextTransform', e.target.value)}
+                        onChange={(e) => handleComponentOverrideChange('button', 'textTransform', e.target.value)}
                       >
                         <MenuItem value="none">None</MenuItem>
                         <MenuItem value="uppercase">Uppercase</MenuItem>
@@ -953,16 +510,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       fullWidth
                       type="number"
                       label="Paper Elevation"
-                      value={editorState.paperElevation || 1}
-                      onChange={(e) => handleFieldChange('paperElevation', e.target.value)}
+                      value={themeDefinition.componentOverrides.paper?.elevation || 1}
+                      onChange={(e) => handleComponentOverrideChange('paper', 'elevation', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Card Elevation"
-                      value={editorState.cardElevation || 1}
-                      onChange={(e) => handleFieldChange('cardElevation', e.target.value)}
+                      value={themeDefinition.componentOverrides.card?.elevation || 1}
+                      onChange={(e) => handleComponentOverrideChange('card', 'elevation', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 3 }}
                     />
                     
@@ -975,48 +532,48 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       fullWidth
                       type="number"
                       label="App Bar Elevation"
-                      value={editorState.appBarElevation || 4}
-                      onChange={(e) => handleFieldChange('appBarElevation', e.target.value)}
+                      value={themeDefinition.componentOverrides.appBar?.elevation || 4}
+                      onChange={(e) => handleComponentOverrideChange('appBar', 'elevation', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Drawer Width (px)"
-                      value={editorState.drawerWidth || 240}
-                      onChange={(e) => handleFieldChange('drawerWidth', e.target.value)}
+                      value={themeDefinition.componentOverrides.drawer?.width || 240}
+                      onChange={(e) => handleComponentOverrideChange('drawer', 'width', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Dialog Border Radius (px)"
-                      value={editorState.dialogBorderRadius || 8}
-                      onChange={(e) => handleFieldChange('dialogBorderRadius', e.target.value)}
+                      value={themeDefinition.componentOverrides.dialog?.borderRadius || 8}
+                      onChange={(e) => handleComponentOverrideChange('dialog', 'borderRadius', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Chip Border Radius (px)"
-                      value={editorState.chipBorderRadius || 16}
-                      onChange={(e) => handleFieldChange('chipBorderRadius', e.target.value)}
+                      value={themeDefinition.componentOverrides.chip?.borderRadius || 16}
+                      onChange={(e) => handleComponentOverrideChange('chip', 'borderRadius', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="List Padding (px)"
-                      value={editorState.listPadding || 8}
-                      onChange={(e) => handleFieldChange('listPadding', e.target.value)}
+                      value={themeDefinition.componentOverrides.list?.padding || 8}
+                      onChange={(e) => handleComponentOverrideChange('list', 'padding', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Tooltip Font Size (px)"
-                      value={editorState.tooltipFontSize || 12}
-                      onChange={(e) => handleFieldChange('tooltipFontSize', e.target.value)}
+                      value={themeDefinition.componentOverrides.tooltip?.fontSize || 12}
+                      onChange={(e) => handleComponentOverrideChange('tooltip', 'fontSize', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 3 }}
                     />
                     
@@ -1029,32 +586,32 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       fullWidth
                       type="number"
                       label="H1 Font Size (px)"
-                      value={editorState.h1FontSize || 96}
-                      onChange={(e) => handleFieldChange('h1FontSize', e.target.value)}
+                      value={themeDefinition.componentOverrides.typography?.h1FontSize || 96}
+                      onChange={(e) => handleComponentOverrideChange('typography', 'h1FontSize', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="H2 Font Size (px)"
-                      value={editorState.h2FontSize || 60}
-                      onChange={(e) => handleFieldChange('h2FontSize', e.target.value)}
+                      value={themeDefinition.componentOverrides.typography?.h2FontSize || 60}
+                      onChange={(e) => handleComponentOverrideChange('typography', 'h2FontSize', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="H3 Font Size (px)"
-                      value={editorState.h3FontSize || 48}
-                      onChange={(e) => handleFieldChange('h3FontSize', e.target.value)}
+                      value={themeDefinition.componentOverrides.typography?.h3FontSize || 48}
+                      onChange={(e) => handleComponentOverrideChange('typography', 'h3FontSize', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     <TextField
                       fullWidth
                       type="number"
                       label="Body Font Size (px)"
-                      value={editorState.bodyFontSize || 16}
-                      onChange={(e) => handleFieldChange('bodyFontSize', e.target.value)}
+                      value={themeDefinition.componentOverrides.typography?.bodyFontSize || 16}
+                      onChange={(e) => handleComponentOverrideChange('typography', 'bodyFontSize', parseInt(e.target.value, 10) || 0)}
                       sx={{ mb: 2 }}
                     />
                     
@@ -1092,7 +649,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       <Editor
                         height="500px"
                         language="json"
-                        value={fullThemeJson}
+                        value={JSON.stringify(themeDefinition, null, 2)}
                         onChange={handleFullThemeJsonChange}
                         theme={monacoSettings.theme}
                         options={{
@@ -1104,14 +661,14 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       />
                     </Box>
 
-                    {fullThemeJsonError && (
+                    {themeJsonError && (
                       <Alert severity="error" sx={{ mt: 2 }}>
-                        {fullThemeJsonError}
+                        {themeJsonError}
                       </Alert>
                     )}
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      This editor shows the complete theme in the format matching themeFormat.json. 
+                      This editor shows the complete theme definition. 
                       All changes made here are immediately reflected in the other tabs and the live preview. 
                       Similarly, changes in other tabs update this JSON view.
                     </Typography>
