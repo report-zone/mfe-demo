@@ -10,8 +10,21 @@ import { ILoggerService, LogLevel } from './interfaces/ILoggerService';
 
 /**
  * Sensitive fields to redact from logs
+ * Using Set for O(1) lookup performance
  */
-const SENSITIVE_FIELDS = ['password', 'token', 'apiKey', 'secret', 'authorization', 'cookie'];
+const SENSITIVE_FIELDS = new Set([
+  'password',
+  'token',
+  'apikey',
+  'secret',
+  'authorization',
+  'cookie',
+  'key',
+  'auth',
+  'session',
+  'bearer',
+  'credentials',
+]);
 
 /**
  * Sanitizes metadata by redacting sensitive fields
@@ -22,10 +35,12 @@ function sanitizeMetadata(metadata: Record<string, unknown>): Record<string, unk
   for (const [key, value] of Object.entries(metadata)) {
     const lowerKey = key.toLowerCase();
     // Redact if the key contains any sensitive field name
-    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+    const isSensitive = Array.from(SENSITIVE_FIELDS).some(field => lowerKey.includes(field));
+    
+    if (isSensitive) {
       sanitized[key] = '[REDACTED]';
-    } else if (value && typeof value === 'object') {
-      // Recursively sanitize nested objects
+    } else if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof Error)) {
+      // Recursively sanitize nested plain objects only
       sanitized[key] = sanitizeMetadata(value as Record<string, unknown>);
     } else {
       sanitized[key] = value;
