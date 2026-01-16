@@ -19,6 +19,9 @@ export interface CustomThemeDefinition {
   name: string;
   version: string;
   description?: string;
+  palette?: {
+    mode?: 'light' | 'dark';
+  };
   colors: {
     primaryMain: string;
     primaryLight: string;
@@ -102,6 +105,7 @@ export class ThemeConverter {
   static createThemeFromDefinition(config: CustomThemeDefinition): Theme {
     return createTheme({
       palette: {
+        mode: config.palette?.mode || 'light',
         primary: {
           main: config.colors?.primaryMain || '#1976d2',
           light: config.colors?.primaryLight || '#42a5f5',
