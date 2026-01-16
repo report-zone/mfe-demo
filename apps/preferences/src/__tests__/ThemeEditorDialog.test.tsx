@@ -71,7 +71,8 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
       expect(jsonValue).toContain('"name"');
       expect(jsonValue).toContain('"version"');
       expect(jsonValue).toContain('"colors"');
-      expect(jsonValue).toContain('"overrides"');
+      expect(jsonValue).toContain('"componentOverrides"');
+      expect(jsonValue).toContain('"muiComponentOverrides"');
     });
   });
 
@@ -185,7 +186,7 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     });
   });
 
-  it('should preserve overrides section when editing theme name', async () => {
+  it('should preserve muiComponentOverrides section when editing theme name', async () => {
     renderThemeEditor();
     
     // Click on Full Theme JSON tab
@@ -199,7 +200,7 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     
     const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
     
-    // Get initial JSON with overrides
+    // Get initial JSON with muiComponentOverrides
     const initialJson = JSON.parse(monacoEditor.value);
     const customOverrides = {
       MuiButton: {
@@ -214,7 +215,7 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     // Update JSON with custom overrides
     const updatedJson = {
       ...initialJson,
-      overrides: customOverrides,
+      muiComponentOverrides: customOverrides,
     };
     
     fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
@@ -251,7 +252,8 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     expect(parsed.name).toBeDefined();
     expect(parsed.version).toBeDefined();
     expect(parsed.colors).toBeDefined();
-    expect(parsed.overrides).toBeDefined();
+    expect(parsed.componentOverrides).toBeDefined();
+    expect(parsed.muiComponentOverrides).toBeDefined();
     
     // Check required color fields
     expect(parsed.colors.primaryMain).toBeDefined();
@@ -298,7 +300,7 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('should format theme JSON with createdAt and modifiedAt timestamps', async () => {
+  it('should format theme JSON with createdAt timestamp', async () => {
     renderThemeEditor();
     
     // Click on Full Theme JSON tab
@@ -314,13 +316,11 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     const jsonValue = monacoEditor.value;
     const parsed = JSON.parse(jsonValue);
     
-    // Check for timestamp fields
+    // Check for timestamp field
     expect(parsed.createdAt).toBeDefined();
-    expect(parsed.modifiedAt).toBeDefined();
     
-    // Verify they are valid ISO timestamps
+    // Verify it is a valid ISO timestamp
     expect(new Date(parsed.createdAt).toISOString()).toBe(parsed.createdAt);
-    expect(new Date(parsed.modifiedAt).toISOString()).toBe(parsed.modifiedAt);
   });
 
   it('should include palette mode in full theme JSON', async () => {

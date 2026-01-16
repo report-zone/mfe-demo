@@ -131,7 +131,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       const componentKey = component as ComponentKey;
       
       if (!updated.componentOverrides[componentKey]) {
-        updated.componentOverrides[componentKey] = {} as any;
+        updated.componentOverrides[componentKey] = {} as Record<string, string | number>;
       }
       
       const componentOverride = updated.componentOverrides[componentKey];
@@ -169,10 +169,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       return;
     }
 
-    let finalDefinition = cloneThemeDefinition(themeDefinition);
+    const finalDefinition = isEditingExistingTheme 
+      ? { ...cloneThemeDefinition(themeDefinition), version: bumpVersion(themeDefinition.version) }
+      : cloneThemeDefinition(themeDefinition);
     
     if (isEditingExistingTheme) {
-      finalDefinition.version = bumpVersion(themeDefinition.version);
       setThemeDefinition(finalDefinition);
     }
 
