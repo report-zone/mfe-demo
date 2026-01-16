@@ -29,9 +29,12 @@ import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import Editor from '@monaco-editor/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
+import ComponentShowcase from './ComponentShowcase';
 import { ThemeEditorState, CustomThemeDefinition } from '../types/theme.types';
 
 interface ThemeEditorDialogProps {
@@ -202,9 +205,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
+  const [livePreviewExpanded, setLivePreviewExpanded] = useState(false);
 
   const [editorState, setEditorState] = useState<ThemeEditorState>(defaultEditorState);
   const [fullThemeJson, setFullThemeJson] = useState<string>('');
+  const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
 
   // Convert editorState to full theme JSON (matching themeFormat.json)
   const convertEditorStateToFullThemeJson = (state: ThemeEditorState): string => {
@@ -306,8 +311,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setActiveTab(0);
       setHasUnsavedChanges(false);
       setFullThemeJsonError('');
+      setLivePreviewExpanded(false);
+      setIsEditingExistingTheme(!!initialTheme);
     }
   }, [open, initialTheme]);
+
+  // Helper function to bump version
+  const bumpVersion = (version: string): string => {
+    const parts = version.split('.');
+    if (parts.length === 3) {
+      const major = parseInt(parts[0], 10) || 0;
+      const minor = parseInt(parts[1], 10) || 0;
+      const patch = parseInt(parts[2], 10) || 0;
+      return `${major}.${minor}.${patch + 1}`;
+    }
+    return version;
+  };
 
   // Generate theme from editor state for live preview
   const generateTheme = () => {
@@ -411,88 +430,91 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       // Validate and sync to editorState
       try {
+        JSON.parse(value); // First validate JSON is parseable
         const newState = convertFullThemeJsonToEditorState(value);
         if (newState) {
           setEditorState(newState);
           setFullThemeJsonError('');
+        } else {
+          setFullThemeJsonError('Invalid theme format: missing required fields');
         }
       } catch (e) {
-        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON');
+        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
       }
     }
   };
 
-  const exportToCustomThemeDefinition = (): CustomThemeDefinition => {
+  const exportToCustomThemeDefinition = (state: ThemeEditorState = editorState): CustomThemeDefinition => {
     // Parse muiComponentOverrides from jsonConfig
     let muiOverrides = {};
     try {
-      muiOverrides = JSON.parse(editorState.jsonConfig);
+      muiOverrides = JSON.parse(state.jsonConfig);
     } catch (e) {
       console.warn('Invalid JSON config for MUI overrides');
     }
 
     return {
-      name: editorState.name,
-      version: editorState.version,
-      description: editorState.description,
+      name: state.name,
+      version: state.version,
+      description: state.description,
       colors: {
-        primaryMain: editorState.primary,
-        primaryLight: editorState.primaryLight || '#42a5f5',
-        primaryDark: editorState.primaryDark || '#1565c0',
-        secondaryMain: editorState.secondary,
-        secondaryLight: editorState.secondaryLight || '#ff4081',
-        secondaryDark: editorState.secondaryDark || '#9a0036',
-        errorMain: editorState.error,
-        warningMain: editorState.warning,
-        infoMain: editorState.info,
-        successMain: editorState.success,
-        backgroundDefault: editorState.background,
-        backgroundPaper: editorState.paper,
-        textPrimary: editorState.textPrimary,
-        textSecondary: editorState.textSecondary,
+        primaryMain: state.primary,
+        primaryLight: state.primaryLight || '#42a5f5',
+        primaryDark: state.primaryDark || '#1565c0',
+        secondaryMain: state.secondary,
+        secondaryLight: state.secondaryLight || '#ff4081',
+        secondaryDark: state.secondaryDark || '#9a0036',
+        errorMain: state.error,
+        warningMain: state.warning,
+        infoMain: state.info,
+        successMain: state.success,
+        backgroundDefault: state.background,
+        backgroundPaper: state.paper,
+        textPrimary: state.textPrimary,
+        textSecondary: state.textSecondary,
       },
       componentOverrides: {
         button: {
-          borderRadius: editorState.borderRadius || 4,
-          textTransform: editorState.buttonTextTransform || 'uppercase',
+          borderRadius: state.borderRadius || 4,
+          textTransform: state.buttonTextTransform || 'uppercase',
         },
         paper: {
-          borderRadius: editorState.borderRadius || 4,
-          elevation: editorState.paperElevation || 1,
+          borderRadius: state.borderRadius || 4,
+          elevation: state.paperElevation || 1,
         },
         card: {
-          borderRadius: editorState.borderRadius || 4,
-          elevation: editorState.cardElevation || 1,
+          borderRadius: state.borderRadius || 4,
+          elevation: state.cardElevation || 1,
         },
         textField: {
-          borderRadius: editorState.borderRadius || 4,
+          borderRadius: state.borderRadius || 4,
         },
         appBar: {
-          elevation: editorState.appBarElevation || 4,
+          elevation: state.appBarElevation || 4,
         },
         drawer: {
-          width: editorState.drawerWidth || 240,
+          width: state.drawerWidth || 240,
         },
         alert: {
-          borderRadius: editorState.borderRadius || 4,
+          borderRadius: state.borderRadius || 4,
         },
         dialog: {
-          borderRadius: editorState.dialogBorderRadius || 8,
+          borderRadius: state.dialogBorderRadius || 8,
         },
         tooltip: {
-          fontSize: editorState.tooltipFontSize || 12,
+          fontSize: state.tooltipFontSize || 12,
         },
         chip: {
-          borderRadius: editorState.chipBorderRadius || 16,
+          borderRadius: state.chipBorderRadius || 16,
         },
         list: {
-          padding: editorState.listPadding || 8,
+          padding: state.listPadding || 8,
         },
         typography: {
-          h1FontSize: editorState.h1FontSize || 96,
-          h2FontSize: editorState.h2FontSize || 60,
-          h3FontSize: editorState.h3FontSize || 48,
-          bodyFontSize: editorState.bodyFontSize || 16,
+          h1FontSize: state.h1FontSize || 96,
+          h2FontSize: state.h2FontSize || 60,
+          h3FontSize: state.h3FontSize || 48,
+          bodyFontSize: state.bodyFontSize || 16,
         },
       },
       muiComponentOverrides: muiOverrides,
@@ -506,8 +528,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       return;
     }
 
-    // Create custom theme definition
-    const themeDefinition = exportToCustomThemeDefinition();
+    // Bump version if editing existing theme
+    let finalEditorState = editorState;
+    if (isEditingExistingTheme) {
+      const bumpedVersion = bumpVersion(editorState.version);
+      finalEditorState = { ...editorState, version: bumpedVersion };
+      setEditorState(finalEditorState);
+    }
+
+    // Create custom theme definition with the final state
+    const themeDefinition = exportToCustomThemeDefinition(finalEditorState);
 
     // Download as JSON file
     const sanitizeFilename = (name: string): string => {
@@ -522,7 +552,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${sanitizeFilename(editorState.name)}.json`;
+    link.download = `${sanitizeFilename(finalEditorState.name)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -629,11 +659,18 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Theme Editor
           </Typography>
+          <Button 
+            color="inherit" 
+            startIcon={livePreviewExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />} 
+            onClick={() => setLivePreviewExpanded(!livePreviewExpanded)}
+          >
+            {livePreviewExpanded ? 'Hide' : 'Show'} Preview
+          </Button>
           <Button color="inherit" startIcon={<RestartAltIcon />} onClick={handleResetToDefaults}>
-            Reset to Default
+            Reset
           </Button>
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-            Load Theme
+            Open
           </Button>
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
             Save
@@ -673,7 +710,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={7}>
+          <Grid item xs={12} md={livePreviewExpanded ? 7 : 12}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
                 <Tab label="Primary" />
@@ -983,52 +1020,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
-              <Typography variant="h6" gutterBottom>
-                Live Preview
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-
-              <ThemeProvider theme={previewTheme}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="h4" gutterBottom>
-                    Theme Preview
+          {livePreviewExpanded && (
+            <Grid item xs={12} md={5}>
+              <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Live Preview
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    This preview shows how your theme will look in the application.
-                  </Typography>
-
-                  <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Button variant="contained" color="primary">
-                      Primary
-                    </Button>
-                    <Button variant="contained" color="secondary">
-                      Secondary
-                    </Button>
-                    <Button variant="outlined">Outlined</Button>
-                  </Box>
-
-                  <Box sx={{ mt: 2 }}>
-                    <TextField fullWidth label="Text Field" />
-                  </Box>
-
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="success">Success Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="error">Error Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="warning">Warning Alert</Alert>
-                  </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <Alert severity="info">Info Alert</Alert>
-                  </Box>
+                  <IconButton onClick={() => setLivePreviewExpanded(false)}>
+                    <ExpandLessIcon />
+                  </IconButton>
                 </Box>
-              </ThemeProvider>
-            </Paper>
-          </Grid>
+                
+                <Divider sx={{ mb: 2 }} />
+                <ThemeProvider theme={previewTheme}>
+                  <Box sx={{ p: 1 }}>
+                    <ComponentShowcase />
+                  </Box>
+                </ThemeProvider>
+              </Paper>
+            </Grid>
+          )}
         </Grid>
       </Box>
 
