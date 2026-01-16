@@ -64,11 +64,13 @@ describe('errorHandler utilities', () => {
       
       logError('TestContext', error);
       
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[TestContext]',
-        'Test error',
-        error
-      );
+      // Logger service formats messages, so we check that console.error was called
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      // Verify the first call contains the formatted message with context
+      const firstCall = consoleErrorSpy.mock.calls[0][0];
+      expect(firstCall).toContain('TestContext');
+      expect(firstCall).toContain('Test error');
+      expect(firstCall).toContain('ERROR');
       
       consoleErrorSpy.mockRestore();
     });
@@ -78,11 +80,13 @@ describe('errorHandler utilities', () => {
       
       logError('TestContext', 'String error');
       
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        '[TestContext]',
-        'String error',
-        'String error'
-      );
+      // Logger service formats messages, so we check that console.error was called
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      // Verify the call contains the formatted message with context
+      const firstCall = consoleErrorSpy.mock.calls[0][0];
+      expect(firstCall).toContain('TestContext');
+      expect(firstCall).toContain('String error');
+      expect(firstCall).toContain('ERROR');
       
       consoleErrorSpy.mockRestore();
     });

@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, PersonAdd } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { validatePassword, validatePasswordMatch } from '../utils/validation';
 
 const steps = ['Create Account', 'Verify Email'];
 
@@ -49,13 +50,15 @@ const CreateAccountPage: React.FC = () => {
     setError('');
     setSuccess('');
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    const passwordMatchResult = validatePasswordMatch(password, confirmPassword);
+    if (!passwordMatchResult.isValid) {
+      setError(passwordMatchResult.error!);
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    const passwordResult = validatePassword(password);
+    if (!passwordResult.isValid) {
+      setError(passwordResult.error!);
       return;
     }
 
