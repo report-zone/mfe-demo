@@ -637,7 +637,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       // Check if this filename was also saved before
       const savedThemes = JSON.parse(sessionStorage.getItem('savedThemeFilenames') || '[]');
       if (savedThemes.includes(filename)) {
-        setSnackbar({ open: true, message: `Filename "${filename}" was also used in this session. Please choose a different name.`, severity: 'warning' });
+        setSnackbar({ open: true, message: `Filename "${filename}" was also used in this session. Please choose a different name.`, severity: 'error' });
         return;
       }
 
