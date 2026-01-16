@@ -332,7 +332,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   };
 
   // Generate theme from editor state for live preview
-  const generateTheme = () => {
+  const generateTheme = React.useCallback(() => {
     try {
       // Parse muiComponentOverrides from jsonConfig
       let muiOverrides = {};
@@ -403,9 +403,9 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       console.error('Error generating theme:', error);
       return createTheme();
     }
-  };
+  }, [editorState]);
 
-  const previewTheme = generateTheme();
+  const previewTheme = React.useMemo(() => generateTheme(), [generateTheme]);
 
   const handleFieldChange = (field: keyof ThemeEditorState, value: string | number) => {
     // Convert numeric string values to numbers for appropriate fields
