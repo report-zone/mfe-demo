@@ -12,6 +12,9 @@ import { createTheme, Theme } from '@mui/material';
 // Note: This interface is duplicated from preferences app's types to maintain
 // independence between MFEs. Each MFE should be able to run standalone.
 // The structure matches the theme JSON format defined in the requirements.
+// 
+// Future Improvement: Consider creating a shared types package to avoid duplication
+// while maintaining MFE independence through proper dependency management.
 export interface CustomThemeDefinition {
   name: string;
   version: string;
@@ -153,6 +156,16 @@ export class ThemeConverter {
   }
 
   /**
+   * Type guard to check if theme config is a valid legacy MUI theme format
+   */
+  static isLegacyThemeFormat(cfg: unknown): boolean {
+    if (typeof cfg !== 'object' || cfg === null) return false;
+    const obj = cfg as Record<string, unknown>;
+    // Legacy format typically has palette, typography, spacing, etc.
+    return !!(obj.palette || obj.typography || obj.spacing || obj.components);
+  }
+
+  /**
    * Converts any theme config format to a MUI Theme
    * Handles both new custom format and legacy MUI theme format
    */
@@ -160,7 +173,11 @@ export class ThemeConverter {
     if (this.isNewThemeFormat(themeConfig)) {
       return this.createThemeFromDefinition(themeConfig);
     }
-    // Legacy format - pass to createTheme with type assertion
-    return createTheme(themeConfig as Record<string, unknown>);
+    // Legacy format - validate before conversion
+    if (this.isLegacyThemeFormat(themeConfig)) {
+      return createTheme(themeConfig as Record<string, unknown>);
+    }
+    // Fallback to default theme if format is unrecognized
+    return createTheme();
   }
 }

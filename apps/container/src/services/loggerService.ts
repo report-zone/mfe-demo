@@ -9,6 +9,33 @@
 import { ILoggerService, LogLevel } from './interfaces/ILoggerService';
 
 /**
+ * Sensitive fields to redact from logs
+ */
+const SENSITIVE_FIELDS = ['password', 'token', 'apiKey', 'secret', 'authorization', 'cookie'];
+
+/**
+ * Sanitizes metadata by redacting sensitive fields
+ */
+function sanitizeMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  
+  for (const [key, value] of Object.entries(metadata)) {
+    const lowerKey = key.toLowerCase();
+    // Redact if the key contains any sensitive field name
+    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (value && typeof value === 'object') {
+      // Recursively sanitize nested objects
+      sanitized[key] = sanitizeMetadata(value as Record<string, unknown>);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  
+  return sanitized;
+}
+
+/**
  * Console-based logger implementation
  * Uses browser console for logging
  */
@@ -33,7 +60,8 @@ export class ConsoleLoggerService implements ILoggerService {
     let formatted = `${this.prefix}${contextStr} [${timestamp}] ${level.toUpperCase()}: ${message}`;
     
     if (metadata && Object.keys(metadata).length > 0) {
-      formatted += `\nMetadata: ${JSON.stringify(metadata, null, 2)}`;
+      const sanitized = sanitizeMetadata(metadata);
+      formatted += `\nMetadata: ${JSON.stringify(sanitized, null, 2)}`;
     }
     
     return formatted;
