@@ -80,7 +80,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const fullThemeObject = React.useMemo((): CustomTheme => {
     const muiTheme = convertThemeDefinitionToMuiTheme(themeDefinition);
     return {
-      id: `custom-${Date.now()}`,
+      id: `custom-${crypto.randomUUID()}`,
       name: themeDefinition.name,
       description: themeDefinition.description,
       theme: muiTheme,
@@ -182,7 +182,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         // Check if it's the full CustomTheme structure or just CustomThemeDefinition
         let themeDefToValidate: CustomThemeDefinition;
         
-        if (parsed.themeConfig && typeof parsed.themeConfig === 'object') {
+        if (parsed.themeConfig && typeof parsed.themeConfig === 'object' && !Array.isArray(parsed.themeConfig) && parsed.themeConfig !== null) {
           // It's a full CustomTheme object - extract the themeConfig
           themeDefToValidate = parsed.themeConfig as CustomThemeDefinition;
         } else {
