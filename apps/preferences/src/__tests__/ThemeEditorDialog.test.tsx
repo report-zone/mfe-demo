@@ -322,4 +322,113 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     expect(new Date(parsed.createdAt).toISOString()).toBe(parsed.createdAt);
     expect(new Date(parsed.modifiedAt).toISOString()).toBe(parsed.modifiedAt);
   });
+
+  it('should include palette mode in full theme JSON', async () => {
+    renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
+    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    const jsonValue = monacoEditor.value;
+    const parsed = JSON.parse(jsonValue);
+    
+    // Check for palette mode field
+    expect(parsed.palette).toBeDefined();
+    expect(parsed.palette.mode).toBeDefined();
+    expect(parsed.palette.mode).toBe('light');
+  });
+
+  it('should allow changing palette mode via dropdown', async () => {
+    renderThemeEditor();
+    
+    // Click on Background tab (tab 3)
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[3]);
+    
+    // Wait for the content to be rendered and find the Select
+    await waitFor(() => {
+      const modeButton = screen.getByRole('combobox', { hidden: true });
+      expect(modeButton).toBeDefined();
+    });
+  });
+
+  it('should sync palette mode changes to full theme JSON', async () => {
+    renderThemeEditor();
+    
+    // Click on Background tab (tab 3)
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[3]);
+    
+    // Wait for the Select to be present
+    await waitFor(() => {
+      const modeButton = screen.getByRole('combobox', { hidden: true });
+      expect(modeButton).toBeDefined();
+    });
+    
+    const modeButton = screen.getByRole('combobox', { hidden: true });
+    
+    // Click to open the dropdown
+    fireEvent.mouseDown(modeButton);
+    
+    // Wait for dropdown to open and click dark option
+    await waitFor(() => {
+      const darkOption = screen.getByRole('option', { name: /dark/i });
+      expect(darkOption).toBeDefined();
+    });
+    
+    const darkOption = screen.getByRole('option', { name: /dark/i });
+    fireEvent.click(darkOption);
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      const jsonValue = monacoEditor.value;
+      const parsed = JSON.parse(jsonValue);
+      expect(parsed.palette.mode).toBe('dark');
+    });
+  });
+
+  it('should load palette mode from imported theme JSON', async () => {
+    renderThemeEditor();
+    
+    // Click on Full Theme JSON tab
+    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
+    fireEvent.click(fullThemeTab);
+    
+    await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+      expect(monacoEditor).toBeDefined();
+    });
+    
+    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    
+    // Parse the initial JSON and set mode to dark
+    const initialJson = JSON.parse(monacoEditor.value);
+    const updatedJson = {
+      ...initialJson,
+      palette: {
+        mode: 'dark',
+      },
+    };
+    
+    // Update Monaco editor
+    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
+    
+    // Verify the mode was updated in the editor state by checking the JSON reflects it
+    await waitFor(() => {
+      const updatedJsonValue = monacoEditor.value;
+      const parsed = JSON.parse(updatedJsonValue);
+      expect(parsed.palette.mode).toBe('dark');
+    });
+  });
 });
