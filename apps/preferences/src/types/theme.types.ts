@@ -9,7 +9,11 @@ export interface CustomTheme {
   description?: string;
 }
 
-// New custom theme definition format
+/**
+ * Custom theme definition format
+ * This is the single source of truth for theme structure,
+ * used both in localStorage and the theme editor
+ */
 export interface CustomThemeDefinition {
   name: string;
   version: string;
@@ -79,43 +83,4 @@ export interface CustomThemeDefinition {
   };
   muiComponentOverrides: Record<string, unknown>;
   createdAt?: string;
-}
-
-export interface ThemeEditorState {
-  name: string;
-  version: string;
-  description?: string;
-  primary: string;
-  primaryLight?: string;
-  primaryDark?: string;
-  secondary: string;
-  secondaryLight?: string;
-  secondaryDark?: string;
-  error: string;
-  warning: string;
-  info: string;
-  success: string;
-  background: string;
-  paper: string;
-  textPrimary: string;
-  textSecondary: string;
-  mode: 'light' | 'dark';
-  // Component configuration
-  borderRadius?: number;
-  fontSize?: number;
-  padding?: number;
-  buttonTextTransform?: string;
-  paperElevation?: number;
-  cardElevation?: number;
-  appBarElevation?: number;
-  drawerWidth?: number;
-  dialogBorderRadius?: number;
-  chipBorderRadius?: number;
-  listPadding?: number;
-  tooltipFontSize?: number;
-  h1FontSize?: number;
-  h2FontSize?: number;
-  h3FontSize?: number;
-  bodyFontSize?: number;
-  jsonConfig: string;
 }
