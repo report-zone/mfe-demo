@@ -13,7 +13,6 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
@@ -22,6 +21,8 @@ import { useThemeContext } from '../context/ThemeContext';
 import { CustomThemeDefinition } from '../types/theme.types';
 import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
+import { convertThemeDefinitionToMuiTheme } from '../utils/themeUtils';
+import { loadThemeFromFile } from '../utils/themeFileOperations';
 
 const ThemesTab: React.FC = () => {
   const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage, removeCustomTheme } =
@@ -33,97 +34,28 @@ const ThemesTab: React.FC = () => {
     setEditorOpen(true);
   };
 
-  const handleLoadAndAddTheme = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event: ProgressEvent<FileReader>) => {
-          try {
-            const result = event.target?.result;
-            if (typeof result === 'string') {
-              const config: CustomThemeDefinition = JSON.parse(result);
-              
-              // Convert CustomThemeDefinition to MUI theme
-              const muiTheme = createTheme({
-                palette: {
-                  mode: config.palette?.mode || 'light',
-                  primary: {
-                    main: config.colors?.primaryMain || '#1976d2',
-                    light: config.colors?.primaryLight || '#42a5f5',
-                    dark: config.colors?.primaryDark || '#1565c0',
-                  },
-                  secondary: {
-                    main: config.colors?.secondaryMain || '#dc004e',
-                    light: config.colors?.secondaryLight || '#ff4081',
-                    dark: config.colors?.secondaryDark || '#9a0036',
-                  },
-                  error: {
-                    main: config.colors?.errorMain || '#d32f2f',
-                  },
-                  warning: {
-                    main: config.colors?.warningMain || '#ed6c02',
-                  },
-                  info: {
-                    main: config.colors?.infoMain || '#0288d1',
-                  },
-                  success: {
-                    main: config.colors?.successMain || '#2e7d32',
-                  },
-                  background: {
-                    default: config.colors?.backgroundDefault || '#ffffff',
-                    paper: config.colors?.backgroundPaper || '#f5f5f5',
-                  },
-                  text: {
-                    primary: config.colors?.textPrimary || '#000000',
-                    secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-                  },
-                },
-                typography: {
-                  fontSize: config.componentOverrides?.typography?.bodyFontSize || 16,
-                  h1: {
-                    fontSize: `${config.componentOverrides?.typography?.h1FontSize || 96}px`,
-                  },
-                  h2: {
-                    fontSize: `${config.componentOverrides?.typography?.h2FontSize || 60}px`,
-                  },
-                  h3: {
-                    fontSize: `${config.componentOverrides?.typography?.h3FontSize || 48}px`,
-                  },
-                  body1: {
-                    fontSize: `${config.componentOverrides?.typography?.bodyFontSize || 16}px`,
-                  },
-                },
-                shape: {
-                  borderRadius: config.componentOverrides?.button?.borderRadius || 4,
-                },
-                components: config.muiComponentOverrides || {},
-              });
-              
-              const theme = {
-                id: `loaded-${Date.now()}`,
-                name: config.name || file.name.replace('.json', ''),
-                description: config.description || '',
-                theme: muiTheme,
-                isCustom: true,
-                themeConfig: config,
-              };
-              addCustomTheme(theme);
-              loadThemesFromStorage();
-              setSnackbar({ open: true, message: 'Theme loaded and added to selection!', severity: 'success' });
-            }
-          } catch (error) {
-            setSnackbar({ open: true, message: 'Error loading theme file. Please ensure it is a valid JSON file.', severity: 'error' });
-          }
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
+  const handleLoadAndAddTheme = async () => {
+    try {
+      const config: CustomThemeDefinition = await loadThemeFromFile();
+      
+      // Convert CustomThemeDefinition to MUI theme using utility
+      const muiTheme = convertThemeDefinitionToMuiTheme(config);
+      
+      const theme = {
+        id: `loaded-${Date.now()}`,
+        name: config.name,
+        description: config.description || '',
+        theme: muiTheme,
+        isCustom: true,
+        themeConfig: config,
+      };
+      addCustomTheme(theme);
+      loadThemesFromStorage();
+      setSnackbar({ open: true, message: 'Theme loaded and added to selection!', severity: 'success' });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error loading theme file';
+      setSnackbar({ open: true, message: errorMessage, severity: 'error' });
+    }
   };
 
   const handleDeleteTheme = (themeId: string) => {
