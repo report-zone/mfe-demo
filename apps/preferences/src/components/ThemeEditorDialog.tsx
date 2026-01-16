@@ -228,6 +228,9 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         description: state.description || '',
         createdAt: now,
         modifiedAt: now,
+        palette: {
+          mode: state.mode || 'light',
+        },
         colors: {
           primaryMain: state.primary,
           primaryLight: state.primaryLight || '#42a5f5',
@@ -277,7 +280,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         paper: parsed.colors?.backgroundPaper || '#f5f5f5',
         textPrimary: parsed.colors?.textPrimary || '#000000',
         textSecondary: parsed.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-        mode: 'light',
+        mode: parsed.palette?.mode || 'light',
         borderRadius: 4,
         fontSize: 14,
         padding: 8,
@@ -617,7 +620,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 paper: config.colors?.backgroundPaper || '#f5f5f5',
                 textPrimary: config.colors?.textPrimary || '#000000',
                 textSecondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-                mode: 'light',
+                mode: (config as any).palette?.mode || 'light',
                 borderRadius: config.componentOverrides?.button?.borderRadius || 4,
                 fontSize: 14,
                 padding: 8,
@@ -789,6 +792,17 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
                 {activeTab === 3 && (
                   <Box>
+                    <FormControl fullWidth sx={{ mb: 3 }}>
+                      <InputLabel>Palette Mode</InputLabel>
+                      <Select
+                        value={editorState.mode || 'light'}
+                        label="Palette Mode"
+                        onChange={(e) => handleFieldChange('mode', e.target.value)}
+                      >
+                        <MenuItem value="light">Light</MenuItem>
+                        <MenuItem value="dark">Dark</MenuItem>
+                      </Select>
+                    </FormControl>
                     <ColorPicker
                       label="Background Color"
                       value={editorState.background}
