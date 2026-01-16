@@ -620,7 +620,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 paper: config.colors?.backgroundPaper || '#f5f5f5',
                 textPrimary: config.colors?.textPrimary || '#000000',
                 textSecondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-                mode: (config as any).palette?.mode || 'light',
+                mode: config.palette?.mode || 'light',
                 borderRadius: config.componentOverrides?.button?.borderRadius || 4,
                 fontSize: 14,
                 padding: 8,

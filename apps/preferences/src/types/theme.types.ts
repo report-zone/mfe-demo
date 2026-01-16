@@ -14,6 +14,9 @@ export interface CustomThemeDefinition {
   name: string;
   version: string;
   description?: string;
+  palette?: {
+    mode?: 'light' | 'dark';
+  };
   colors: {
     primaryMain: string;
     primaryLight: string;
