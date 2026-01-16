@@ -430,90 +430,91 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       // Validate and sync to editorState
       try {
+        JSON.parse(value); // First validate JSON is parseable
         const newState = convertFullThemeJsonToEditorState(value);
         if (newState) {
           setEditorState(newState);
           setFullThemeJsonError('');
         } else {
-          setFullThemeJsonError('Invalid JSON format');
+          setFullThemeJsonError('Invalid theme format: missing required fields');
         }
       } catch (e) {
-        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON');
+        setFullThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
       }
     }
   };
 
-  const exportToCustomThemeDefinition = (): CustomThemeDefinition => {
+  const exportToCustomThemeDefinition = (state: ThemeEditorState = editorState): CustomThemeDefinition => {
     // Parse muiComponentOverrides from jsonConfig
     let muiOverrides = {};
     try {
-      muiOverrides = JSON.parse(editorState.jsonConfig);
+      muiOverrides = JSON.parse(state.jsonConfig);
     } catch (e) {
       console.warn('Invalid JSON config for MUI overrides');
     }
 
     return {
-      name: editorState.name,
-      version: editorState.version,
-      description: editorState.description,
+      name: state.name,
+      version: state.version,
+      description: state.description,
       colors: {
-        primaryMain: editorState.primary,
-        primaryLight: editorState.primaryLight || '#42a5f5',
-        primaryDark: editorState.primaryDark || '#1565c0',
-        secondaryMain: editorState.secondary,
-        secondaryLight: editorState.secondaryLight || '#ff4081',
-        secondaryDark: editorState.secondaryDark || '#9a0036',
-        errorMain: editorState.error,
-        warningMain: editorState.warning,
-        infoMain: editorState.info,
-        successMain: editorState.success,
-        backgroundDefault: editorState.background,
-        backgroundPaper: editorState.paper,
-        textPrimary: editorState.textPrimary,
-        textSecondary: editorState.textSecondary,
+        primaryMain: state.primary,
+        primaryLight: state.primaryLight || '#42a5f5',
+        primaryDark: state.primaryDark || '#1565c0',
+        secondaryMain: state.secondary,
+        secondaryLight: state.secondaryLight || '#ff4081',
+        secondaryDark: state.secondaryDark || '#9a0036',
+        errorMain: state.error,
+        warningMain: state.warning,
+        infoMain: state.info,
+        successMain: state.success,
+        backgroundDefault: state.background,
+        backgroundPaper: state.paper,
+        textPrimary: state.textPrimary,
+        textSecondary: state.textSecondary,
       },
       componentOverrides: {
         button: {
-          borderRadius: editorState.borderRadius || 4,
-          textTransform: editorState.buttonTextTransform || 'uppercase',
+          borderRadius: state.borderRadius || 4,
+          textTransform: state.buttonTextTransform || 'uppercase',
         },
         paper: {
-          borderRadius: editorState.borderRadius || 4,
-          elevation: editorState.paperElevation || 1,
+          borderRadius: state.borderRadius || 4,
+          elevation: state.paperElevation || 1,
         },
         card: {
-          borderRadius: editorState.borderRadius || 4,
-          elevation: editorState.cardElevation || 1,
+          borderRadius: state.borderRadius || 4,
+          elevation: state.cardElevation || 1,
         },
         textField: {
-          borderRadius: editorState.borderRadius || 4,
+          borderRadius: state.borderRadius || 4,
         },
         appBar: {
-          elevation: editorState.appBarElevation || 4,
+          elevation: state.appBarElevation || 4,
         },
         drawer: {
-          width: editorState.drawerWidth || 240,
+          width: state.drawerWidth || 240,
         },
         alert: {
-          borderRadius: editorState.borderRadius || 4,
+          borderRadius: state.borderRadius || 4,
         },
         dialog: {
-          borderRadius: editorState.dialogBorderRadius || 8,
+          borderRadius: state.dialogBorderRadius || 8,
         },
         tooltip: {
-          fontSize: editorState.tooltipFontSize || 12,
+          fontSize: state.tooltipFontSize || 12,
         },
         chip: {
-          borderRadius: editorState.chipBorderRadius || 16,
+          borderRadius: state.chipBorderRadius || 16,
         },
         list: {
-          padding: editorState.listPadding || 8,
+          padding: state.listPadding || 8,
         },
         typography: {
-          h1FontSize: editorState.h1FontSize || 96,
-          h2FontSize: editorState.h2FontSize || 60,
-          h3FontSize: editorState.h3FontSize || 48,
-          bodyFontSize: editorState.bodyFontSize || 16,
+          h1FontSize: state.h1FontSize || 96,
+          h2FontSize: state.h2FontSize || 60,
+          h3FontSize: state.h3FontSize || 48,
+          bodyFontSize: state.bodyFontSize || 16,
         },
       },
       muiComponentOverrides: muiOverrides,
@@ -535,13 +536,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setEditorState(finalEditorState);
     }
 
-    // Create custom theme definition
-    const themeDefinition = exportToCustomThemeDefinition();
-    
-    // Update version in theme definition if bumped
-    if (isEditingExistingTheme) {
-      themeDefinition.version = finalEditorState.version;
-    }
+    // Create custom theme definition with the final state
+    const themeDefinition = exportToCustomThemeDefinition(finalEditorState);
 
     // Download as JSON file
     const sanitizeFilename = (name: string): string => {
