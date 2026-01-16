@@ -111,11 +111,13 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     const keys = path.split('.');
     updateThemeDefinition(prev => {
       const updated = cloneThemeDefinition(prev);
-      let current: any = updated;
-      for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
+      
+      // Type-safe navigation through the nested structure
+      if (keys[0] === 'colors' && keys.length === 2) {
+        const colorKey = keys[1] as keyof CustomThemeDefinition['colors'];
+        updated.colors[colorKey] = value;
       }
-      current[keys[keys.length - 1]] = value;
+      
       return updated;
     });
   };
@@ -123,10 +125,20 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const handleComponentOverrideChange = (component: string, property: string, value: string | number) => {
     updateThemeDefinition(prev => {
       const updated = cloneThemeDefinition(prev);
-      if (!updated.componentOverrides[component as keyof typeof updated.componentOverrides]) {
-        (updated.componentOverrides as any)[component] = {};
+      
+      // Type-safe component override updates
+      type ComponentKey = keyof CustomThemeDefinition['componentOverrides'];
+      const componentKey = component as ComponentKey;
+      
+      if (!updated.componentOverrides[componentKey]) {
+        updated.componentOverrides[componentKey] = {} as any;
       }
-      (updated.componentOverrides as any)[component][property] = value;
+      
+      const componentOverride = updated.componentOverrides[componentKey];
+      if (componentOverride) {
+        (componentOverride as Record<string, string | number>)[property] = value;
+      }
+      
       return updated;
     });
   };

@@ -169,15 +169,18 @@ export const validateThemeDefinition = (definition: unknown): { isValid: boolean
   }
 
   // Validate required color fields
-  const requiredColors = [
-    'primaryMain', 'secondaryMain', 'errorMain', 'warningMain',
-    'infoMain', 'successMain', 'backgroundDefault', 'backgroundPaper',
+  const requiredColors: (keyof CustomThemeDefinition['colors'])[] = [
+    'primaryMain', 'primaryLight', 'primaryDark',
+    'secondaryMain', 'secondaryLight', 'secondaryDark',
+    'errorMain', 'warningMain', 'infoMain', 'successMain',
+    'backgroundDefault', 'backgroundPaper',
     'textPrimary', 'textSecondary'
   ];
 
   for (const color of requiredColors) {
-    if (!def.colors[color as keyof typeof def.colors]) {
-      return { isValid: false, error: `Missing required color: ${color}` };
+    const value = def.colors[color];
+    if (typeof value !== 'string' || value === '') {
+      return { isValid: false, error: `Missing or invalid required color: ${color}` };
     }
   }
 
@@ -190,13 +193,20 @@ export const validateThemeDefinition = (definition: unknown): { isValid: boolean
  */
 export const bumpVersion = (version: string): string => {
   const parts = version.split('.');
-  if (parts.length === 3) {
-    const major = parseInt(parts[0], 10) || 0;
-    const minor = parseInt(parts[1], 10) || 0;
-    const patch = parseInt(parts[2], 10) || 0;
-    return `${major}.${minor}.${patch + 1}`;
+  if (parts.length !== 3) {
+    return version; // Return unchanged if not in x.y.z format
   }
-  return version;
+  
+  const major = parseInt(parts[0], 10);
+  const minor = parseInt(parts[1], 10);
+  const patch = parseInt(parts[2], 10);
+  
+  // Validate all parts are valid numbers
+  if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
+    return version; // Return unchanged if any part is invalid
+  }
+  
+  return `${major}.${minor}.${patch + 1}`;
 };
 
 /**
@@ -204,5 +214,27 @@ export const bumpVersion = (version: string): string => {
  * Following Single Responsibility Principle: Only handles cloning
  */
 export const cloneThemeDefinition = (definition: CustomThemeDefinition): CustomThemeDefinition => {
-  return JSON.parse(JSON.stringify(definition));
+  return {
+    name: definition.name,
+    version: definition.version,
+    description: definition.description,
+    palette: definition.palette ? { ...definition.palette } : undefined,
+    colors: { ...definition.colors },
+    componentOverrides: {
+      button: definition.componentOverrides.button ? { ...definition.componentOverrides.button } : undefined,
+      paper: definition.componentOverrides.paper ? { ...definition.componentOverrides.paper } : undefined,
+      card: definition.componentOverrides.card ? { ...definition.componentOverrides.card } : undefined,
+      textField: definition.componentOverrides.textField ? { ...definition.componentOverrides.textField } : undefined,
+      appBar: definition.componentOverrides.appBar ? { ...definition.componentOverrides.appBar } : undefined,
+      drawer: definition.componentOverrides.drawer ? { ...definition.componentOverrides.drawer } : undefined,
+      alert: definition.componentOverrides.alert ? { ...definition.componentOverrides.alert } : undefined,
+      dialog: definition.componentOverrides.dialog ? { ...definition.componentOverrides.dialog } : undefined,
+      tooltip: definition.componentOverrides.tooltip ? { ...definition.componentOverrides.tooltip } : undefined,
+      chip: definition.componentOverrides.chip ? { ...definition.componentOverrides.chip } : undefined,
+      list: definition.componentOverrides.list ? { ...definition.componentOverrides.list } : undefined,
+      typography: definition.componentOverrides.typography ? { ...definition.componentOverrides.typography } : undefined,
+    },
+    muiComponentOverrides: { ...definition.muiComponentOverrides },
+    createdAt: definition.createdAt,
+  };
 };
