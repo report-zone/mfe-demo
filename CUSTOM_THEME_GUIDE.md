@@ -166,6 +166,18 @@ The theme editor includes a live preview panel that shows:
    - Added to the available themes list
    - Ready to be applied
 
+#### Replacing an Existing Theme File
+
+If you save a theme with a name that matches a file you've already saved in this session:
+
+1. A dialog will appear asking if you want to replace the existing file
+2. You have three options:
+   - **Replace**: Downloads the file again with the same name (your browser may add a number to the filename, e.g., "theme (1).json")
+   - **Save As Different Name**: Opens a dialog where you can enter a new filename to avoid conflicts
+   - **Cancel**: Cancels the save operation
+
+**Note:** Due to browser security limitations, the app cannot directly overwrite files in your downloads folder. When you choose "Replace," the file will be downloaded again, and you may need to manually replace the original file in your downloads folder.
+
 ### Loading an Existing Theme
 
 #### From the Themes Tab:
