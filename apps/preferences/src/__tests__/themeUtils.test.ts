@@ -49,6 +49,39 @@ describe('Theme Utilities', () => {
       const muiTheme = convertThemeDefinitionToMuiTheme(definition);
       expect(muiTheme.palette.mode).toBe('dark');
     });
+
+    it('should use MUI defaults when dark mode has light mode colors', () => {
+      const definition = createDefaultThemeDefinition();
+      definition.palette = { mode: 'dark' };
+      // Keep light mode colors (white background, black text)
+      definition.colors.backgroundDefault = '#ffffff';
+      definition.colors.backgroundPaper = '#f5f5f5';
+      definition.colors.textPrimary = '#000000';
+      definition.colors.textSecondary = 'rgba(0, 0, 0, 0.6)';
+      
+      const muiTheme = convertThemeDefinitionToMuiTheme(definition);
+      
+      expect(muiTheme.palette.mode).toBe('dark');
+      // Should use MUI's dark mode defaults instead of the light colors
+      expect(muiTheme.palette.background.default).toBe('#121212');
+      expect(muiTheme.palette.text.primary).toBe('#fff');
+    });
+
+    it('should respect explicit dark mode colors when provided', () => {
+      const definition = createDefaultThemeDefinition();
+      definition.palette = { mode: 'dark' };
+      definition.colors.backgroundDefault = '#121212';
+      definition.colors.backgroundPaper = '#1e1e1e';
+      definition.colors.textPrimary = '#ffffff';
+      definition.colors.textSecondary = 'rgba(255, 255, 255, 0.7)';
+      
+      const muiTheme = convertThemeDefinitionToMuiTheme(definition);
+      
+      expect(muiTheme.palette.mode).toBe('dark');
+      expect(muiTheme.palette.background.default).toBe('#121212');
+      expect(muiTheme.palette.background.paper).toBe('#1e1e1e');
+      expect(muiTheme.palette.text.primary).toBe('#ffffff');
+    });
   });
 
   describe('validateThemeDefinition', () => {

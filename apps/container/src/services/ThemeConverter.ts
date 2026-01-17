@@ -100,12 +100,89 @@ export class ThemeConverter {
   }
 
   /**
+   * Calculates relative brightness of a color
+   * Uses simplified approach: checks if hex value is above threshold
+   */
+  private static getColorBrightness(color: string): number {
+    const hex = color.toLowerCase().replace(/^#/, '').replace(/\s/g, '');
+    
+    // Handle 3-digit hex
+    const fullHex = hex.length === 3 
+      ? hex.split('').map(c => c + c).join('')
+      : hex;
+    
+    if (fullHex.length !== 6) return 0;
+    
+    // Extract RGB
+    const r = parseInt(fullHex.substr(0, 2), 16);
+    const g = parseInt(fullHex.substr(2, 2), 16);
+    const b = parseInt(fullHex.substr(4, 2), 16);
+    
+    // Simple brightness calculation (average of RGB)
+    // Light colors have high brightness (>200), dark colors have low (<100)
+    return (r + g + b) / 3;
+  }
+
+  /**
+   * Checks if background colors appear to be for light mode
+   * Light mode typically has bright backgrounds (near white)
+   */
+  private static isLightModeBackground(bgDefault: string, bgPaper: string): boolean {
+    const defaultBrightness = this.getColorBrightness(bgDefault);
+    const paperBrightness = this.getColorBrightness(bgPaper);
+    
+    // If both backgrounds are bright (>200), it's light mode
+    return defaultBrightness > 200 && paperBrightness > 200;
+  }
+
+  /**
+   * Checks if text colors appear to be for light mode
+   * Light mode typically has dark text (black or near-black)
+   */
+  private static isLightModeText(textPrimary: string): boolean {
+    const text = textPrimary.toLowerCase().trim();
+    
+    // Check for common black/dark representations
+    if (text === '#000000' || text === '#000' || 
+        text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)') {
+      return true;
+    }
+    
+    // Check hex colors with brightness
+    if (text.startsWith('#')) {
+      return this.getColorBrightness(text) < 100;
+    }
+    
+    return false;
+  }
+
+  /**
    * Converts a CustomThemeDefinition to a MUI Theme
+   * 
+   * When palette mode is 'dark' but colors are for light mode (or vice versa),
+   * this function omits background and text colors to let MUI use appropriate defaults.
    */
   static createThemeFromDefinition(config: CustomThemeDefinition): Theme {
+    const mode = config.palette?.mode || 'light';
+    
+    // Use defaults for colors if not provided
+    const bgDefault = config.colors?.backgroundDefault || '#ffffff';
+    const bgPaper = config.colors?.backgroundPaper || '#f5f5f5';
+    const txtPrimary = config.colors?.textPrimary || '#000000';
+    
+    // Check if background and text colors are compatible with the mode
+    const hasLightModeBackground = this.isLightModeBackground(bgDefault, bgPaper);
+    const hasLightModeText = this.isLightModeText(txtPrimary);
+    
+    // If mode is dark but colors are for light mode, use MUI defaults
+    // If mode is light but colors are for dark mode, use MUI defaults
+    const shouldUseDefaultBackgroundAndText = 
+      (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
+      (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+    
     return createTheme({
       palette: {
-        mode: config.palette?.mode || 'light',
+        mode,
         primary: {
           main: config.colors?.primaryMain || '#1976d2',
           light: config.colors?.primaryLight || '#42a5f5',
@@ -128,14 +205,17 @@ export class ThemeConverter {
         success: {
           main: config.colors?.successMain || '#2e7d32',
         },
-        background: {
-          default: config.colors?.backgroundDefault || '#ffffff',
-          paper: config.colors?.backgroundPaper || '#f5f5f5',
-        },
-        text: {
-          primary: config.colors?.textPrimary || '#000000',
-          secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-        },
+        // Only set background/text if they're compatible with the mode
+        ...(!shouldUseDefaultBackgroundAndText && {
+          background: {
+            default: bgDefault,
+            paper: bgPaper,
+          },
+          text: {
+            primary: txtPrimary,
+            secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
+          },
+        }),
       },
       typography: {
         fontSize: config.componentOverrides?.typography?.bodyFontSize || 16,

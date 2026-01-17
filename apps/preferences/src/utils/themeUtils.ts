@@ -203,13 +203,88 @@ export const createDefaultThemeDefinition = (): CustomThemeDefinition => {
 };
 
 /**
+ * Calculates relative luminance of a color
+ * Uses simplified approach: checks if hex value is above threshold
+ */
+const getColorBrightness = (color: string): number => {
+  const hex = color.toLowerCase().replace(/^#/, '').replace(/\s/g, '');
+  
+  // Handle 3-digit hex
+  const fullHex = hex.length === 3 
+    ? hex.split('').map(c => c + c).join('')
+    : hex;
+  
+  if (fullHex.length !== 6) return 0;
+  
+  // Extract RGB
+  const r = parseInt(fullHex.substr(0, 2), 16);
+  const g = parseInt(fullHex.substr(2, 2), 16);
+  const b = parseInt(fullHex.substr(4, 2), 16);
+  
+  // Simple brightness calculation (average of RGB)
+  // Light colors have high brightness (>200), dark colors have low (<100)
+  return (r + g + b) / 3;
+};
+
+/**
+ * Checks if background colors appear to be for light mode
+ * Light mode typically has bright backgrounds (near white)
+ */
+const isLightModeBackground = (bgDefault: string, bgPaper: string): boolean => {
+  const defaultBrightness = getColorBrightness(bgDefault);
+  const paperBrightness = getColorBrightness(bgPaper);
+  
+  // If both backgrounds are bright (>200), it's light mode
+  return defaultBrightness > 200 && paperBrightness > 200;
+};
+
+/**
+ * Checks if text colors appear to be for light mode
+ * Light mode typically has dark text (black or near-black)
+ */
+const isLightModeText = (textPrimary: string): boolean => {
+  const text = textPrimary.toLowerCase().trim();
+  
+  // Check for common black/dark representations
+  if (text === '#000000' || text === '#000' || 
+      text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)') {
+    return true;
+  }
+  
+  // Check hex colors with brightness
+  if (text.startsWith('#')) {
+    return getColorBrightness(text) < 100;
+  }
+  
+  return false;
+};
+
+/**
  * Converts a CustomThemeDefinition to a Material-UI Theme
  * Following Single Responsibility Principle: Only handles theme conversion
+ * 
+ * When palette mode is 'dark' but colors are for light mode (or vice versa),
+ * this function omits background and text colors to let MUI use appropriate defaults.
  */
 export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefinition): Theme => {
+  const mode = definition.palette?.mode || 'light';
+  
+  // Check if background and text colors are compatible with the mode
+  const hasLightModeBackground = isLightModeBackground(
+    definition.colors.backgroundDefault,
+    definition.colors.backgroundPaper
+  );
+  const hasLightModeText = isLightModeText(definition.colors.textPrimary);
+  
+  // If mode is dark but colors are for light mode, use MUI defaults
+  // If mode is light but colors are for dark mode, use MUI defaults
+  const shouldUseDefaultBackgroundAndText = 
+    (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
+    (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+  
   return createTheme({
     palette: {
-      mode: definition.palette?.mode || 'light',
+      mode,
       primary: {
         main: definition.colors.primaryMain,
         light: definition.colors.primaryLight,
@@ -232,14 +307,17 @@ export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefiniti
       success: {
         main: definition.colors.successMain,
       },
-      background: {
-        default: definition.colors.backgroundDefault,
-        paper: definition.colors.backgroundPaper,
-      },
-      text: {
-        primary: definition.colors.textPrimary,
-        secondary: definition.colors.textSecondary,
-      },
+      // Only set background/text if they're compatible with the mode
+      ...(!shouldUseDefaultBackgroundAndText && {
+        background: {
+          default: definition.colors.backgroundDefault,
+          paper: definition.colors.backgroundPaper,
+        },
+        text: {
+          primary: definition.colors.textPrimary,
+          secondary: definition.colors.textSecondary,
+        },
+      }),
     },
     typography: {
       fontSize: definition.componentOverrides?.typography?.bodyFontSize || 16,
