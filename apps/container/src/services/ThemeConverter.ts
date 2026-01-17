@@ -100,24 +100,39 @@ export class ThemeConverter {
   }
 
   /**
+   * Calculates relative brightness of a color
+   * Uses simplified approach: checks if hex value is above threshold
+   */
+  private static getColorBrightness(color: string): number {
+    const hex = color.toLowerCase().replace(/^#/, '').replace(/\s/g, '');
+    
+    // Handle 3-digit hex
+    const fullHex = hex.length === 3 
+      ? hex.split('').map(c => c + c).join('')
+      : hex;
+    
+    if (fullHex.length !== 6) return 0;
+    
+    // Extract RGB
+    const r = parseInt(fullHex.substr(0, 2), 16);
+    const g = parseInt(fullHex.substr(2, 2), 16);
+    const b = parseInt(fullHex.substr(4, 2), 16);
+    
+    // Simple brightness calculation (average of RGB)
+    // Light colors have high brightness (>200), dark colors have low (<100)
+    return (r + g + b) / 3;
+  }
+
+  /**
    * Checks if background colors appear to be for light mode
    * Light mode typically has bright backgrounds (near white)
    */
   private static isLightModeBackground(bgDefault: string, bgPaper: string): boolean {
-    // Convert hex to luminance to determine if it's a light color
-    const getLuminance = (color: string): number => {
-      // Simple check: if it starts with #f or #e or is #ffffff, it's likely light
-      const hex = color.toLowerCase().replace('#', '');
-      if (hex === 'ffffff' || hex === 'fff') return 1;
-      if (hex.startsWith('f') || hex.startsWith('e')) return 0.9;
-      return 0;
-    };
+    const defaultBrightness = this.getColorBrightness(bgDefault);
+    const paperBrightness = this.getColorBrightness(bgPaper);
     
-    const defaultLuminance = getLuminance(bgDefault);
-    const paperLuminance = getLuminance(bgPaper);
-    
-    // If both backgrounds are bright (luminance > 0.8), it's light mode
-    return defaultLuminance > 0.8 && paperLuminance > 0.8;
+    // If both backgrounds are bright (>200), it's light mode
+    return defaultBrightness > 200 && paperBrightness > 200;
   }
 
   /**
@@ -125,9 +140,20 @@ export class ThemeConverter {
    * Light mode typically has dark text (black or near-black)
    */
   private static isLightModeText(textPrimary: string): boolean {
-    const text = textPrimary.toLowerCase();
-    // Check for black or very dark colors
-    return text === '#000000' || text === '#000' || text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)';
+    const text = textPrimary.toLowerCase().trim();
+    
+    // Check for common black/dark representations
+    if (text === '#000000' || text === '#000' || 
+        text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)') {
+      return true;
+    }
+    
+    // Check hex colors with brightness
+    if (text.startsWith('#')) {
+      return this.getColorBrightness(text) < 100;
+    }
+    
+    return false;
   }
 
   /**
