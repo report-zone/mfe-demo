@@ -747,18 +747,19 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       {/* Overwrite File Dialog */}
       <ConfirmDialog open={showOverwriteDialog} onClose={() => setShowOverwriteDialog(false)}>
-        <DialogTitle>File Already Exists</DialogTitle>
+        <DialogTitle>Replace Existing File?</DialogTitle>
         <DialogContent>
           <Typography>
             A file named &quot;{pendingSave?.filename}&quot; was already saved during this session. 
+            Do you want to replace it with the new version?
           </Typography>
           <Typography sx={{ mt: 2 }}>
-            <strong>Note:</strong> Due to browser limitations, the &quot;Overwrite&quot; option will download the file again. 
+            <strong>Note:</strong> Due to browser limitations, clicking &quot;Replace&quot; will download the file again. 
             Your browser may automatically rename it (e.g., &quot;theme (1).json&quot;). 
-            You&apos;ll need to manually replace the original file if needed.
+            You&apos;ll need to manually replace the original file in your downloads folder if this happens.
           </Typography>
           <Typography sx={{ mt: 2 }}>
-            Alternatively, you can save with a different filename to avoid conflicts.
+            Alternatively, you can save with a different filename to keep both versions.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -767,7 +768,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             Save As Different Name
           </Button>
           <Button onClick={handleOverwriteConfirm} color="warning" variant="contained">
-            Download Again
+            Replace
           </Button>
         </DialogActions>
       </ConfirmDialog>
