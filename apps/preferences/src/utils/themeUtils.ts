@@ -203,13 +203,62 @@ export const createDefaultThemeDefinition = (): CustomThemeDefinition => {
 };
 
 /**
+ * Checks if background colors appear to be for light mode
+ * Light mode typically has bright backgrounds (near white)
+ */
+const isLightModeBackground = (bgDefault: string, bgPaper: string): boolean => {
+  // Convert hex to luminance to determine if it's a light color
+  const getLuminance = (color: string): number => {
+    // Simple check: if it starts with #f or #e or is #ffffff, it's likely light
+    const hex = color.toLowerCase().replace('#', '');
+    if (hex === 'ffffff' || hex === 'fff') return 1;
+    if (hex.startsWith('f') || hex.startsWith('e')) return 0.9;
+    return 0;
+  };
+  
+  const defaultLuminance = getLuminance(bgDefault);
+  const paperLuminance = getLuminance(bgPaper);
+  
+  // If both backgrounds are bright (luminance > 0.8), it's light mode
+  return defaultLuminance > 0.8 && paperLuminance > 0.8;
+};
+
+/**
+ * Checks if text colors appear to be for light mode
+ * Light mode typically has dark text (black or near-black)
+ */
+const isLightModeText = (textPrimary: string): boolean => {
+  const text = textPrimary.toLowerCase();
+  // Check for black or very dark colors
+  return text === '#000000' || text === '#000' || text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)';
+};
+
+/**
  * Converts a CustomThemeDefinition to a Material-UI Theme
  * Following Single Responsibility Principle: Only handles theme conversion
+ * 
+ * When palette mode is 'dark' but colors are for light mode (or vice versa),
+ * this function omits background and text colors to let MUI use appropriate defaults.
  */
 export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefinition): Theme => {
+  const mode = definition.palette?.mode || 'light';
+  
+  // Check if background and text colors are compatible with the mode
+  const hasLightModeBackground = isLightModeBackground(
+    definition.colors.backgroundDefault,
+    definition.colors.backgroundPaper
+  );
+  const hasLightModeText = isLightModeText(definition.colors.textPrimary);
+  
+  // If mode is dark but colors are for light mode, use MUI defaults
+  // If mode is light but colors are for dark mode, use MUI defaults
+  const shouldUseDefaultBackgroundAndText = 
+    (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
+    (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+  
   return createTheme({
     palette: {
-      mode: definition.palette?.mode || 'light',
+      mode,
       primary: {
         main: definition.colors.primaryMain,
         light: definition.colors.primaryLight,
@@ -232,14 +281,17 @@ export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefiniti
       success: {
         main: definition.colors.successMain,
       },
-      background: {
-        default: definition.colors.backgroundDefault,
-        paper: definition.colors.backgroundPaper,
-      },
-      text: {
-        primary: definition.colors.textPrimary,
-        secondary: definition.colors.textSecondary,
-      },
+      // Only set background/text if they're compatible with the mode
+      ...(!shouldUseDefaultBackgroundAndText && {
+        background: {
+          default: definition.colors.backgroundDefault,
+          paper: definition.colors.backgroundPaper,
+        },
+        text: {
+          primary: definition.colors.textPrimary,
+          secondary: definition.colors.textSecondary,
+        },
+      }),
     },
     typography: {
       fontSize: definition.componentOverrides?.typography?.bodyFontSize || 16,

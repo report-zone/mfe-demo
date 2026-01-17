@@ -100,12 +100,63 @@ export class ThemeConverter {
   }
 
   /**
+   * Checks if background colors appear to be for light mode
+   * Light mode typically has bright backgrounds (near white)
+   */
+  private static isLightModeBackground(bgDefault: string, bgPaper: string): boolean {
+    // Convert hex to luminance to determine if it's a light color
+    const getLuminance = (color: string): number => {
+      // Simple check: if it starts with #f or #e or is #ffffff, it's likely light
+      const hex = color.toLowerCase().replace('#', '');
+      if (hex === 'ffffff' || hex === 'fff') return 1;
+      if (hex.startsWith('f') || hex.startsWith('e')) return 0.9;
+      return 0;
+    };
+    
+    const defaultLuminance = getLuminance(bgDefault);
+    const paperLuminance = getLuminance(bgPaper);
+    
+    // If both backgrounds are bright (luminance > 0.8), it's light mode
+    return defaultLuminance > 0.8 && paperLuminance > 0.8;
+  }
+
+  /**
+   * Checks if text colors appear to be for light mode
+   * Light mode typically has dark text (black or near-black)
+   */
+  private static isLightModeText(textPrimary: string): boolean {
+    const text = textPrimary.toLowerCase();
+    // Check for black or very dark colors
+    return text === '#000000' || text === '#000' || text === 'rgba(0, 0, 0, 0.87)' || text === 'rgba(0,0,0,0.87)';
+  }
+
+  /**
    * Converts a CustomThemeDefinition to a MUI Theme
+   * 
+   * When palette mode is 'dark' but colors are for light mode (or vice versa),
+   * this function omits background and text colors to let MUI use appropriate defaults.
    */
   static createThemeFromDefinition(config: CustomThemeDefinition): Theme {
+    const mode = config.palette?.mode || 'light';
+    
+    // Use defaults for colors if not provided
+    const bgDefault = config.colors?.backgroundDefault || '#ffffff';
+    const bgPaper = config.colors?.backgroundPaper || '#f5f5f5';
+    const txtPrimary = config.colors?.textPrimary || '#000000';
+    
+    // Check if background and text colors are compatible with the mode
+    const hasLightModeBackground = this.isLightModeBackground(bgDefault, bgPaper);
+    const hasLightModeText = this.isLightModeText(txtPrimary);
+    
+    // If mode is dark but colors are for light mode, use MUI defaults
+    // If mode is light but colors are for dark mode, use MUI defaults
+    const shouldUseDefaultBackgroundAndText = 
+      (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
+      (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+    
     return createTheme({
       palette: {
-        mode: config.palette?.mode || 'light',
+        mode,
         primary: {
           main: config.colors?.primaryMain || '#1976d2',
           light: config.colors?.primaryLight || '#42a5f5',
@@ -128,14 +179,17 @@ export class ThemeConverter {
         success: {
           main: config.colors?.successMain || '#2e7d32',
         },
-        background: {
-          default: config.colors?.backgroundDefault || '#ffffff',
-          paper: config.colors?.backgroundPaper || '#f5f5f5',
-        },
-        text: {
-          primary: config.colors?.textPrimary || '#000000',
-          secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
-        },
+        // Only set background/text if they're compatible with the mode
+        ...(!shouldUseDefaultBackgroundAndText && {
+          background: {
+            default: bgDefault,
+            paper: bgPaper,
+          },
+          text: {
+            primary: txtPrimary,
+            secondary: config.colors?.textSecondary || 'rgba(0, 0, 0, 0.6)',
+          },
+        }),
       },
       typography: {
         fontSize: config.componentOverrides?.typography?.bodyFontSize || 16,

@@ -132,6 +132,41 @@ describe('ThemeConverter', () => {
       expect(theme.palette.background.default).toBe('#121212');
       expect(theme.palette.text.primary).toBe('#ffffff');
     });
+
+    it('should use MUI defaults when dark mode has light mode colors', () => {
+      const themeConfig = {
+        name: 'Test Theme',
+        version: '1.0.0',
+        palette: {
+          mode: 'dark' as const,
+        },
+        colors: {
+          primaryMain: '#19d247',
+          primaryLight: '#bcf542',
+          primaryDark: '#15c149',
+          secondaryMain: '#dc004e',
+          secondaryLight: '#ff4081',
+          secondaryDark: '#9a0036',
+          errorMain: '#d32f2f',
+          warningMain: '#ed6c02',
+          infoMain: '#0288d1',
+          successMain: '#2e7d32',
+          backgroundDefault: '#ffffff',
+          backgroundPaper: '#f5f5f5',
+          textPrimary: '#000000',
+          textSecondary: 'rgba(0, 0, 0, 0.6)',
+        },
+        componentOverrides: {},
+        muiComponentOverrides: {},
+      };
+
+      const theme = ThemeConverter.createThemeFromDefinition(themeConfig);
+      
+      expect(theme.palette.mode).toBe('dark');
+      // Should use MUI's dark mode defaults instead of the light colors
+      expect(theme.palette.background.default).toBe('#121212');
+      expect(theme.palette.text.primary).toBe('#fff');
+    });
   });
 
   describe('isNewThemeFormat', () => {
