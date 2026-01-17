@@ -1,8 +1,8 @@
 import { createTheme } from '@mui/material/styles';
 
-export const lightTheme = createTheme({
+const lightThemeConfig = {
   palette: {
-    mode: 'light',
+    mode: 'light' as const,
     primary: {
       main: '#1976d2',
     },
@@ -10,11 +10,11 @@ export const lightTheme = createTheme({
       main: '#dc004e',
     },
   },
-});
+};
 
-export const darkTheme = createTheme({
+const darkThemeConfig = {
   palette: {
-    mode: 'dark',
+    mode: 'dark' as const,
     primary: {
       main: '#90caf9',
     },
@@ -22,7 +22,10 @@ export const darkTheme = createTheme({
       main: '#f48fb1',
     },
   },
-});
+};
+
+export const lightTheme = createTheme(lightThemeConfig);
+export const darkTheme = createTheme(darkThemeConfig);
 
 export const defaultThemes = [
   {
@@ -30,13 +33,13 @@ export const defaultThemes = [
     name: 'Light',
     theme: lightTheme,
     isCustom: false,
-    themeConfig: lightTheme,
+    themeConfig: lightThemeConfig,
   },
   {
     id: 'dark',
     name: 'Dark',
     theme: darkTheme,
     isCustom: false,
-    themeConfig: darkTheme,
+    themeConfig: darkThemeConfig,
   },
 ];

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, Box, createTheme } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
@@ -12,7 +12,7 @@ import Loading from './components/Loading';
 import HomePage from './pages/HomePage';
 import AccountPage from './pages/AccountPage';
 import AdminPage from './pages/AdminPage';
-import { defaultTheme } from './config/theme';
+import { defaultTheme, darkTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 import { ThemeConverter } from './services/ThemeConverter';
 import { logger } from './services/loggerService';
@@ -135,26 +135,27 @@ const App: React.FC = () => {
     // Load theme from localStorage on mount
     try {
       const selectedThemeId = localStorage.getItem('selectedThemeId');
-      const customThemes = localStorage.getItem('customThemes');
       
       if (selectedThemeId) {
-        // Check if it's a default theme
-        if (selectedThemeId === 'light') {
-          setCurrentTheme(defaultTheme);
-        } else if (selectedThemeId === 'dark') {
-          setCurrentTheme(createTheme({
-            palette: {
-              mode: 'dark',
-              primary: { main: '#90caf9' },
-              secondary: { main: '#f48fb1' },
-            },
-          }));
-        } else if (customThemes) {
-          // Load custom theme
-          const themes: StoredTheme[] = JSON.parse(customThemes);
+        // First, try to load from customThemes (includes both predefined and custom)
+        const customThemesJson = localStorage.getItem('customThemes');
+        let themeLoaded = false;
+        
+        if (customThemesJson) {
+          const themes: StoredTheme[] = JSON.parse(customThemesJson);
           const theme = themes.find((t) => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
             setCurrentTheme(ThemeConverter.convertToTheme(theme.themeConfig));
+            themeLoaded = true;
+          }
+        }
+        
+        // Fallback to hardcoded default themes if not found in storage
+        if (!themeLoaded) {
+          if (selectedThemeId === 'light') {
+            setCurrentTheme(defaultTheme);
+          } else if (selectedThemeId === 'dark') {
+            setCurrentTheme(darkTheme);
           }
         }
       }
