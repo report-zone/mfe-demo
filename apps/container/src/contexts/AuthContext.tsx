@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
 import { User, IAuthContext } from './interfaces/IAuthContext';
+import { logger } from '../services/loggerService';
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
@@ -45,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       await injectedAuthService.signIn(username, password);
       await checkUser();
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       await injectedAuthService.signOut();
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
+      logger.error('Logout failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
@@ -64,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.signUp({ username, password, email });
     } catch (error) {
-      console.error('Sign up error:', error);
+      logger.error('Sign up failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.confirmSignUp({ username, code });
     } catch (error) {
-      console.error('Confirm sign up error:', error);
+      logger.error('Confirm sign up failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
@@ -82,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.resetPassword({ username });
     } catch (error) {
-      console.error('Reset password error:', error);
+      logger.error('Reset password failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
@@ -91,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.confirmResetPassword({ username, code, newPassword });
     } catch (error) {
-      console.error('Confirm reset password error:', error);
+      logger.error('Confirm reset password failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
     }
   };
