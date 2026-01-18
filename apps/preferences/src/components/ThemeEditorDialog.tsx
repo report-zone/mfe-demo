@@ -35,7 +35,7 @@ import Editor from '@monaco-editor/react';
 import { ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import ComponentShowcase from './ComponentShowcase';
-import { CustomThemeDefinition, CustomTheme } from '../types/theme.types';
+import { CustomThemeDefinition } from '../types/theme.types';
 import {
   createDefaultThemeDefinition,
   convertThemeDefinitionToMuiTheme,
@@ -98,6 +98,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setJsonEditorValue(JSON.stringify(themeDefinition, null, 2));
     }
   }, [themeDefinition, isTypingInJsonEditor]);
+
+  // Generate theme from definition for live preview
+  const previewTheme = React.useMemo(() => {
+    try {
+      return convertThemeDefinitionToMuiTheme(themeDefinition);
+    } catch (error) {
+      console.error('Error generating preview theme:', error);
+      return convertThemeDefinitionToMuiTheme(createDefaultThemeDefinition());
+    }
+  }, [themeDefinition]);
 
   const updateThemeDefinition = (updates: Partial<CustomThemeDefinition> | ((prev: CustomThemeDefinition) => CustomThemeDefinition)) => {
     setThemeDefinition(prev => {
