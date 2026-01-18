@@ -6,12 +6,14 @@ import MFELoader from '../components/MFELoader';
 vi.mock('../config/mfeRegistry', () => ({
   getMFEComponent: vi.fn((mfeName: string) => {
     // Return a simple component for testing
-    return () => {
+    const MockMFEComponent = () => {
       if (mfeName === 'unknown') {
         return <div>Not Found MFE</div>;
       }
       return <div>{mfeName} MFE loaded</div>;
     };
+    MockMFEComponent.displayName = `MockMFE_${mfeName}`;
+    return MockMFEComponent;
   }),
 }));
 
