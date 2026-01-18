@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { DataProvider } from './contexts/DataContext';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
@@ -183,9 +182,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <BrowserRouter>
         <AuthProvider>
-          <DataProvider>
-            <AppContent />
-          </DataProvider>
+          <AppContent />
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
