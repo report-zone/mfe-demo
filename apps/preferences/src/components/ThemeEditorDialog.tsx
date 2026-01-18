@@ -77,6 +77,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [newFilename, setNewFilename] = useState('');
   const [jsonEditorValue, setJsonEditorValue] = useState('');
   const [isTypingInJsonEditor, setIsTypingInJsonEditor] = useState(false);
+  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Reset state when dialog opens
   React.useEffect(() => {
@@ -98,6 +99,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setJsonEditorValue(JSON.stringify(themeDefinition, null, 2));
     }
   }, [themeDefinition, isTypingInJsonEditor]);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Generate theme from definition for live preview
   const previewTheme = React.useMemo(() => {
@@ -175,22 +185,30 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setIsTypingInJsonEditor(true);
       setHasUnsavedChanges(true);
 
-      try {
-        const parsed = JSON.parse(value);
-        
-        // Validate as CustomThemeDefinition directly
-        const validation = validateThemeDefinition(parsed);
-        
-        if (validation.isValid) {
-          setThemeDefinition(parsed);
-          setThemeJsonError('');
-          setIsTypingInJsonEditor(false);
-        } else {
-          setThemeJsonError(validation.error || 'Invalid theme format');
-        }
-      } catch (e) {
-        setThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
+      // Clear any existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
       }
+
+      // Debounce JSON parsing to avoid interfering with typing
+      typingTimeoutRef.current = setTimeout(() => {
+        try {
+          const parsed = JSON.parse(value);
+          
+          // Validate as CustomThemeDefinition directly
+          const validation = validateThemeDefinition(parsed);
+          
+          if (validation.isValid) {
+            setThemeDefinition(parsed);
+            setThemeJsonError('');
+            setIsTypingInJsonEditor(false);
+          } else {
+            setThemeJsonError(validation.error || 'Invalid theme format');
+          }
+        } catch (e) {
+          setThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
+        }
+      }, 500); // Wait 500ms after user stops typing before validating
     }
   };
 
@@ -671,7 +689,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                           minimap: { enabled: false },
                           scrollBeyondLastLine: false,
                           formatOnPaste: true,
-                          formatOnType: true,
+                          formatOnType: false,
                         }}
                       />
                     </Box>
