@@ -4,7 +4,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const AccountPage: React.FC = () => {
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <Paper sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <AccountCircleIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
