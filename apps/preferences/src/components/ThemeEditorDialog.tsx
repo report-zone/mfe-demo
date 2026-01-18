@@ -35,7 +35,7 @@ import Editor from '@monaco-editor/react';
 import { ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import ComponentShowcase from './ComponentShowcase';
-import { CustomThemeDefinition, CustomTheme } from '../types/theme.types';
+import { CustomThemeDefinition } from '../types/theme.types';
 import {
   createDefaultThemeDefinition,
   convertThemeDefinitionToMuiTheme,
@@ -75,19 +75,8 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [pendingSave, setPendingSave] = useState<{ filename: string; themeDefinition: CustomThemeDefinition } | null>(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [newFilename, setNewFilename] = useState('');
-
-  // Generate the full CustomTheme object for Monaco editor (matching localStorage format)
-  const fullThemeObject = React.useMemo((): CustomTheme => {
-    const muiTheme = convertThemeDefinitionToMuiTheme(themeDefinition);
-    return {
-      id: `custom-${crypto.randomUUID()}`,
-      name: themeDefinition.name,
-      description: themeDefinition.description,
-      theme: muiTheme,
-      isCustom: true,
-      themeConfig: themeDefinition,
-    };
-  }, [themeDefinition]);
+  const [jsonEditorValue, setJsonEditorValue] = useState('');
+  const [isTypingInJsonEditor, setIsTypingInJsonEditor] = useState(false);
 
   // Reset state when dialog opens
   React.useEffect(() => {
@@ -99,8 +88,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setThemeJsonError('');
       setLivePreviewExpanded(false);
       setIsEditingExistingTheme(!!initialTheme);
+      setIsTypingInJsonEditor(false);
     }
   }, [open, initialTheme]);
+
+  // Sync JSON editor value with themeDefinition when not typing
+  React.useEffect(() => {
+    if (!isTypingInJsonEditor) {
+      setJsonEditorValue(JSON.stringify(themeDefinition, null, 2));
+    }
+  }, [themeDefinition, isTypingInJsonEditor]);
 
   // Generate theme from definition for live preview
   const previewTheme = React.useMemo(() => {
@@ -174,27 +171,20 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const handleFullThemeJsonChange = (value: string | undefined) => {
     if (value !== undefined) {
+      setJsonEditorValue(value);
+      setIsTypingInJsonEditor(true);
       setHasUnsavedChanges(true);
 
       try {
         const parsed = JSON.parse(value);
         
-        // Check if it's the full CustomTheme structure or just CustomThemeDefinition
-        let themeDefToValidate: CustomThemeDefinition;
-        
-        if (parsed.themeConfig && typeof parsed.themeConfig === 'object' && !Array.isArray(parsed.themeConfig) && parsed.themeConfig !== null) {
-          // It's a full CustomTheme object - extract the themeConfig
-          themeDefToValidate = parsed.themeConfig as CustomThemeDefinition;
-        } else {
-          // It's a CustomThemeDefinition directly
-          themeDefToValidate = parsed as CustomThemeDefinition;
-        }
-        
-        const validation = validateThemeDefinition(themeDefToValidate);
+        // Validate as CustomThemeDefinition directly
+        const validation = validateThemeDefinition(parsed);
         
         if (validation.isValid) {
-          setThemeDefinition(themeDefToValidate);
+          setThemeDefinition(parsed);
           setThemeJsonError('');
+          setIsTypingInJsonEditor(false);
         } else {
           setThemeJsonError(validation.error || 'Invalid theme format');
         }
@@ -674,7 +664,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       <Editor
                         height="500px"
                         language="json"
-                        value={JSON.stringify(fullThemeObject, null, 2)}
+                        value={jsonEditorValue}
                         onChange={handleFullThemeJsonChange}
                         theme={monacoSettings.theme}
                         options={{
@@ -693,11 +683,10 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     )}
 
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      This editor shows the complete CustomTheme structure as stored in localStorage, 
-                      including id, name, theme, isCustom, themeConfig, and description. 
+                      This editor shows the complete theme definition structure including name, version, colors, 
+                      palette settings, componentOverrides, and muiComponentOverrides. 
                       All changes made here are immediately reflected in the other tabs and the live preview. 
                       Similarly, changes in other tabs update this JSON view.
-                      Note: The generated MUI Theme object is read-only and regenerated automatically.
                     </Typography>
                   </Box>
                 )}
