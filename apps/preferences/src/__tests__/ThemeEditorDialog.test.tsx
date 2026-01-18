@@ -220,16 +220,24 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     
     fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
     
+    // Wait for debounce to complete (500ms + buffer)
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
     // Change theme name
     const nameInput = screen.getByLabelText(/theme name/i) as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: 'New Name' } });
     
-    // Verify overrides are still there
+    // Wait for state update to propagate
     await waitFor(() => {
+      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
       const finalJson = monacoEditor.value;
-      expect(finalJson).toContain('"textTransform": "none"');
       expect(finalJson).toContain('"name": "New Name"');
-    });
+    }, { timeout: 2000 });
+    
+    // Verify overrides are still there
+    const monacoEditorFinal = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    const finalJson = monacoEditorFinal.value;
+    expect(finalJson).toContain('"textTransform": "none"');
   });
 
   it('should include all required fields in theme JSON', async () => {
@@ -528,6 +536,9 @@ describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
     
     const darkOption = screen.getByRole('option', { name: /dark/i });
     fireEvent.click(darkOption);
+    
+    // Wait for state update
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // Click Save button
     const saveButton = screen.getByRole('button', { name: /save/i });
