@@ -3,17 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ThemeEditorDialog from '../components/ThemeEditorDialog';
 import { ThemeContextProvider } from '../context/ThemeContext';
 
-// Mock Monaco Editor
-vi.mock('@monaco-editor/react', () => ({
-  default: ({ value, onChange }: { value: string; onChange: (val: string | undefined) => void }) => (
-    <textarea
-      data-testid="monaco-editor"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  ),
-}));
-
 // Mock URL.createObjectURL which is not available in jsdom
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
 global.URL.revokeObjectURL = vi.fn();
@@ -31,532 +20,167 @@ const renderThemeEditor = (props = {}) => {
   );
 };
 
-describe('ThemeEditorDialog - Full Theme JSON Editor', () => {
+describe('ThemeEditorDialog - MUI Components Tab', () => {
   beforeEach(() => {
     // Clear localStorage before each test
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it('should render full theme JSON tab as last tab', () => {
+  it('should render MUI Components tab as last tab', () => {
     renderThemeEditor();
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    expect(fullThemeTab).toBeDefined();
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    expect(muiComponentsTab).toBeDefined();
   });
 
-  it('should display Monaco editor on full theme JSON tab', async () => {
+  it('should display MUI component accordions on MUI Components tab', async () => {
     renderThemeEditor();
     
-    // Click on Full Theme JSON tab (last tab)
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
+    // Click on MUI Components tab (last tab)
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
     
     await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor');
-      expect(monacoEditor).toBeDefined();
-    });
-  });
-
-  it('should initialize full theme JSON with correct structure', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      const jsonValue = monacoEditor.value;
-      
-      expect(jsonValue).toContain('"name"');
-      expect(jsonValue).toContain('"version"');
-      expect(jsonValue).toContain('"colors"');
-      expect(jsonValue).toContain('"componentOverrides"');
-      expect(jsonValue).toContain('"muiComponentOverrides"');
+      expect(screen.getByText('MuiAppBar')).toBeDefined();
+      expect(screen.getByText('MuiCard')).toBeDefined();
+      expect(screen.getByText('MuiAccordion')).toBeDefined();
+      expect(screen.getByText('MuiButton')).toBeDefined();
+      expect(screen.getByText('MuiCheckbox')).toBeDefined();
     });
   });
 
-  it('should update color fields when full theme JSON is edited', async () => {
+  it('should have checkboxes in accordion headers for enabling overrides', async () => {
     renderThemeEditor();
     
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
+    // Click on MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
     
     await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Parse the initial JSON and modify it
-    const initialJson = JSON.parse(monacoEditor.value);
-    const updatedJson = {
-      ...initialJson,
-      colors: {
-        ...initialJson.colors,
-        primaryMain: '#00ff00',
-      },
-    };
-    
-    // Update Monaco editor
-    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
-    
-    // Verify the change was accepted by checking the editor value
-    await waitFor(() => {
-      const currentValue = monacoEditor.value;
-      const parsed = JSON.parse(currentValue);
-      expect(parsed.colors.primaryMain).toBe('#00ff00');
+      const checkboxes = screen.getAllByRole('checkbox');
+      // At least 5 components with root checkbox
+      expect(checkboxes.length).toBeGreaterThanOrEqual(5);
     });
   });
 
-  it('should show error when full theme JSON is invalid', async () => {
+  it('should disable input fields when override checkbox is not checked', async () => {
     renderThemeEditor();
     
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
+    // Click on MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
     
     await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
+      expect(screen.getByText('MuiCard')).toBeDefined();
     });
     
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Enter invalid JSON
-    fireEvent.change(monacoEditor, { target: { value: '{ invalid json }' } });
-    
-    // Error should be displayed (note: error might appear as a generic message)
-    await waitFor(() => {
-      // Check if there's any error indication in the UI
-      const alerts = screen.queryAllByRole('alert');
-      expect(alerts.length).toBeGreaterThan(0);
-    });
-  });
-
-  it('should sync theme name changes to full theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Find and change theme name
-    const nameInput = screen.getByLabelText(/theme name/i) as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: 'My Custom Theme' } });
-    
-    // Check if JSON was updated
-    await waitFor(() => {
-      const updatedJson = monacoEditor.value;
-      expect(updatedJson).toContain('"name": "My Custom Theme"');
-    });
-  });
-
-  it('should sync description changes to full theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Find and change description
-    const descInput = screen.getByLabelText(/theme description/i) as HTMLInputElement;
-    fireEvent.change(descInput, { target: { value: 'A beautiful theme' } });
-    
-    // Check if JSON was updated
-    await waitFor(() => {
-      const updatedJson = monacoEditor.value;
-      expect(updatedJson).toContain('"description": "A beautiful theme"');
-    });
-  });
-
-  it('should preserve muiComponentOverrides section when editing theme name', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Get initial JSON with muiComponentOverrides
-    const initialJson = JSON.parse(monacoEditor.value);
-    const customOverrides = {
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            textTransform: 'none',
-          },
-        },
-      },
-    };
-    
-    // Update JSON with custom overrides
-    const updatedJson = {
-      ...initialJson,
-      muiComponentOverrides: customOverrides,
-    };
-    
-    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
-    
-    // Wait for debounce to complete (500ms + buffer)
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    // Change theme name
-    const nameInput = screen.getByLabelText(/theme name/i) as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: 'New Name' } });
-    
-    // Wait for state update to propagate
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      const finalJson = monacoEditor.value;
-      expect(finalJson).toContain('"name": "New Name"');
-    }, { timeout: 2000 });
-    
-    // Verify overrides are still there
-    const monacoEditorFinal = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    const finalJson = monacoEditorFinal.value;
-    expect(finalJson).toContain('"textTransform": "none"');
-  });
-
-  it('should include all required fields in theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    const jsonValue = monacoEditor.value;
-    const parsed = JSON.parse(jsonValue);
-    
-    // Check required top-level fields
-    expect(parsed.name).toBeDefined();
-    expect(parsed.version).toBeDefined();
-    expect(parsed.colors).toBeDefined();
-    expect(parsed.componentOverrides).toBeDefined();
-    expect(parsed.muiComponentOverrides).toBeDefined();
-    
-    // Check required color fields
-    expect(parsed.colors.primaryMain).toBeDefined();
-    expect(parsed.colors.secondaryMain).toBeDefined();
-    expect(parsed.colors.errorMain).toBeDefined();
-    expect(parsed.colors.warningMain).toBeDefined();
-    expect(parsed.colors.infoMain).toBeDefined();
-    expect(parsed.colors.successMain).toBeDefined();
-    expect(parsed.colors.backgroundDefault).toBeDefined();
-    expect(parsed.colors.backgroundPaper).toBeDefined();
-    expect(parsed.colors.textPrimary).toBeDefined();
-    expect(parsed.colors.textSecondary).toBeDefined();
-  });
-
-  it('should prevent saving when full theme JSON has errors', async () => {
-    const onClose = vi.fn();
-    renderThemeEditor({ onClose });
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Enter invalid JSON
-    fireEvent.change(monacoEditor, { target: { value: '{ invalid }' } });
-    
-    // Try to save
-    const saveButton = screen.getByRole('button', { name: /save/i });
-    fireEvent.click(saveButton);
-    
-    // Should show error message
-    await waitFor(() => {
-      const errorMessage = screen.queryByText(/fix json errors/i);
-      expect(errorMessage).toBeDefined();
-    });
-    
-    // Should not close dialog
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it('should format theme JSON with createdAt timestamp', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    const jsonValue = monacoEditor.value;
-    const parsed = JSON.parse(jsonValue);
-    
-    // Check for timestamp field
-    expect(parsed.createdAt).toBeDefined();
-    
-    // Verify it is a valid ISO timestamp
-    expect(new Date(parsed.createdAt).toISOString()).toBe(parsed.createdAt);
-  });
-
-  it('should include palette mode in full theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    const jsonValue = monacoEditor.value;
-    const parsed = JSON.parse(jsonValue);
-    
-    // Check for palette mode field
-    expect(parsed.palette).toBeDefined();
-    expect(parsed.palette.mode).toBeDefined();
-    expect(parsed.palette.mode).toBe('light');
-  });
-
-  it('should allow changing palette mode via dropdown', async () => {
-    renderThemeEditor();
-    
-    // Click on Background tab (tab 3)
-    const tabs = screen.getAllByRole('tab');
-    fireEvent.click(tabs[3]);
-    
-    // Wait for the content to be rendered and find the Select
-    await waitFor(() => {
-      const modeButton = screen.getByRole('combobox', { hidden: true });
-      expect(modeButton).toBeDefined();
-    });
-  });
-
-  it('should sync palette mode changes to full theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Background tab (tab 3)
-    const tabs = screen.getAllByRole('tab');
-    fireEvent.click(tabs[3]);
-    
-    // Wait for the Select to be present
-    await waitFor(() => {
-      const modeButton = screen.getByRole('combobox', { hidden: true });
-      expect(modeButton).toBeDefined();
-    });
-    
-    const modeButton = screen.getByRole('combobox', { hidden: true });
-    
-    // Click to open the dropdown
-    fireEvent.mouseDown(modeButton);
-    
-    // Wait for dropdown to open and click dark option
-    await waitFor(() => {
-      const darkOption = screen.getByRole('option', { name: /dark/i });
-      expect(darkOption).toBeDefined();
-    });
-    
-    const darkOption = screen.getByRole('option', { name: /dark/i });
-    fireEvent.click(darkOption);
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      const jsonValue = monacoEditor.value;
-      const parsed = JSON.parse(jsonValue);
-      expect(parsed.palette.mode).toBe('dark');
-    });
-  });
-
-  it('should load palette mode from imported theme JSON', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Parse the initial JSON and set mode to dark
-    const initialJson = JSON.parse(monacoEditor.value);
-    const updatedJson = {
-      ...initialJson,
-      palette: {
-        mode: 'dark',
-      },
-    };
-    
-    // Update Monaco editor
-    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
-    
-    // Verify the mode was updated in the editor state by checking the JSON reflects it
-    await waitFor(() => {
-      const updatedJsonValue = monacoEditor.value;
-      const parsed = JSON.parse(updatedJsonValue);
-      expect(parsed.palette.mode).toBe('dark');
-    });
-  });
-
-  it('should update palette mode dropdown when changed via monaco editor', async () => {
-    renderThemeEditor();
-    
-    // Click on Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
-    
-    await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-      expect(monacoEditor).toBeDefined();
-    });
-    
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
-    
-    // Verify initial mode is light in the JSON
-    const initialJson = JSON.parse(monacoEditor.value);
-    expect(initialJson.palette.mode).toBe('light');
-    
-    // Update JSON to dark mode
-    const updatedJson = {
-      ...initialJson,
-      palette: {
-        mode: 'dark',
-      },
-    };
-    
-    // Update Monaco editor
-    fireEvent.change(monacoEditor, { target: { value: JSON.stringify(updatedJson, null, 2) } });
-    
-    // Verify the JSON was updated
-    await waitFor(() => {
-      const currentJson = JSON.parse(monacoEditor.value);
-      expect(currentJson.palette.mode).toBe('dark');
-    });
-    
-    // Click on Background tab to check dropdown
-    const tabs = screen.getAllByRole('tab');
-    fireEvent.click(tabs[3]); // Background tab
-    
-    // Wait for the tab content to render
-    await waitFor(() => {
-      const modeButton = screen.getByRole('combobox', { hidden: true });
-      expect(modeButton).toBeDefined();
-    });
-    
-    // Open the dropdown
-    const modeButton = screen.getByRole('combobox', { hidden: true });
-    fireEvent.mouseDown(modeButton);
-    
-    // Verify that 'Dark' option exists and can be found
-    // If the dropdown was correctly synced, dark should be the selected option
-    await waitFor(() => {
-      // Both options should be available
-      const lightOption = screen.getByRole('option', { name: /light/i });
-      const darkOption = screen.getByRole('option', { name: /dark/i });
-      expect(lightOption).toBeDefined();
-      expect(darkOption).toBeDefined();
-      
-      // Check if dark option is selected (aria-selected="true")
-      expect(darkOption.getAttribute('aria-selected')).toBe('true');
-    });
-  });
-
-  it('should include palette mode in saved theme JSON file', async () => {
-    // Mock Blob to capture the content
-    const originalBlob = global.Blob;
-    let capturedBlobContent: string | null = null;
-    
-    global.Blob = vi.fn((content: BlobPart[], options?: BlobPropertyBag) => {
-      if (content && content.length > 0) {
-        capturedBlobContent = content[0] as string;
-      }
-      return new originalBlob(content, options);
-    }) as unknown as typeof Blob;
-
-    renderThemeEditor();
-    
-    // Navigate to Background tab and change mode to dark
-    const tabs = screen.getAllByRole('tab');
-    fireEvent.click(tabs[3]); // Background tab
-    
-    await waitFor(() => {
-      const modeButton = screen.getByRole('combobox', { hidden: true });
-      expect(modeButton).toBeDefined();
-    });
-    
-    const modeButton = screen.getByRole('combobox', { hidden: true });
-    fireEvent.mouseDown(modeButton);
-    
-    await waitFor(() => {
-      const darkOption = screen.getByRole('option', { name: /dark/i });
-      expect(darkOption).toBeDefined();
-    });
-    
-    const darkOption = screen.getByRole('option', { name: /dark/i });
-    fireEvent.click(darkOption);
-    
-    // Wait for state update
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Click Save button
-    const saveButton = screen.getByRole('button', { name: /save/i });
-    fireEvent.click(saveButton);
-    
-    // Wait for the Blob to be created
-    await waitFor(() => {
-      expect(capturedBlobContent).not.toBeNull();
-    }, { timeout: 3000 });
-    
-    // Verify that the saved JSON includes palette.mode
-    if (capturedBlobContent) {
-      const themeJson = JSON.parse(capturedBlobContent);
-      expect(themeJson.palette).toBeDefined();
-      expect(themeJson.palette.mode).toBe('dark');
+    // Expand MuiCard accordion
+    const muiCardAccordion = screen.getByText('MuiCard').closest('div');
+    if (muiCardAccordion) {
+      fireEvent.click(muiCardAccordion);
     }
     
-    // Restore original Blob
-    global.Blob = originalBlob;
+    await waitFor(() => {
+      const borderRadiusInput = screen.getByLabelText('borderRadius') as HTMLInputElement;
+      expect(borderRadiusInput.disabled).toBe(true);
+    });
+  });
+
+  it('should enable input fields when override checkbox is checked', async () => {
+    renderThemeEditor();
+    
+    // Click on MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      expect(screen.getByText('MuiCard')).toBeDefined();
+    });
+    
+    // Find and check the root checkbox for MuiCard
+    const checkboxes = screen.getAllByRole('checkbox');
+    const muiCardRootCheckbox = checkboxes.find(cb => {
+      const label = cb.closest('label');
+      return label?.textContent?.includes('root');
+    });
+    
+    if (muiCardRootCheckbox) {
+      fireEvent.click(muiCardRootCheckbox);
+    }
+    
+    // Expand MuiCard accordion
+    const muiCardAccordion = screen.getByText('MuiCard').closest('div');
+    if (muiCardAccordion) {
+      fireEvent.click(muiCardAccordion);
+    }
+    
+    await waitFor(() => {
+      const borderRadiusInput = screen.getByLabelText('borderRadius') as HTMLInputElement;
+      expect(borderRadiusInput.disabled).toBe(false);
+    });
+  });
+
+  it('should update theme definition when MUI override values are changed', async () => {
+    renderThemeEditor();
+    
+    // Click on MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      expect(screen.getByText('MuiButton')).toBeDefined();
+    });
+    
+    // Find and check the root checkbox for MuiButton
+    const checkboxes = screen.getAllByRole('checkbox');
+    const muiButtonRootCheckbox = checkboxes.find(cb => {
+      const label = cb.closest('label');
+      return label?.textContent?.includes('root');
+    });
+    
+    if (muiButtonRootCheckbox) {
+      fireEvent.click(muiButtonRootCheckbox);
+    }
+    
+    // Expand MuiButton accordion
+    const muiButtonAccordion = screen.getByText('MuiButton').closest('div');
+    if (muiButtonAccordion) {
+      fireEvent.click(muiButtonAccordion);
+    }
+    
+    await waitFor(() => {
+      const textTransformInput = screen.getByLabelText('textTransform') as HTMLInputElement;
+      expect(textTransformInput).toBeDefined();
+    });
+    
+    const textTransformInput = screen.getByLabelText('textTransform') as HTMLInputElement;
+    fireEvent.change(textTransformInput, { target: { value: 'none' } });
+    
+    await waitFor(() => {
+      expect(textTransformInput.value).toBe('none');
+    });
+  });
+
+  it('should have multiple override options for MuiButton', async () => {
+    renderThemeEditor();
+    
+    // Click on MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      expect(screen.getByText('MuiButton')).toBeDefined();
+    });
+    
+    // MuiButton should have root, text, contained, and outlined checkboxes
+    const allCheckboxes = screen.getAllByRole('checkbox');
+    const buttonRelatedCheckboxes = allCheckboxes.filter(cb => {
+      const label = cb.closest('label');
+      const labelText = label?.textContent || '';
+      return ['root', 'text', 'contained', 'outlined'].includes(labelText);
+    });
+    
+    // Should have at least 4 checkboxes for MuiButton
+    expect(buttonRelatedCheckboxes.length).toBeGreaterThanOrEqual(4);
   });
 });

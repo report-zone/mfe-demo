@@ -3,17 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ThemeEditorDialog from '../components/ThemeEditorDialog';
 import { ThemeContextProvider } from '../context/ThemeContext';
 
-// Mock Monaco Editor
-vi.mock('@monaco-editor/react', () => ({
-  default: ({ value, onChange }: { value: string; onChange: (val: string | undefined) => void }) => (
-    <textarea
-      data-testid="monaco-editor"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  ),
-}));
-
 // Mock URL.createObjectURL which is not available in jsdom
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
 global.URL.revokeObjectURL = vi.fn();

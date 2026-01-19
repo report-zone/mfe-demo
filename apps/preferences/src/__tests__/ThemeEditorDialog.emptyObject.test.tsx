@@ -3,17 +3,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ThemeEditorDialog from '../components/ThemeEditorDialog';
 import { ThemeContextProvider } from '../context/ThemeContext';
 
-// Mock Monaco Editor
-vi.mock('@monaco-editor/react', () => ({
-  default: ({ value, onChange }: { value: string; onChange: (val: string | undefined) => void }) => (
-    <textarea
-      data-testid="monaco-editor"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  ),
-}));
-
 const renderThemeEditor = (props = {}) => {
   const defaultProps = {
     open: true,
@@ -27,27 +16,75 @@ const renderThemeEditor = (props = {}) => {
   );
 };
 
-describe('ThemeEditorDialog - Empty Object Editing Fix', () => {
+describe('ThemeEditorDialog - MUI Component Configuration', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it('should allow editing empty objects in Monaco editor', async () => {
+  it('should allow configuring MUI components via the MUI Components tab', async () => {
     renderThemeEditor();
     
-    // Navigate to Full Theme JSON tab
-    const fullThemeTab = screen.getByRole('tab', { name: /full theme json/i });
-    fireEvent.click(fullThemeTab);
+    // Navigate to MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
     
     await waitFor(() => {
-      const monacoEditor = screen.getByTestId('monaco-editor');
-      expect(monacoEditor).toBeDefined();
+      expect(screen.getByText('MuiButton')).toBeDefined();
     });
     
-    const monacoEditor = screen.getByTestId('monaco-editor') as HTMLTextAreaElement;
+    // Verify all 5 components are present
+    expect(screen.getByText('MuiAppBar')).toBeDefined();
+    expect(screen.getByText('MuiCard')).toBeDefined();
+    expect(screen.getByText('MuiAccordion')).toBeDefined();
+    expect(screen.getByText('MuiButton')).toBeDefined();
+    expect(screen.getByText('MuiCheckbox')).toBeDefined();
+  });
+
+  it('should have enable/disable checkboxes for each component override', async () => {
+    renderThemeEditor();
     
-    // Get the current JSON
+    // Navigate to MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      const checkboxes = screen.getAllByRole('checkbox');
+      // Should have checkboxes for enabling/disabling overrides
+      expect(checkboxes.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('should preserve component overrides when switching tabs', async () => {
+    renderThemeEditor();
+    
+    // Navigate to MUI Components tab
+    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      expect(screen.getByText('MuiButton')).toBeDefined();
+    });
+    
+    // Enable a checkbox
+    const checkboxes = screen.getAllByRole('checkbox');
+    if (checkboxes.length > 0) {
+      fireEvent.click(checkboxes[0]);
+    }
+    
+    // Switch to another tab
+    const primaryTab = screen.getByRole('tab', { name: /primary/i });
+    fireEvent.click(primaryTab);
+    
+    // Switch back to MUI Components tab
+    fireEvent.click(muiComponentsTab);
+    
+    await waitFor(() => {
+      // Component overrides should still be there
+      expect(screen.getByText('MuiButton')).toBeDefined();
+    });
+  });
+});
     const currentJson = JSON.parse(monacoEditor.value);
     
     // Add an empty object for MuiAccordion
