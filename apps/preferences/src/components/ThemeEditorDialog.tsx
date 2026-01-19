@@ -199,7 +199,24 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         componentOverride.styleOverrides[overrideKey] = {};
       }
       
-      componentOverride.styleOverrides[overrideKey][cssProperty] = value;
+      // Handle pseudo-selectors (e.g., &:hover, &:active) which expect JSON object values
+      if (cssProperty.startsWith('&:')) {
+        try {
+          // If value is not empty, parse it as JSON
+          if (value.trim()) {
+            componentOverride.styleOverrides[overrideKey][cssProperty] = JSON.parse(value);
+          } else {
+            // If empty, remove the property
+            delete componentOverride.styleOverrides[overrideKey][cssProperty];
+          }
+        } catch (error) {
+          // If JSON parsing fails, store as string (user may still be typing)
+          componentOverride.styleOverrides[overrideKey][cssProperty] = value;
+        }
+      } else {
+        // For regular CSS properties, store as string
+        componentOverride.styleOverrides[overrideKey][cssProperty] = value;
+      }
       
       return updated;
     });
@@ -207,7 +224,14 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const getMuiOverrideValue = (component: string, overrideKey: string, cssProperty: string): string => {
     const componentOverride = themeDefinition.muiComponentOverrides?.[component] as any;
-    return componentOverride?.styleOverrides?.[overrideKey]?.[cssProperty] || '';
+    const value = componentOverride?.styleOverrides?.[overrideKey]?.[cssProperty];
+    
+    // If the value is an object (for pseudo-selectors like &:hover), stringify it
+    if (value && typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    
+    return value || '';
   };
 
   const handleSave = () => {
