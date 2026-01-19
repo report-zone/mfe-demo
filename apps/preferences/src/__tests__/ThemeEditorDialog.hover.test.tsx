@@ -20,6 +20,47 @@ const renderThemeEditor = (props = {}) => {
   );
 };
 
+// Helper function to setup MuiButton root checkbox and hover input
+const setupMuiButtonHoverInput = async () => {
+  // Click on MUI Components tab
+  const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
+  fireEvent.click(muiComponentsTab);
+  
+  await waitFor(() => {
+    expect(screen.getByText('MuiButton')).toBeDefined();
+  });
+  
+  // Expand MuiButton accordion
+  const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
+  if (muiButtonAccordion) {
+    fireEvent.click(muiButtonAccordion);
+  }
+  
+  // Find and check the root checkbox for MuiButton
+  await waitFor(() => {
+    const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
+    if (muiButtonSection) {
+      const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
+      const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
+        const label = cb.closest('label');
+        return label?.textContent === 'root';
+      }) as HTMLInputElement;
+      
+      if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
+        fireEvent.click(muiButtonRootCheckbox);
+      }
+    }
+  });
+  
+  // Wait for hover input to be available
+  await waitFor(() => {
+    const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
+    expect(hoverInput).toBeDefined();
+  });
+  
+  return screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
+};
+
 describe('ThemeEditorDialog - Hover Styling', () => {
   beforeEach(() => {
     // Clear localStorage before each test
@@ -28,46 +69,11 @@ describe('ThemeEditorDialog - Hover Styling', () => {
   });
 
   it('should parse JSON for &:hover pseudo-selector', async () => {
-    const { container } = renderThemeEditor();
+    renderThemeEditor();
     
-    // Click on MUI Components tab
-    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
-    fireEvent.click(muiComponentsTab);
-    
-    await waitFor(() => {
-      expect(screen.getByText('MuiButton')).toBeDefined();
-    });
-    
-    // Expand MuiButton accordion
-    const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
-    if (muiButtonAccordion) {
-      fireEvent.click(muiButtonAccordion);
-    }
-    
-    // Find and check the root checkbox for MuiButton
-    await waitFor(() => {
-      const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
-      if (muiButtonSection) {
-        const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
-        const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
-          const label = cb.closest('label');
-          return label?.textContent === 'root';
-        }) as HTMLInputElement;
-        
-        if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
-          fireEvent.click(muiButtonRootCheckbox);
-        }
-      }
-    });
-    
-    // Wait for hover input to be available
-    await waitFor(() => {
-      const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
-      expect(hoverInput).toBeDefined();
-    });
+    const hoverInput = await setupMuiButtonHoverInput();
     
     // Enter JSON value for hover
-    const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
     fireEvent.change(hoverInput, { target: { value: '{"backgroundColor":"green"}' } });
     
     await waitFor(() => {
@@ -76,46 +82,11 @@ describe('ThemeEditorDialog - Hover Styling', () => {
   });
 
   it('should handle invalid JSON gracefully for &:hover', async () => {
-    const { container } = renderThemeEditor();
+    renderThemeEditor();
     
-    // Click on MUI Components tab
-    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
-    fireEvent.click(muiComponentsTab);
-    
-    await waitFor(() => {
-      expect(screen.getByText('MuiButton')).toBeDefined();
-    });
-    
-    // Expand MuiButton accordion
-    const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
-    if (muiButtonAccordion) {
-      fireEvent.click(muiButtonAccordion);
-    }
-    
-    // Find and check the root checkbox for MuiButton
-    await waitFor(() => {
-      const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
-      if (muiButtonSection) {
-        const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
-        const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
-          const label = cb.closest('label');
-          return label?.textContent === 'root';
-        }) as HTMLInputElement;
-        
-        if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
-          fireEvent.click(muiButtonRootCheckbox);
-        }
-      }
-    });
-    
-    // Wait for hover input to be available
-    await waitFor(() => {
-      const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
-      expect(hoverInput).toBeDefined();
-    });
+    const hoverInput = await setupMuiButtonHoverInput();
     
     // Enter invalid JSON (user still typing)
-    const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
     fireEvent.change(hoverInput, { target: { value: '{"backgroundColor":"gr' } });
     
     // Should not throw error
@@ -166,87 +137,20 @@ describe('ThemeEditorDialog - Hover Styling', () => {
       createdAt: new Date().toISOString(),
     };
     
-    const { container } = renderThemeEditor({ initialTheme });
+    renderThemeEditor({ initialTheme });
     
-    // Click on MUI Components tab
-    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
-    fireEvent.click(muiComponentsTab);
+    const hoverInput = await setupMuiButtonHoverInput();
     
-    await waitFor(() => {
-      expect(screen.getByText('MuiButton')).toBeDefined();
-    });
-    
-    // Expand MuiButton accordion
-    const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
-    if (muiButtonAccordion) {
-      fireEvent.click(muiButtonAccordion);
-    }
-    
-    // Find and check the root checkbox for MuiButton (should already be enabled)
-    await waitFor(() => {
-      const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
-      if (muiButtonSection) {
-        const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
-        const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
-          const label = cb.closest('label');
-          return label?.textContent === 'root';
-        }) as HTMLInputElement;
-        
-        if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
-          fireEvent.click(muiButtonRootCheckbox);
-        }
-      }
-    });
-    
-    // Wait for hover input to be available and check it displays the stringified object
-    await waitFor(() => {
-      const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
-      expect(hoverInput).toBeDefined();
-      expect(hoverInput.value).toBe('{"backgroundColor":"green"}');
-    });
+    // Check it displays the stringified object
+    expect(hoverInput.value).toBe('{"backgroundColor":"green"}');
   });
 
   it('should remove property when value is empty', async () => {
-    const { container } = renderThemeEditor();
+    renderThemeEditor();
     
-    // Click on MUI Components tab
-    const muiComponentsTab = screen.getByRole('tab', { name: /mui components/i });
-    fireEvent.click(muiComponentsTab);
-    
-    await waitFor(() => {
-      expect(screen.getByText('MuiButton')).toBeDefined();
-    });
-    
-    // Expand MuiButton accordion
-    const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
-    if (muiButtonAccordion) {
-      fireEvent.click(muiButtonAccordion);
-    }
-    
-    // Find and check the root checkbox for MuiButton
-    await waitFor(() => {
-      const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
-      if (muiButtonSection) {
-        const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
-        const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
-          const label = cb.closest('label');
-          return label?.textContent === 'root';
-        }) as HTMLInputElement;
-        
-        if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
-          fireEvent.click(muiButtonRootCheckbox);
-        }
-      }
-    });
-    
-    // Wait for hover input to be available
-    await waitFor(() => {
-      const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
-      expect(hoverInput).toBeDefined();
-    });
+    const hoverInput = await setupMuiButtonHoverInput();
     
     // Enter JSON value first
-    const hoverInput = screen.getByLabelText('&:hover backgroundColor') as HTMLInputElement;
     fireEvent.change(hoverInput, { target: { value: '{"backgroundColor":"green"}' } });
     
     await waitFor(() => {
