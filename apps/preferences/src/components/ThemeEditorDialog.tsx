@@ -202,9 +202,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       // Handle pseudo-selectors (e.g., &:hover, &:active) which expect JSON object values
       if (cssProperty.startsWith('&:')) {
         try {
+          // Ensure value is a string before calling trim
+          const stringValue = typeof value === 'string' ? value : String(value);
           // If value is not empty, parse it as JSON
-          if (value.trim()) {
-            componentOverride.styleOverrides[overrideKey][cssProperty] = JSON.parse(value);
+          if (stringValue.trim()) {
+            componentOverride.styleOverrides[overrideKey][cssProperty] = JSON.parse(stringValue);
           } else {
             // If empty, remove the property
             delete componentOverride.styleOverrides[overrideKey][cssProperty];
