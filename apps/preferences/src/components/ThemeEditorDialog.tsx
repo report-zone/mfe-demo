@@ -201,24 +201,25 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       
       // Handle pseudo-selectors (e.g., &:hover, &:active) which expect JSON object values
       if (cssProperty.startsWith('&:')) {
+        // Ensure value is a valid string and handle empty/null/undefined cases
+        if (value === null || value === undefined || value === '') {
+          delete componentOverride.styleOverrides[overrideKey][cssProperty];
+          return updated;
+        }
+        
+        const stringValue = typeof value === 'string' ? value : String(value);
+        
+        // If only whitespace, remove the property
+        if (!stringValue.trim()) {
+          delete componentOverride.styleOverrides[overrideKey][cssProperty];
+          return updated;
+        }
+        
         try {
-          // Ensure value is a valid string before processing
-          if (value == null || value === '') {
-            // If null, undefined, or empty, remove the property
-            delete componentOverride.styleOverrides[overrideKey][cssProperty];
-          } else {
-            const stringValue = typeof value === 'string' ? value : String(value);
-            // If value is not empty after trimming, parse it as JSON
-            if (stringValue.trim()) {
-              componentOverride.styleOverrides[overrideKey][cssProperty] = JSON.parse(stringValue);
-            } else {
-              // If only whitespace, remove the property
-              delete componentOverride.styleOverrides[overrideKey][cssProperty];
-            }
-          }
+          // Parse as JSON for pseudo-selectors
+          componentOverride.styleOverrides[overrideKey][cssProperty] = JSON.parse(stringValue);
         } catch (error) {
           // If JSON parsing fails, store as string (user may still be typing)
-          const stringValue = typeof value === 'string' ? value : String(value);
           componentOverride.styleOverrides[overrideKey][cssProperty] = stringValue;
         }
       } else {
