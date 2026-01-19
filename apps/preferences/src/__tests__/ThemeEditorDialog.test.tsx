@@ -137,7 +137,6 @@ describe('ThemeEditorDialog - MUI Components Tab', () => {
     
     // Find and check the root checkbox for MuiButton (inside the accordion header)
     await waitFor(() => {
-      const checkboxes = screen.getAllByRole('checkbox');
       // Find the checkbox that is within the MuiButton section
       const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
       if (muiButtonSection) {

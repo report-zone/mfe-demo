@@ -85,6 +85,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     MuiCheckbox: {},
   });
 
+  // State to track which accordions are expanded
+  const [expandedAccordions, setExpandedAccordions] = useState<Record<string, boolean>>({
+    MuiAppBar: false,
+    MuiCard: false,
+    MuiAccordion: false,
+    MuiButton: false,
+    MuiCheckbox: false,
+  });
+
+  // Helper function to check if any override is enabled for a component
+  const hasEnabledOverrides = (component: string): boolean => {
+    const overrides = enabledOverrides[component];
+    if (!overrides) return false;
+    return Object.values(overrides).some(enabled => enabled);
+  };
+
   // Reset state when dialog opens
   React.useEffect(() => {
     if (open) {
@@ -94,6 +110,14 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setHasUnsavedChanges(false);
       setLivePreviewExpanded(false);
       setIsEditingExistingTheme(!!initialTheme);
+      // Reset accordion expanded states
+      setExpandedAccordions({
+        MuiAppBar: false,
+        MuiCard: false,
+        MuiAccordion: false,
+        MuiButton: false,
+        MuiCheckbox: false,
+      });
     }
   }, [open, initialTheme]);
 
@@ -168,14 +192,38 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   };
 
   const handleMuiOverrideToggle = (component: string, overrideKey: string, enabled: boolean) => {
-    setEnabledOverrides(prev => ({
-      ...prev,
-      [component]: {
-        ...prev[component],
-        [overrideKey]: enabled,
-      },
-    }));
+    setEnabledOverrides(prev => {
+      const newOverrides = {
+        ...prev,
+        [component]: {
+          ...prev[component],
+          [overrideKey]: enabled,
+        },
+      };
+      
+      // If unchecking and no other overrides are enabled, collapse the accordion
+      if (!enabled) {
+        const hasOtherEnabled = Object.entries(newOverrides[component]).some(
+          ([key, val]) => key !== overrideKey && val
+        );
+        if (!hasOtherEnabled) {
+          setExpandedAccordions(prevExpanded => ({
+            ...prevExpanded,
+            [component]: false,
+          }));
+        }
+      }
+      
+      return newOverrides;
+    });
     setHasUnsavedChanges(true);
+  };
+
+  const handleAccordionChange = (component: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedAccordions(prev => ({
+      ...prev,
+      [component]: isExpanded,
+    }));
   };
 
   const handleMuiOverrideChange = (component: string, overrideKey: string, cssProperty: string, value: string) => {
@@ -722,7 +770,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </Typography>
 
                     {/* MuiAppBar */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion 
+                      sx={{ mb: 2 }}
+                      expanded={expandedAccordions.MuiAppBar}
+                      onChange={handleAccordionChange('MuiAppBar')}
+                      disabled={!hasEnabledOverrides('MuiAppBar')}
+                    >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <Typography sx={{ flexGrow: 1 }}>MuiAppBar</Typography>
@@ -768,7 +821,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </Accordion>
 
                     {/* MuiCard */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion 
+                      sx={{ mb: 2 }}
+                      expanded={expandedAccordions.MuiCard}
+                      onChange={handleAccordionChange('MuiCard')}
+                      disabled={!hasEnabledOverrides('MuiCard')}
+                    >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <Typography sx={{ flexGrow: 1 }}>MuiCard</Typography>
@@ -814,7 +872,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </Accordion>
 
                     {/* MuiAccordion */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion 
+                      sx={{ mb: 2 }}
+                      expanded={expandedAccordions.MuiAccordion}
+                      onChange={handleAccordionChange('MuiAccordion')}
+                      disabled={!hasEnabledOverrides('MuiAccordion')}
+                    >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <Typography sx={{ flexGrow: 1 }}>MuiAccordion</Typography>
@@ -860,7 +923,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </Accordion>
 
                     {/* MuiButton */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion 
+                      sx={{ mb: 2 }}
+                      expanded={expandedAccordions.MuiButton}
+                      onChange={handleAccordionChange('MuiButton')}
+                      disabled={!hasEnabledOverrides('MuiButton')}
+                    >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <Typography sx={{ flexGrow: 1 }}>MuiButton</Typography>
@@ -1222,7 +1290,12 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                     </Accordion>
 
                     {/* MuiCheckbox */}
-                    <Accordion sx={{ mb: 2 }}>
+                    <Accordion 
+                      sx={{ mb: 2 }}
+                      expanded={expandedAccordions.MuiCheckbox}
+                      onChange={handleAccordionChange('MuiCheckbox')}
+                      disabled={!hasEnabledOverrides('MuiCheckbox')}
+                    >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                           <Typography sx={{ flexGrow: 1 }}>MuiCheckbox</Typography>
