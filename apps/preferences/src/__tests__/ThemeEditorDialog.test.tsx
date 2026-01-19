@@ -129,22 +129,29 @@ describe('ThemeEditorDialog - MUI Components Tab', () => {
       expect(screen.getByText('MuiButton')).toBeDefined();
     });
     
-    // Find and check the root checkbox for MuiButton
-    const checkboxes = screen.getAllByRole('checkbox');
-    const muiButtonRootCheckbox = checkboxes.find(cb => {
-      const label = cb.closest('label');
-      return label?.textContent?.includes('root');
-    });
-    
-    if (muiButtonRootCheckbox) {
-      fireEvent.click(muiButtonRootCheckbox);
-    }
-    
-    // Expand MuiButton accordion
-    const muiButtonAccordion = screen.getByText('MuiButton').closest('div');
+    // Expand MuiButton accordion first
+    const muiButtonAccordion = screen.getByText('MuiButton').closest('button');
     if (muiButtonAccordion) {
       fireEvent.click(muiButtonAccordion);
     }
+    
+    // Find and check the root checkbox for MuiButton (inside the accordion header)
+    await waitFor(() => {
+      const checkboxes = screen.getAllByRole('checkbox');
+      // Find the checkbox that is within the MuiButton section
+      const muiButtonSection = screen.getByText('MuiButton').closest('.MuiAccordion-root');
+      if (muiButtonSection) {
+        const muiButtonCheckboxes = Array.from(muiButtonSection.querySelectorAll('input[type="checkbox"]'));
+        const muiButtonRootCheckbox = muiButtonCheckboxes.find((cb: any) => {
+          const label = cb.closest('label');
+          return label?.textContent === 'root';
+        }) as HTMLInputElement;
+        
+        if (muiButtonRootCheckbox && !muiButtonRootCheckbox.checked) {
+          fireEvent.click(muiButtonRootCheckbox);
+        }
+      }
+    });
     
     await waitFor(() => {
       const textTransformInput = screen.getByLabelText('textTransform') as HTMLInputElement;

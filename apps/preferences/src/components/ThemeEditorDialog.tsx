@@ -709,25 +709,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
-                          <TextField
-                            fullWidth
-                            label="backgroundColor"
-                            value={getMuiOverrideValue('MuiAppBar', 'root', 'backgroundColor')}
-                            onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'backgroundColor', e.target.value)}
-                            disabled={!enabledOverrides.MuiAppBar?.root}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="color"
-                            value={getMuiOverrideValue('MuiAppBar', 'root', 'color')}
-                            onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'color', e.target.value)}
-                            disabled={!enabledOverrides.MuiAppBar?.root}
-                            placeholder="#fff"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiAppBar?.root && (
+                            <>
+                              <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                              <TextField
+                                fullWidth
+                                label="backgroundColor"
+                                value={getMuiOverrideValue('MuiAppBar', 'root', 'backgroundColor')}
+                                onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'backgroundColor', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiAppBar', 'root', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'color', e.target.value)}
+                                placeholder="#fff"
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                         </Box>
                       </AccordionDetails>
                     </Accordion>
@@ -753,25 +755,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
-                          <TextField
-                            fullWidth
-                            label="borderRadius"
-                            value={getMuiOverrideValue('MuiCard', 'root', 'borderRadius')}
-                            onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'borderRadius', e.target.value)}
-                            disabled={!enabledOverrides.MuiCard?.root}
-                            placeholder="4px"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="boxShadow"
-                            value={getMuiOverrideValue('MuiCard', 'root', 'boxShadow')}
-                            onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'boxShadow', e.target.value)}
-                            disabled={!enabledOverrides.MuiCard?.root}
-                            placeholder="0px 2px 4px rgba(0,0,0,0.1)"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiCard?.root && (
+                            <>
+                              <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                              <TextField
+                                fullWidth
+                                label="borderRadius"
+                                value={getMuiOverrideValue('MuiCard', 'root', 'borderRadius')}
+                                onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'borderRadius', e.target.value)}
+                                placeholder="4px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="boxShadow"
+                                value={getMuiOverrideValue('MuiCard', 'root', 'boxShadow')}
+                                onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'boxShadow', e.target.value)}
+                                placeholder="0px 2px 4px rgba(0,0,0,0.1)"
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                         </Box>
                       </AccordionDetails>
                     </Accordion>
@@ -797,25 +801,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
-                          <TextField
-                            fullWidth
-                            label="borderRadius"
-                            value={getMuiOverrideValue('MuiAccordion', 'root', 'borderRadius')}
-                            onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'borderRadius', e.target.value)}
-                            disabled={!enabledOverrides.MuiAccordion?.root}
-                            placeholder="4px"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="marginBottom"
-                            value={getMuiOverrideValue('MuiAccordion', 'root', 'marginBottom')}
-                            onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'marginBottom', e.target.value)}
-                            disabled={!enabledOverrides.MuiAccordion?.root}
-                            placeholder="8px"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiAccordion?.root && (
+                            <>
+                              <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                              <TextField
+                                fullWidth
+                                label="borderRadius"
+                                value={getMuiOverrideValue('MuiAccordion', 'root', 'borderRadius')}
+                                onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'borderRadius', e.target.value)}
+                                placeholder="4px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="marginBottom"
+                                value={getMuiOverrideValue('MuiAccordion', 'root', 'marginBottom')}
+                                onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'marginBottom', e.target.value)}
+                                placeholder="8px"
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                         </Box>
                       </AccordionDetails>
                     </Accordion>
@@ -871,82 +877,313 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>root - Styles applied to the root element</Typography>
-                          <TextField
-                            fullWidth
-                            label="textTransform"
-                            value={getMuiOverrideValue('MuiButton', 'root', 'textTransform')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'textTransform', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.root}
-                            placeholder="uppercase"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="borderRadius"
-                            value={getMuiOverrideValue('MuiButton', 'root', 'borderRadius')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'borderRadius', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.root}
-                            placeholder="4px"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiButton?.root && (
+                            <>
+                              <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>root - Styles applied to the root element</Typography>
+                              
+                              {/* Typography */}
+                              <TextField
+                                fullWidth
+                                label="textTransform"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'textTransform')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'textTransform', e.target.value)}
+                                placeholder="uppercase"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="fontSize"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'fontSize')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'fontSize', e.target.value)}
+                                placeholder="0.875rem"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="fontWeight"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'fontWeight')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'fontWeight', e.target.value)}
+                                placeholder="500"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="lineHeight"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'lineHeight')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'lineHeight', e.target.value)}
+                                placeholder="1.75"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="letterSpacing"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'letterSpacing')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'letterSpacing', e.target.value)}
+                                placeholder="0.02857em"
+                                sx={{ mb: 2 }}
+                              />
+                              
+                              {/* Sizing and Layout */}
+                              <TextField
+                                fullWidth
+                                label="padding"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'padding')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'padding', e.target.value)}
+                                placeholder="6px 16px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="margin"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'margin')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'margin', e.target.value)}
+                                placeholder="0"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="width"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'width')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'width', e.target.value)}
+                                placeholder="auto"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="height"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'height')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'height', e.target.value)}
+                                placeholder="auto"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="minWidth"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'minWidth')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'minWidth', e.target.value)}
+                                placeholder="64px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="minHeight"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'minHeight')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'minHeight', e.target.value)}
+                                placeholder="auto"
+                                sx={{ mb: 2 }}
+                              />
+                              
+                              {/* Visual Effects */}
+                              <TextField
+                                fullWidth
+                                label="borderRadius"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'borderRadius')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'borderRadius', e.target.value)}
+                                placeholder="4px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="border"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'border')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'border', e.target.value)}
+                                placeholder="1px solid transparent"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="borderWidth"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'borderWidth')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'borderWidth', e.target.value)}
+                                placeholder="1px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="borderStyle"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'borderStyle')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'borderStyle', e.target.value)}
+                                placeholder="solid"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="boxShadow"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'boxShadow')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'boxShadow', e.target.value)}
+                                placeholder="none"
+                                sx={{ mb: 2 }}
+                              />
+                              
+                              {/* Color and Background */}
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'color', e.target.value)}
+                                placeholder="inherit"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'root', 'backgroundColor')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'backgroundColor', e.target.value)}
+                                placeholder="transparent"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:hover backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'root', '&:hover')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', '&:hover', e.target.value)}
+                                placeholder="rgba(0, 0, 0, 0.04)"
+                                helperText='Use JSON format: {"backgroundColor": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:active backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'root', '&:active')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', '&:active', e.target.value)}
+                                placeholder="rgba(0, 0, 0, 0.08)"
+                                helperText='Use JSON format: {"backgroundColor": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                           
-                          <Divider sx={{ my: 2 }} />
+                          {enabledOverrides.MuiButton?.text && (
+                            <>
+                              <Divider sx={{ my: 2 }} />
+                              
+                              <Typography variant="subtitle2" gutterBottom>text - Styles applied to the root element if variant=&quot;text&quot;</Typography>
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiButton', 'text', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'text', 'color', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="padding"
+                                value={getMuiOverrideValue('MuiButton', 'text', 'padding')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'text', 'padding', e.target.value)}
+                                placeholder="6px 8px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:hover backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'text', '&:hover')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'text', '&:hover', e.target.value)}
+                                placeholder="rgba(25, 118, 210, 0.04)"
+                                helperText='Use JSON format: {"backgroundColor": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                           
-                          <Typography variant="subtitle2" gutterBottom>text - Styles applied to the root element if variant=&quot;text&quot;</Typography>
-                          <TextField
-                            fullWidth
-                            label="color"
-                            value={getMuiOverrideValue('MuiButton', 'text', 'color')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'text', 'color', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.text}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiButton?.contained && (
+                            <>
+                              <Divider sx={{ my: 2 }} />
+                              
+                              <Typography variant="subtitle2" gutterBottom>contained - Styles applied to the root element if variant=&quot;contained&quot;</Typography>
+                              <TextField
+                                fullWidth
+                                label="backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'contained', 'backgroundColor')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'backgroundColor', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiButton', 'contained', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'color', e.target.value)}
+                                placeholder="#fff"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="boxShadow"
+                                value={getMuiOverrideValue('MuiButton', 'contained', 'boxShadow')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'boxShadow', e.target.value)}
+                                placeholder="0px 3px 1px -2px rgba(0,0,0,0.2)"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:hover backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'contained', '&:hover')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', '&:hover', e.target.value)}
+                                placeholder="rgb(17, 82, 147)"
+                                helperText='Use JSON format: {"backgroundColor": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:active boxShadow"
+                                value={getMuiOverrideValue('MuiButton', 'contained', '&:active')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', '&:active', e.target.value)}
+                                placeholder="0px 5px 5px -3px rgba(0,0,0,0.2)"
+                                helperText='Use JSON format: {"boxShadow": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                           
-                          <Divider sx={{ my: 2 }} />
-                          
-                          <Typography variant="subtitle2" gutterBottom>contained - Styles applied to the root element if variant=&quot;contained&quot;</Typography>
-                          <TextField
-                            fullWidth
-                            label="backgroundColor"
-                            value={getMuiOverrideValue('MuiButton', 'contained', 'backgroundColor')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'backgroundColor', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.contained}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="color"
-                            value={getMuiOverrideValue('MuiButton', 'contained', 'color')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'color', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.contained}
-                            placeholder="#fff"
-                            sx={{ mb: 2 }}
-                          />
-                          
-                          <Divider sx={{ my: 2 }} />
-                          
-                          <Typography variant="subtitle2" gutterBottom>outlined - Styles applied to the root element if variant=&quot;outlined&quot;</Typography>
-                          <TextField
-                            fullWidth
-                            label="borderColor"
-                            value={getMuiOverrideValue('MuiButton', 'outlined', 'borderColor')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'borderColor', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.outlined}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="color"
-                            value={getMuiOverrideValue('MuiButton', 'outlined', 'color')}
-                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'color', e.target.value)}
-                            disabled={!enabledOverrides.MuiButton?.outlined}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiButton?.outlined && (
+                            <>
+                              <Divider sx={{ my: 2 }} />
+                              
+                              <Typography variant="subtitle2" gutterBottom>outlined - Styles applied to the root element if variant=&quot;outlined&quot;</Typography>
+                              <TextField
+                                fullWidth
+                                label="borderColor"
+                                value={getMuiOverrideValue('MuiButton', 'outlined', 'borderColor')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'borderColor', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiButton', 'outlined', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'color', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="border"
+                                value={getMuiOverrideValue('MuiButton', 'outlined', 'border')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'border', e.target.value)}
+                                placeholder="1px solid currentColor"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="padding"
+                                value={getMuiOverrideValue('MuiButton', 'outlined', 'padding')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'padding', e.target.value)}
+                                placeholder="5px 15px"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="&:hover backgroundColor"
+                                value={getMuiOverrideValue('MuiButton', 'outlined', '&:hover')}
+                                onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', '&:hover', e.target.value)}
+                                placeholder="rgba(25, 118, 210, 0.04)"
+                                helperText='Use JSON format: {"backgroundColor": "value"}'
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                         </Box>
                       </AccordionDetails>
                     </Accordion>
@@ -972,25 +1209,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box sx={{ p: 2 }}>
-                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
-                          <TextField
-                            fullWidth
-                            label="color"
-                            value={getMuiOverrideValue('MuiCheckbox', 'root', 'color')}
-                            onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'color', e.target.value)}
-                            disabled={!enabledOverrides.MuiCheckbox?.root}
-                            placeholder="#1976d2"
-                            sx={{ mb: 2 }}
-                          />
-                          <TextField
-                            fullWidth
-                            label="borderRadius"
-                            value={getMuiOverrideValue('MuiCheckbox', 'root', 'borderRadius')}
-                            onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'borderRadius', e.target.value)}
-                            disabled={!enabledOverrides.MuiCheckbox?.root}
-                            placeholder="2px"
-                            sx={{ mb: 2 }}
-                          />
+                          {enabledOverrides.MuiCheckbox?.root && (
+                            <>
+                              <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                              <TextField
+                                fullWidth
+                                label="color"
+                                value={getMuiOverrideValue('MuiCheckbox', 'root', 'color')}
+                                onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'color', e.target.value)}
+                                placeholder="#1976d2"
+                                sx={{ mb: 2 }}
+                              />
+                              <TextField
+                                fullWidth
+                                label="borderRadius"
+                                value={getMuiOverrideValue('MuiCheckbox', 'root', 'borderRadius')}
+                                onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'borderRadius', e.target.value)}
+                                placeholder="2px"
+                                sx={{ mb: 2 }}
+                              />
+                            </>
+                          )}
                         </Box>
                       </AccordionDetails>
                     </Accordion>
