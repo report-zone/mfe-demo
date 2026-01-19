@@ -23,15 +23,18 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import SettingsIcon from '@mui/icons-material/Settings';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import Editor from '@monaco-editor/react';
 import { ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import ComponentShowcase from './ComponentShowcase';
@@ -62,9 +65,6 @@ interface ThemeEditorDialogProps {
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [themeJsonError, setThemeJsonError] = useState<string>('');
-  const [monacoSettings, setMonacoSettings] = useState({ theme: 'vs-light' });
-  const [showMonacoSettings, setShowMonacoSettings] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
   const [livePreviewExpanded, setLivePreviewExpanded] = useState(false);
@@ -75,9 +75,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [pendingSave, setPendingSave] = useState<{ filename: string; themeDefinition: CustomThemeDefinition } | null>(null);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [newFilename, setNewFilename] = useState('');
-  const [jsonEditorValue, setJsonEditorValue] = useState('');
-  const [isTypingInJsonEditor, setIsTypingInJsonEditor] = useState(false);
-  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // State for MUI component overrides enablement
+  const [enabledOverrides, setEnabledOverrides] = useState<Record<string, Record<string, boolean>>>({
+    MuiAppBar: {},
+    MuiCard: {},
+    MuiAccordion: {},
+    MuiButton: {},
+    MuiCheckbox: {},
+  });
 
   // Reset state when dialog opens
   React.useEffect(() => {
@@ -86,28 +92,10 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setThemeDefinition(initialDefinition);
       setActiveTab(0);
       setHasUnsavedChanges(false);
-      setThemeJsonError('');
       setLivePreviewExpanded(false);
       setIsEditingExistingTheme(!!initialTheme);
-      setIsTypingInJsonEditor(false);
     }
   }, [open, initialTheme]);
-
-  // Sync JSON editor value with themeDefinition when not typing
-  React.useEffect(() => {
-    if (!isTypingInJsonEditor) {
-      setJsonEditorValue(JSON.stringify(themeDefinition, null, 2));
-    }
-  }, [themeDefinition, isTypingInJsonEditor]);
-
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Generate theme from definition for live preview
   const previewTheme = React.useMemo(() => {
@@ -179,62 +167,99 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     });
   };
 
-  const handleFullThemeJsonChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      setJsonEditorValue(value);
-      setIsTypingInJsonEditor(true);
-      setHasUnsavedChanges(true);
+  const handleMuiOverrideToggle = (component: string, overrideKey: string, enabled: boolean) => {
+    setEnabledOverrides(prev => ({
+      ...prev,
+      [component]: {
+        ...prev[component],
+        [overrideKey]: enabled,
+      },
+    }));
+    setHasUnsavedChanges(true);
+  };
 
-      // Clear any existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
+  const handleMuiOverrideChange = (component: string, overrideKey: string, cssProperty: string, value: string) => {
+    updateThemeDefinition(prev => {
+      const updated = cloneThemeDefinition(prev);
+      
+      if (!updated.muiComponentOverrides) {
+        updated.muiComponentOverrides = {};
       }
+      
+      if (!updated.muiComponentOverrides[component]) {
+        updated.muiComponentOverrides[component] = { styleOverrides: {} };
+      }
+      
+      const componentOverride = updated.muiComponentOverrides[component] as any;
+      if (!componentOverride.styleOverrides) {
+        componentOverride.styleOverrides = {};
+      }
+      
+      if (!componentOverride.styleOverrides[overrideKey]) {
+        componentOverride.styleOverrides[overrideKey] = {};
+      }
+      
+      componentOverride.styleOverrides[overrideKey][cssProperty] = value;
+      
+      return updated;
+    });
+  };
 
-      // Debounce JSON parsing to avoid interfering with typing
-      typingTimeoutRef.current = setTimeout(() => {
-        try {
-          const parsed = JSON.parse(value);
-          
-          // Validate as CustomThemeDefinition directly
-          const validation = validateThemeDefinition(parsed);
-          
-          if (validation.isValid) {
-            setThemeDefinition(parsed);
-            setThemeJsonError('');
-            setIsTypingInJsonEditor(false);
-          } else {
-            setThemeJsonError(validation.error || 'Invalid theme format');
-          }
-        } catch (e) {
-          setThemeJsonError(e instanceof Error ? e.message : 'Invalid JSON syntax');
-        }
-      }, 500); // Wait 500ms after user stops typing before validating
-    }
+  const getMuiOverrideValue = (component: string, overrideKey: string, cssProperty: string): string => {
+    const componentOverride = themeDefinition.muiComponentOverrides?.[component] as any;
+    return componentOverride?.styleOverrides?.[overrideKey]?.[cssProperty] || '';
   };
 
   const handleSave = () => {
-    if (themeJsonError) {
-      setSnackbar({ open: true, message: 'Please fix JSON errors before saving', severity: 'error' });
-      return;
+    // Filter out disabled MUI component overrides before saving
+    const finalDefinition = cloneThemeDefinition(themeDefinition);
+    
+    // Clean up muiComponentOverrides based on enabled state
+    if (finalDefinition.muiComponentOverrides) {
+      const cleanedOverrides: Record<string, any> = {};
+      
+      Object.keys(finalDefinition.muiComponentOverrides).forEach(component => {
+        const componentOverride = finalDefinition.muiComponentOverrides[component] as any;
+        if (componentOverride?.styleOverrides) {
+          const cleanedStyleOverrides: Record<string, any> = {};
+          
+          Object.keys(componentOverride.styleOverrides).forEach(overrideKey => {
+            // Only include if enabled
+            if (enabledOverrides[component]?.[overrideKey]) {
+              cleanedStyleOverrides[overrideKey] = componentOverride.styleOverrides[overrideKey];
+            }
+          });
+          
+          // Only include component if it has enabled overrides
+          if (Object.keys(cleanedStyleOverrides).length > 0) {
+            cleanedOverrides[component] = {
+              ...componentOverride,
+              styleOverrides: cleanedStyleOverrides,
+            };
+          }
+        }
+      });
+      
+      finalDefinition.muiComponentOverrides = cleanedOverrides;
     }
-
-    const finalDefinition = isEditingExistingTheme 
-      ? { ...cloneThemeDefinition(themeDefinition), version: bumpVersion(themeDefinition.version) }
-      : cloneThemeDefinition(themeDefinition);
+    
+    const finalDefinitionWithVersion = isEditingExistingTheme 
+      ? { ...finalDefinition, version: bumpVersion(finalDefinition.version) }
+      : finalDefinition;
     
     if (isEditingExistingTheme) {
-      setThemeDefinition(finalDefinition);
+      setThemeDefinition(finalDefinitionWithVersion);
     }
 
-    const filename = `${sanitizeFilename(finalDefinition.name)}.json`;
+    const filename = `${sanitizeFilename(finalDefinitionWithVersion.name)}.json`;
     
     if (isFilenameSavedInSession(filename)) {
-      setPendingSave({ filename, themeDefinition: finalDefinition });
+      setPendingSave({ filename, themeDefinition: finalDefinitionWithVersion });
       setShowOverwriteDialog(true);
       return;
     }
 
-    performSave(filename, finalDefinition);
+    performSave(filename, finalDefinitionWithVersion);
   };
 
   const performSave = (filename: string, definition: CustomThemeDefinition) => {
@@ -395,7 +420,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 <Tab label="Status" />
                 <Tab label="Background" />
                 <Tab label="Components" />
-                <Tab label="Full Theme JSON" />
+                <Tab label="MUI Components" />
               </Tabs>
 
               <Box sx={{ mt: 3 }}>
@@ -656,56 +681,319 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
                 {activeTab === 5 && (
                   <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="h6">Full Theme JSON Editor</Typography>
-                      <IconButton onClick={() => setShowMonacoSettings(!showMonacoSettings)}>
-                        <SettingsIcon />
-                      </IconButton>
-                    </Box>
-
-                    {showMonacoSettings && (
-                      <Box sx={{ mb: 2 }}>
-                        <Button
-                          variant="outlined"
-                          onClick={() =>
-                            setMonacoSettings({
-                              theme: monacoSettings.theme === 'vs-light' ? 'vs-dark' : 'vs-light',
-                            })
-                          }
-                        >
-                          Toggle Theme ({monacoSettings.theme})
-                        </Button>
-                      </Box>
-                    )}
-
-                    <Box sx={{ border: '1px solid #ccc', borderRadius: 1 }}>
-                      <Editor
-                        height="500px"
-                        language="json"
-                        value={jsonEditorValue}
-                        onChange={handleFullThemeJsonChange}
-                        theme={monacoSettings.theme}
-                        options={{
-                          minimap: { enabled: false },
-                          scrollBeyondLastLine: false,
-                          formatOnPaste: true,
-                          formatOnType: false,
-                        }}
-                      />
-                    </Box>
-
-                    {themeJsonError && (
-                      <Alert severity="error" sx={{ mt: 2 }}>
-                        {themeJsonError}
-                      </Alert>
-                    )}
-
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                      This editor shows the complete theme definition structure including name, version, colors, 
-                      palette settings, componentOverrides, and muiComponentOverrides. 
-                      All changes made here are immediately reflected in the other tabs and the live preview. 
-                      Similarly, changes in other tabs update this JSON view.
+                    <Typography variant="h6" gutterBottom>
+                      MUI Component Overrides
                     </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                      Configure Material-UI v6 component styleOverrides. Enable specific overrides in each accordion header.
+                    </Typography>
+
+                    {/* MuiAppBar */}
+                    <Accordion sx={{ mb: 2 }}>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Typography sx={{ flexGrow: 1 }}>MuiAppBar</Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mr: 2 }} onClick={(e) => e.stopPropagation()}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiAppBar?.root || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiAppBar', 'root', e.target.checked)}
+                                />
+                              }
+                              label="root"
+                            />
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Box sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                          <TextField
+                            fullWidth
+                            label="backgroundColor"
+                            value={getMuiOverrideValue('MuiAppBar', 'root', 'backgroundColor')}
+                            onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'backgroundColor', e.target.value)}
+                            disabled={!enabledOverrides.MuiAppBar?.root}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="color"
+                            value={getMuiOverrideValue('MuiAppBar', 'root', 'color')}
+                            onChange={(e) => handleMuiOverrideChange('MuiAppBar', 'root', 'color', e.target.value)}
+                            disabled={!enabledOverrides.MuiAppBar?.root}
+                            placeholder="#fff"
+                            sx={{ mb: 2 }}
+                          />
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+
+                    {/* MuiCard */}
+                    <Accordion sx={{ mb: 2 }}>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Typography sx={{ flexGrow: 1 }}>MuiCard</Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mr: 2 }} onClick={(e) => e.stopPropagation()}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiCard?.root || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiCard', 'root', e.target.checked)}
+                                />
+                              }
+                              label="root"
+                            />
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Box sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                          <TextField
+                            fullWidth
+                            label="borderRadius"
+                            value={getMuiOverrideValue('MuiCard', 'root', 'borderRadius')}
+                            onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'borderRadius', e.target.value)}
+                            disabled={!enabledOverrides.MuiCard?.root}
+                            placeholder="4px"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="boxShadow"
+                            value={getMuiOverrideValue('MuiCard', 'root', 'boxShadow')}
+                            onChange={(e) => handleMuiOverrideChange('MuiCard', 'root', 'boxShadow', e.target.value)}
+                            disabled={!enabledOverrides.MuiCard?.root}
+                            placeholder="0px 2px 4px rgba(0,0,0,0.1)"
+                            sx={{ mb: 2 }}
+                          />
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+
+                    {/* MuiAccordion */}
+                    <Accordion sx={{ mb: 2 }}>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Typography sx={{ flexGrow: 1 }}>MuiAccordion</Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mr: 2 }} onClick={(e) => e.stopPropagation()}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiAccordion?.root || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiAccordion', 'root', e.target.checked)}
+                                />
+                              }
+                              label="root"
+                            />
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Box sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                          <TextField
+                            fullWidth
+                            label="borderRadius"
+                            value={getMuiOverrideValue('MuiAccordion', 'root', 'borderRadius')}
+                            onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'borderRadius', e.target.value)}
+                            disabled={!enabledOverrides.MuiAccordion?.root}
+                            placeholder="4px"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="marginBottom"
+                            value={getMuiOverrideValue('MuiAccordion', 'root', 'marginBottom')}
+                            onChange={(e) => handleMuiOverrideChange('MuiAccordion', 'root', 'marginBottom', e.target.value)}
+                            disabled={!enabledOverrides.MuiAccordion?.root}
+                            placeholder="8px"
+                            sx={{ mb: 2 }}
+                          />
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+
+                    {/* MuiButton */}
+                    <Accordion sx={{ mb: 2 }}>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Typography sx={{ flexGrow: 1 }}>MuiButton</Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mr: 2, flexWrap: 'wrap' }} onClick={(e) => e.stopPropagation()}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiButton?.root || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiButton', 'root', e.target.checked)}
+                                />
+                              }
+                              label="root"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiButton?.text || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiButton', 'text', e.target.checked)}
+                                />
+                              }
+                              label="text"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiButton?.contained || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiButton', 'contained', e.target.checked)}
+                                />
+                              }
+                              label="contained"
+                            />
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiButton?.outlined || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiButton', 'outlined', e.target.checked)}
+                                />
+                              }
+                              label="outlined"
+                            />
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Box sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>root - Styles applied to the root element</Typography>
+                          <TextField
+                            fullWidth
+                            label="textTransform"
+                            value={getMuiOverrideValue('MuiButton', 'root', 'textTransform')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'textTransform', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.root}
+                            placeholder="uppercase"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="borderRadius"
+                            value={getMuiOverrideValue('MuiButton', 'root', 'borderRadius')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'root', 'borderRadius', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.root}
+                            placeholder="4px"
+                            sx={{ mb: 2 }}
+                          />
+                          
+                          <Divider sx={{ my: 2 }} />
+                          
+                          <Typography variant="subtitle2" gutterBottom>text - Styles applied to the root element if variant=&quot;text&quot;</Typography>
+                          <TextField
+                            fullWidth
+                            label="color"
+                            value={getMuiOverrideValue('MuiButton', 'text', 'color')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'text', 'color', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.text}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                          
+                          <Divider sx={{ my: 2 }} />
+                          
+                          <Typography variant="subtitle2" gutterBottom>contained - Styles applied to the root element if variant=&quot;contained&quot;</Typography>
+                          <TextField
+                            fullWidth
+                            label="backgroundColor"
+                            value={getMuiOverrideValue('MuiButton', 'contained', 'backgroundColor')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'backgroundColor', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.contained}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="color"
+                            value={getMuiOverrideValue('MuiButton', 'contained', 'color')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'contained', 'color', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.contained}
+                            placeholder="#fff"
+                            sx={{ mb: 2 }}
+                          />
+                          
+                          <Divider sx={{ my: 2 }} />
+                          
+                          <Typography variant="subtitle2" gutterBottom>outlined - Styles applied to the root element if variant=&quot;outlined&quot;</Typography>
+                          <TextField
+                            fullWidth
+                            label="borderColor"
+                            value={getMuiOverrideValue('MuiButton', 'outlined', 'borderColor')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'borderColor', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.outlined}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="color"
+                            value={getMuiOverrideValue('MuiButton', 'outlined', 'color')}
+                            onChange={(e) => handleMuiOverrideChange('MuiButton', 'outlined', 'color', e.target.value)}
+                            disabled={!enabledOverrides.MuiButton?.outlined}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
+
+                    {/* MuiCheckbox */}
+                    <Accordion sx={{ mb: 2 }}>
+                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                          <Typography sx={{ flexGrow: 1 }}>MuiCheckbox</Typography>
+                          <Box sx={{ display: 'flex', gap: 1, mr: 2 }} onClick={(e) => e.stopPropagation()}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={enabledOverrides.MuiCheckbox?.root || false}
+                                  onChange={(e) => handleMuiOverrideToggle('MuiCheckbox', 'root', e.target.checked)}
+                                />
+                              }
+                              label="root"
+                            />
+                          </Box>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Box sx={{ p: 2 }}>
+                          <Typography variant="subtitle2" gutterBottom>root - Styles applied to the root element</Typography>
+                          <TextField
+                            fullWidth
+                            label="color"
+                            value={getMuiOverrideValue('MuiCheckbox', 'root', 'color')}
+                            onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'color', e.target.value)}
+                            disabled={!enabledOverrides.MuiCheckbox?.root}
+                            placeholder="#1976d2"
+                            sx={{ mb: 2 }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="borderRadius"
+                            value={getMuiOverrideValue('MuiCheckbox', 'root', 'borderRadius')}
+                            onChange={(e) => handleMuiOverrideChange('MuiCheckbox', 'root', 'borderRadius', e.target.value)}
+                            disabled={!enabledOverrides.MuiCheckbox?.root}
+                            placeholder="2px"
+                            sx={{ mb: 2 }}
+                          />
+                        </Box>
+                      </AccordionDetails>
+                    </Accordion>
                   </Box>
                 )}
               </Box>
