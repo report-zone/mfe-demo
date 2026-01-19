@@ -893,7 +893,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                           
                           <Divider sx={{ my: 2 }} />
                           
-                          <Typography variant="subtitle2" gutterBottom>text - Styles applied to the root element if variant="text"</Typography>
+                          <Typography variant="subtitle2" gutterBottom>text - Styles applied to the root element if variant=&quot;text&quot;</Typography>
                           <TextField
                             fullWidth
                             label="color"
@@ -906,7 +906,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                           
                           <Divider sx={{ my: 2 }} />
                           
-                          <Typography variant="subtitle2" gutterBottom>contained - Styles applied to the root element if variant="contained"</Typography>
+                          <Typography variant="subtitle2" gutterBottom>contained - Styles applied to the root element if variant=&quot;contained&quot;</Typography>
                           <TextField
                             fullWidth
                             label="backgroundColor"
@@ -928,7 +928,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                           
                           <Divider sx={{ my: 2 }} />
                           
-                          <Typography variant="subtitle2" gutterBottom>outlined - Styles applied to the root element if variant="outlined"</Typography>
+                          <Typography variant="subtitle2" gutterBottom>outlined - Styles applied to the root element if variant=&quot;outlined&quot;</Typography>
                           <TextField
                             fullWidth
                             label="borderColor"
