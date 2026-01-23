@@ -34,7 +34,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { ThemeProvider } from '@mui/material/styles';
 import ColorPicker from './ColorPicker';
 import ComponentShowcase from './ComponentShowcase';
@@ -67,7 +66,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
   const [confirmClose, setConfirmClose] = useState(false);
-  const [livePreviewExpanded, setLivePreviewExpanded] = useState(false);
 
   const [themeDefinition, setThemeDefinition] = useState<CustomThemeDefinition>(createDefaultThemeDefinition());
   const [isEditingExistingTheme, setIsEditingExistingTheme] = useState(false);
@@ -94,13 +92,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     MuiCheckbox: false,
   });
 
-  // Helper function to check if any override is enabled for a component
-  const hasEnabledOverrides = (component: string): boolean => {
-    const overrides = enabledOverrides[component];
-    if (!overrides) return false;
-    return Object.values(overrides).some(enabled => enabled);
-  };
-
   // Reset state when dialog opens
   React.useEffect(() => {
     if (open) {
@@ -108,7 +99,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       setThemeDefinition(initialDefinition);
       setActiveTab(0);
       setHasUnsavedChanges(false);
-      setLivePreviewExpanded(false);
       setIsEditingExistingTheme(!!initialTheme);
       // Reset accordion expanded states
       setExpandedAccordions({
@@ -442,13 +432,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Theme Editor
           </Typography>
-          <Button 
-            color="inherit" 
-            startIcon={livePreviewExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />} 
-            onClick={() => setLivePreviewExpanded(!livePreviewExpanded)}
-          >
-            {livePreviewExpanded ? 'Hide' : 'Show'} Preview
-          </Button>
           <Button color="inherit" startIcon={<RestartAltIcon />} onClick={handleResetToDefaults}>
             Reset
           </Button>
@@ -493,7 +476,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         />
 
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: livePreviewExpanded ? 7 : 12 }}>
+          <Grid size={{ xs: 12, md: 7 }}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
                 <Tab label="Primary" />
@@ -1340,27 +1323,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             </Paper>
           </Grid>
 
-          {livePreviewExpanded && (
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    Live Preview
-                  </Typography>
-                  <IconButton onClick={() => setLivePreviewExpanded(false)}>
-                    <ExpandLessIcon />
-                  </IconButton>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
+              <ThemeProvider theme={previewTheme}>
+                <Box sx={{ p: 1 }}>
+                  <ComponentShowcase />
                 </Box>
-                
-                <Divider sx={{ mb: 2 }} />
-                <ThemeProvider theme={previewTheme}>
-                  <Box sx={{ p: 1 }}>
-                    <ComponentShowcase />
-                  </Box>
-                </ThemeProvider>
-              </Paper>
-            </Grid>
-          )}
+              </ThemeProvider>
+            </Paper>
+          </Grid>
         </Grid>
       </Box>
 
