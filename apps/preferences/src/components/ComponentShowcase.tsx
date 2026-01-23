@@ -106,7 +106,7 @@ const ComponentShowcase: React.FC = () => {
               Cards and Papers
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h5" component="div">
@@ -121,7 +121,7 @@ const ComponentShowcase: React.FC = () => {
                   </CardActions>
                 </Card>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Paper sx={{ p: 2 }}>
                   <Typography variant="h6">Paper Component</Typography>
                   <Typography variant="body2">This is a paper component.</Typography>

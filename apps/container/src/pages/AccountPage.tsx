@@ -18,13 +18,13 @@ const AccountPage: React.FC = () => {
 
         <Box component="form" sx={{ mt: 3 }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="First Name" defaultValue="John" variant="outlined" />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField fullWidth label="Last Name" defaultValue="Doe" variant="outlined" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Email"
@@ -33,7 +33,7 @@ const AccountPage: React.FC = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Phone Number"
@@ -42,7 +42,7 @@ const AccountPage: React.FC = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField
                 fullWidth
                 label="Bio"
@@ -52,7 +52,7 @@ const AccountPage: React.FC = () => {
                 variant="outlined"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Button variant="contained" size="large">
                 Save Changes
               </Button>

@@ -463,7 +463,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       <Box sx={{ p: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
               label="Theme Name"
@@ -471,7 +471,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
               onChange={(e) => updateThemeDefinition({ name: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
               label="Version"
@@ -493,7 +493,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
         />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={livePreviewExpanded ? 7 : 12}>
+          <Grid size={{ xs: 12, md: livePreviewExpanded ? 7 : 12 }}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
                 <Tab label="Primary" />
@@ -1346,7 +1346,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           </Grid>
 
           {livePreviewExpanded && (
-            <Grid item xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6">
