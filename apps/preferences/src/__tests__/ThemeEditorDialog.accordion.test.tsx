@@ -26,7 +26,7 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
     vi.clearAllMocks();
   });
 
-  it('should disable accordion expand button when no checkboxes are selected', async () => {
+  it('should allow accordion interaction even when no checkboxes are selected', async () => {
     renderThemeEditor();
     
     // Navigate to MUI Components tab
@@ -41,15 +41,15 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
     const muiAppBarAccordion = screen.getByText('MuiAppBar').closest('.MuiAccordion-root');
     expect(muiAppBarAccordion).toBeDefined();
     
-    // Check if the accordion has the disabled attribute (no checkboxes selected initially)
+    // The accordion should NOT be disabled (users need to be able to click checkboxes)
     if (muiAppBarAccordion) {
       const accordionElement = muiAppBarAccordion as HTMLElement;
-      // The Accordion is disabled when it has the Mui-disabled class
-      expect(accordionElement.classList.contains('Mui-disabled')).toBe(true);
+      // The Accordion should not have the Mui-disabled class
+      expect(accordionElement.classList.contains('Mui-disabled')).toBe(false);
     }
   });
 
-  it('should enable accordion expand button when a checkbox is selected', async () => {
+  it('should allow accordion interaction when a checkbox is selected', async () => {
     renderThemeEditor();
     
     // Navigate to MUI Components tab
@@ -64,9 +64,9 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
     const muiCardAccordion = screen.getByText('MuiCard').closest('.MuiAccordion-root');
     expect(muiCardAccordion).toBeDefined();
 
-    // Initially should be disabled
+    // Should not be disabled
     if (muiCardAccordion) {
-      expect((muiCardAccordion as HTMLElement).classList.contains('Mui-disabled')).toBe(true);
+      expect((muiCardAccordion as HTMLElement).classList.contains('Mui-disabled')).toBe(false);
     }
 
     // Find and check the root checkbox for MuiCard
@@ -84,7 +84,7 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
       fireEvent.click(rootCheckbox);
       
       await waitFor(() => {
-        // After checking, accordion should be enabled
+        // After checking, accordion should still not be disabled
         expect((muiCardAccordion as HTMLElement).classList.contains('Mui-disabled')).toBe(false);
       });
     }
@@ -115,7 +115,7 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
       
       expect(rootCheckbox).toBeDefined();
       
-      // Check the checkbox to enable the accordion
+      // Check the checkbox
       fireEvent.click(rootCheckbox);
       
       await waitFor(() => {
@@ -137,8 +137,8 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
       await waitFor(() => {
         // Accordion should be collapsed (not expanded)
         expect((muiAccordionSection as HTMLElement).classList.contains('Mui-expanded')).toBe(false);
-        // And disabled
-        expect((muiAccordionSection as HTMLElement).classList.contains('Mui-disabled')).toBe(true);
+        // But should NOT be disabled anymore
+        expect((muiAccordionSection as HTMLElement).classList.contains('Mui-disabled')).toBe(false);
       });
     }
   });
@@ -202,7 +202,7 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
     }
   });
 
-  it('should keep accordion disabled and collapsed after dialog reopen if no checkboxes selected', async () => {
+  it('should keep accordion collapsed after dialog reopen if no checkboxes selected', async () => {
     const onClose = vi.fn();
     const { rerender } = renderThemeEditor({ onClose });
     
@@ -236,10 +236,10 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
       expect(screen.getByText('MuiCheckbox')).toBeDefined();
     });
     
-    // All accordions should be collapsed and disabled
+    // All accordions should be collapsed but NOT disabled
     const muiCheckboxAccordion = screen.getByText('MuiCheckbox').closest('.MuiAccordion-root');
     if (muiCheckboxAccordion) {
-      expect((muiCheckboxAccordion as HTMLElement).classList.contains('Mui-disabled')).toBe(true);
+      expect((muiCheckboxAccordion as HTMLElement).classList.contains('Mui-disabled')).toBe(false);
       expect((muiCheckboxAccordion as HTMLElement).classList.contains('Mui-expanded')).toBe(false);
     }
   });

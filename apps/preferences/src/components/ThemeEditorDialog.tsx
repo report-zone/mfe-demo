@@ -774,7 +774,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       sx={{ mb: 2 }}
                       expanded={expandedAccordions.MuiAppBar}
                       onChange={handleAccordionChange('MuiAppBar')}
-                      disabled={!hasEnabledOverrides('MuiAppBar')}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -825,7 +824,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       sx={{ mb: 2 }}
                       expanded={expandedAccordions.MuiCard}
                       onChange={handleAccordionChange('MuiCard')}
-                      disabled={!hasEnabledOverrides('MuiCard')}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -876,7 +874,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       sx={{ mb: 2 }}
                       expanded={expandedAccordions.MuiAccordion}
                       onChange={handleAccordionChange('MuiAccordion')}
-                      disabled={!hasEnabledOverrides('MuiAccordion')}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -927,7 +924,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       sx={{ mb: 2 }}
                       expanded={expandedAccordions.MuiButton}
                       onChange={handleAccordionChange('MuiButton')}
-                      disabled={!hasEnabledOverrides('MuiButton')}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -1294,7 +1290,6 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       sx={{ mb: 2 }}
                       expanded={expandedAccordions.MuiCheckbox}
                       onChange={handleAccordionChange('MuiCheckbox')}
-                      disabled={!hasEnabledOverrides('MuiCheckbox')}
                     >
                       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
