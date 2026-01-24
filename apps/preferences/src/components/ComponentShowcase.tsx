@@ -1,8 +1,5 @@
 import React from 'react';
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Typography,
   Button,
   IconButton,
@@ -36,7 +33,6 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -44,12 +40,7 @@ const ComponentShowcase: React.FC = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   return (
-    <Accordion defaultExpanded={false}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography variant="h6">Material UI Component Showcase</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Stack spacing={3}>
+    <Stack spacing={3}>
           {/* Buttons */}
           <Box>
             <Typography variant="subtitle1" gutterBottom>
@@ -268,8 +259,6 @@ const ComponentShowcase: React.FC = () => {
             </AppBar>
           </Box>
         </Stack>
-      </AccordionDetails>
-    </Accordion>
   );
 };
 
