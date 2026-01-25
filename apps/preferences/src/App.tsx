@@ -29,8 +29,8 @@ const App: React.FC = () => {
   // Determine active tab based on route
   const getTabValue = () => {
     const relativePath = getRelativePath();
-    if (relativePath.includes('themes')) return 1;
-    if (relativePath.includes('languages')) return 2;
+    if (relativePath === '/themes' || relativePath.startsWith('/themes/')) return 1;
+    if (relativePath === '/languages' || relativePath.startsWith('/languages/')) return 2;
     return 0;
   };
 
@@ -59,9 +59,9 @@ const App: React.FC = () => {
   // Render content based on the current path
   const renderContent = () => {
     const relativePath = getRelativePath();
-    if (relativePath.includes('themes')) {
+    if (relativePath === '/themes' || relativePath.startsWith('/themes/')) {
       return <ThemesTab />;
-    } else if (relativePath.includes('languages')) {
+    } else if (relativePath === '/languages' || relativePath.startsWith('/languages/')) {
       return <LanguagesTab />;
     }
     return <GeneralTab />;
