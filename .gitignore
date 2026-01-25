@@ -57,3 +57,7 @@ package-lock.json
 *.air
 *.ipa
 *.apk
+
+# Deployment
+deployment/config.yaml
+deployment/*-info.txt

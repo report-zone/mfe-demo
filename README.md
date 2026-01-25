@@ -6,7 +6,8 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
 - **[Developer Guide](./DEVELOPER.md)** - Comprehensive development documentation
-- **[Deployment Guide](./DEPLOYMENT.md)** - AWS deployment instructions
+- **[AWS Deployment Guide](./AWS_DEPLOYMENT_GUIDE.md)** - CloudFormation & AWS CLI deployment (production-ready)
+- **[Simple Deployment Guide](./DEPLOYMENT.md)** - Basic S3 deployment instructions
 
 ## 🚀 Quick Start
 
@@ -215,7 +216,27 @@ The Admin MFE is protected and requires users to have the `admin` group in Cogni
 
 ## Deployment
 
-Each MFE can be deployed independently to AWS S3 and served via CloudFront:
+### Production Deployment (Recommended)
+
+Use CloudFormation and AWS CLI for a complete production deployment:
+
+```bash
+# 1. Configure deployment
+cp deployment/config.example.yaml deployment/config.yaml
+# Edit config.yaml with your AWS settings
+
+# 2. Deploy infrastructure (S3, CloudFront, Cognito)
+./deployment/deploy-cloudformation.sh all
+
+# 3. Build and deploy all applications
+./deployment/deploy-apps.sh all
+```
+
+See the **[AWS Deployment Guide](./AWS_DEPLOYMENT_GUIDE.md)** for complete instructions.
+
+### Quick Deployment (Development)
+
+For simple deployments to existing S3/CloudFront:
 
 ```bash
 # Build for production
