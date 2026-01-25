@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Paper, Tabs, Tab } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ThemeContextProvider } from './context/ThemeContext';
@@ -56,6 +56,17 @@ const App: React.FC = () => {
     }
   }, [location.pathname, navigate]);
 
+  // Render content based on the current path
+  const renderContent = () => {
+    const relativePath = getRelativePath();
+    if (relativePath.includes('themes')) {
+      return <ThemesTab />;
+    } else if (relativePath.includes('languages')) {
+      return <LanguagesTab />;
+    }
+    return <GeneralTab />;
+  };
+
   return (
     <ThemeContextProvider>
       <Box sx={{ p: 3 }}>
@@ -73,13 +84,7 @@ const App: React.FC = () => {
             <Tab label={t('preferences.tabs.languages')} />
           </Tabs>
 
-          <Routes>
-            <Route path="/preferences/general" element={<GeneralTab />} />
-            <Route path="/preferences/themes" element={<ThemesTab />} />
-            <Route path="/preferences/languages" element={<LanguagesTab />} />
-            <Route path="/preferences/" element={<GeneralTab />} />
-            <Route path="/preferences" element={<GeneralTab />} />
-          </Routes>
+          {renderContent()}
         </Paper>
       </Box>
     </ThemeContextProvider>

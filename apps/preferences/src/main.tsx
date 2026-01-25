@@ -26,21 +26,23 @@ const PreferencesMFE: React.FC = () => {
 
 // Standalone mode - for development
 // Only create root if we're running standalone (not imported as a module)
-if (import.meta.env.DEV && document.getElementById('root') && !document.getElementById('root')?.hasAttribute('data-root-created')) {
-  const rootElement = document.getElementById('root')!;
-  rootElement.setAttribute('data-root-created', 'true');
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
-      <I18nProvider config={i18nConfig}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ThemeProvider>
-      </I18nProvider>
-    </React.StrictMode>
-  );
+// Check if root element exists and hasn't been used yet
+if (import.meta.env.DEV) {
+  const rootElement = document.getElementById('root');
+  if (rootElement && !rootElement.hasChildNodes()) {
+    ReactDOM.createRoot(rootElement).render(
+      <React.StrictMode>
+        <I18nProvider config={i18nConfig}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ThemeProvider>
+        </I18nProvider>
+      </React.StrictMode>
+    );
+  }
 }
 
 // Export wrapped component for container app
