@@ -1,0 +1,98 @@
+# MFE Demo Deployment Configuration
+# Copy this file to deployment/config.yaml and fill in your values
+
+# AWS Account Configuration
+aws:
+  # AWS Region where resources will be deployed
+  region: us-east-1
+  
+  # AWS Account ID (12-digit number)
+  account_id: "123456789012"
+  
+  # AWS Credentials - OPTION 1: Use AWS CLI Profile
+  # Recommended: Use AWS CLI configured profile name
+  profile: default
+  
+  # AWS Credentials - OPTION 2: Direct credentials (NOT RECOMMENDED for production)
+  # Uncomment and fill in ONLY if not using AWS CLI profile
+  # access_key_id: "YOUR_ACCESS_KEY_ID"
+  # secret_access_key: "YOUR_SECRET_ACCESS_KEY"
+
+# Application Configuration
+application:
+  # Application name (used for naming resources)
+  name: mfe-demo
+  
+  # Environment (development, staging, or production)
+  environment: production
+
+# Domain Configuration
+domain:
+  # Your domain name (must be registered in Route 53)
+  # Example: app.mfeworld.com or mfe.yourdomain.com
+  name: app.mfeworld.com
+  
+  # Route 53 Hosted Zone ID
+  # Find this in Route 53 console for your domain
+  # Example: Z1234567890ABC
+  hosted_zone_id: Z1234567890ABC
+
+# CloudFormation Stack Configuration
+stacks:
+  # S3 and CloudFront stack name
+  infrastructure:
+    name: mfe-demo-infrastructure
+    template: cloudformation/templates/s3-cloudfront.yaml
+  
+  # Cognito stack name
+  auth:
+    name: mfe-demo-auth
+    template: cloudformation/templates/cognito.yaml
+
+# Deployment Configuration
+deployment:
+  # S3 bucket name (usually same as domain name)
+  # This will be created by CloudFormation
+  bucket_name: app.mfeworld.com
+  
+  # List of MFE applications to deploy
+  applications:
+    - container
+    - home
+    - preferences
+    - account
+    - admin
+  
+  # Cache control settings
+  cache:
+    # Cache time for static assets (in seconds)
+    # 31536000 = 1 year
+    static_max_age: 31536000
+    
+    # Cache time for HTML files (in seconds)
+    # 0 = no cache
+    html_max_age: 0
+
+# Environment Variables for Container App
+# These will be used to generate .env file for the container app
+container_env:
+  # Will be populated after Cognito stack deployment
+  cognito_user_pool_id: ""
+  cognito_client_id: ""
+  aws_region: us-east-1
+
+# Optional: Multi-environment configuration
+# Uncomment and configure for multiple environments
+# environments:
+#   development:
+#     domain: dev.mfeworld.com
+#     hosted_zone_id: Z1234567890ABC
+#     stack_prefix: mfe-demo-dev
+#   staging:
+#     domain: staging.mfeworld.com
+#     hosted_zone_id: Z1234567890ABC
+#     stack_prefix: mfe-demo-staging
+#   production:
+#     domain: app.mfeworld.com
+#     hosted_zone_id: Z1234567890ABC
+#     stack_prefix: mfe-demo-prod
