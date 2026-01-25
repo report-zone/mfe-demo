@@ -49,7 +49,7 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait a bit to ensure no dialog appears
     await waitFor(() => {
-      const overwriteDialog = screen.queryByText(/Replace Existing File/i);
+      const overwriteDialog = screen.queryByText(/File Already Exists/i);
       expect(overwriteDialog).toBeNull();
     }, { timeout: 500 });
   });
@@ -70,13 +70,13 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog to appear
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Verify the dialog content mentions the filename
-    const dialogContent = screen.getByText(/my-new-theme\.json/i);
-    expect(dialogContent).toBeDefined();
+    // Verify the dialog message is displayed
+    const dialogMessage = screen.getByText(/This file was already saved in this session/i);
+    expect(dialogMessage).toBeDefined();
   });
 
   it('should show correct button labels in overwrite dialog', async () => {
@@ -95,16 +95,16 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog to appear
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Verify button labels - the button should say "Replace" not "Download Again"
-    const replaceButton = screen.getByRole('button', { name: /^Replace$/i });
-    expect(replaceButton).toBeDefined();
+    // Verify button labels with new translations
+    const overwriteButton = screen.getByRole('button', { name: /^Overwrite$/i });
+    expect(overwriteButton).toBeDefined();
     
-    const saveAsDifferentButton = screen.getByRole('button', { name: /Save As Different Name/i });
-    expect(saveAsDifferentButton).toBeDefined();
+    const renameButton = screen.getByRole('button', { name: /^Rename$/i });
+    expect(renameButton).toBeDefined();
     
     const cancelButton = screen.getAllByRole('button', { name: /cancel/i })[0];
     expect(cancelButton).toBeDefined();
@@ -126,7 +126,7 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
@@ -136,12 +136,12 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Dialog should close
     await waitFor(() => {
-      const dialogTitle = screen.queryByText(/Replace Existing File/i);
+      const dialogTitle = screen.queryByText(/File Already Exists/i);
       expect(dialogTitle).toBeNull();
     });
   });
 
-  it('should download file again when Replace is clicked', async () => {
+  it('should download file again when Overwrite is clicked', async () => {
     // Mock sessionStorage to simulate a previously saved file
     sessionStorage.setItem('savedThemeFilenames', JSON.stringify(['test-theme.json']));
     
@@ -169,13 +169,13 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Click Replace
-    const replaceButton = screen.getByRole('button', { name: /^Replace$/i });
-    fireEvent.click(replaceButton);
+    // Click Overwrite
+    const overwriteButton = screen.getByRole('button', { name: /^Overwrite$/i });
+    fireEvent.click(overwriteButton);
     
     // Verify that file download was triggered
     await waitFor(() => {
@@ -186,7 +186,7 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     document.createElement = originalCreateElement;
   });
 
-  it('should open rename dialog when "Save As Different Name" is clicked', async () => {
+  it('should open rename dialog when "Rename" is clicked', async () => {
     // Mock sessionStorage to simulate a previously saved file
     sessionStorage.setItem('savedThemeFilenames', JSON.stringify(['existing-theme.json']));
     
@@ -202,22 +202,22 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Click "Save As Different Name"
-    const saveAsDifferentButton = screen.getByRole('button', { name: /Save As Different Name/i });
-    fireEvent.click(saveAsDifferentButton);
+    // Click "Rename"
+    const renameButton = screen.getByRole('button', { name: /^Rename$/i });
+    fireEvent.click(renameButton);
     
     // Wait for rename dialog to appear
     await waitFor(() => {
-      const renameDialogTitle = screen.getByText(/Save As Different Filename/i);
+      const renameDialogTitle = screen.getByText(/Save As/i);
       expect(renameDialogTitle).toBeDefined();
     });
   });
 
-  it('should include browser limitation note in dialog', async () => {
+  it('should show dialog message about overwriting or saving with different name', async () => {
     // Mock sessionStorage to simulate a previously saved file
     sessionStorage.setItem('savedThemeFilenames', JSON.stringify(['my-theme.json']));
     
@@ -233,20 +233,16 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Verify browser limitation note is present
-    const note = screen.getByText(/Due to browser limitations/i);
-    expect(note).toBeDefined();
-    
-    // Verify mention of automatic renaming
-    const autoRename = screen.getByText(/theme \(1\)\.json/i);
-    expect(autoRename).toBeDefined();
+    // Verify the dialog message
+    const dialogMessage = screen.getByText(/Do you want to overwrite it or save with a different name/i);
+    expect(dialogMessage).toBeDefined();
   });
 
-  it('should show appropriate message asking to replace file', async () => {
+  it('should show message that file was already saved in session', async () => {
     // Mock sessionStorage to simulate a previously saved file
     sessionStorage.setItem('savedThemeFilenames', JSON.stringify(['my-custom-theme.json']));
     
@@ -262,12 +258,12 @@ describe('ThemeEditorDialog - Overwrite File Functionality', () => {
     
     // Wait for overwrite dialog
     await waitFor(() => {
-      const dialogTitle = screen.getByText(/Replace Existing File/i);
+      const dialogTitle = screen.getByText(/File Already Exists/i);
       expect(dialogTitle).toBeDefined();
     });
     
-    // Verify the message asks about replacing
-    const replaceMessage = screen.getByText(/Do you want to replace it with the new version/i);
-    expect(replaceMessage).toBeDefined();
+    // Verify the message mentions it was saved in this session
+    const sessionMessage = screen.getByText(/This file was already saved in this session/i);
+    expect(sessionMessage).toBeDefined();
   });
 });
