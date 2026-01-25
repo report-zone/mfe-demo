@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Paper, Tabs, Tab } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ThemeContextProvider } from './context/ThemeContext';
@@ -13,20 +13,34 @@ const App: React.FC = () => {
   const location = useLocation();
   const { t } = useI18n();
 
+  // Get the relative path within the preferences app
+  // When mounted in container at /preferences/*, strip the /preferences prefix
+  const getRelativePath = () => {
+    const path = location.pathname;
+    if (path.startsWith('/preferences/')) {
+      return path.substring('/preferences'.length);
+    }
+    if (path === '/preferences') {
+      return '/';
+    }
+    return path;
+  };
+
   // Determine active tab based on route
   const getTabValue = () => {
-    if (location.pathname.includes('themes')) return 1;
-    if (location.pathname.includes('languages')) return 2;
+    const relativePath = getRelativePath();
+    if (relativePath === '/themes' || relativePath.startsWith('/themes/')) return 1;
+    if (relativePath === '/languages' || relativePath.startsWith('/languages/')) return 2;
     return 0;
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     if (newValue === 0) {
-      navigate('general');
+      navigate('/preferences/general');
     } else if (newValue === 1) {
-      navigate('themes');
+      navigate('/preferences/themes');
     } else if (newValue === 2) {
-      navigate('languages');
+      navigate('/preferences/languages');
     }
   };
 
@@ -38,9 +52,20 @@ const App: React.FC = () => {
   React.useEffect(() => {
     // Default to general tab if at root or preferences root
     if (isRootPath(location.pathname)) {
-      navigate('general', { replace: true });
+      navigate('/preferences/general', { replace: true });
     }
   }, [location.pathname, navigate]);
+
+  // Render content based on the current path
+  const renderContent = () => {
+    const relativePath = getRelativePath();
+    if (relativePath === '/themes' || relativePath.startsWith('/themes/')) {
+      return <ThemesTab />;
+    } else if (relativePath === '/languages' || relativePath.startsWith('/languages/')) {
+      return <LanguagesTab />;
+    }
+    return <GeneralTab />;
+  };
 
   return (
     <ThemeContextProvider>
@@ -59,12 +84,7 @@ const App: React.FC = () => {
             <Tab label={t('preferences.tabs.languages')} />
           </Tabs>
 
-          <Routes>
-            <Route path="general" element={<GeneralTab />} />
-            <Route path="themes" element={<ThemesTab />} />
-            <Route path="languages" element={<LanguagesTab />} />
-            <Route path="/" element={<GeneralTab />} />
-          </Routes>
+          {renderContent()}
         </Paper>
       </Box>
     </ThemeContextProvider>
