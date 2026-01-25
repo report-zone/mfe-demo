@@ -144,11 +144,16 @@ deploy_stack() {
             print_success "Stack deleted successfully"
             print_info "Creating new stack..."
             OPERATION="create-stack"
-        elif [[ "$STACK_STATUS" == *"FAILED"* ]] || [[ "$STACK_STATUS" == *"ROLLBACK"* ]]; then
-            # Handle other failed states that may need manual intervention
+        elif [[ "$STACK_STATUS" == *"FAILED"* ]] && [ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ] && [ "$STACK_STATUS" != "UPDATE_ROLLBACK_FAILED" ]; then
+            # Handle other failed states that may need manual intervention (e.g., DELETE_FAILED, ROLLBACK_FAILED)
             print_error "Stack is in $STACK_STATUS state"
             print_error "This state may require manual intervention"
             print_info "Please check the stack in AWS Console and delete it manually if needed"
+            return 1
+        elif [[ "$STACK_STATUS" == *"ROLLBACK"* ]] && [ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ] && [ "$STACK_STATUS" != "UPDATE_ROLLBACK_FAILED" ]; then
+            # Handle rollback-in-progress states
+            print_warning "Stack is in $STACK_STATUS state"
+            print_info "Please wait for the rollback to complete or fail, then try again"
             return 1
         else
             print_info "Stack exists in $STACK_STATUS state. Updating..."
