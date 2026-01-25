@@ -1,0 +1,18 @@
+{
+  "admin": {
+    "title": "Admin Panel",
+    "warning": "This is a protected admin area. Only users with admin role can access this page.",
+    "description": "Manage users, permissions, and system settings.",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "userRole": "User",
+      "adminRole": "Admin",
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }
+}

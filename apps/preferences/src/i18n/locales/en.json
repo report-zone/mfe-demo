@@ -1,0 +1,14 @@
+{
+  "preferences": {
+    "title": "Preferences",
+    "tabs": {
+      "general": "General",
+      "themes": "Themes"
+    },
+    "general": {
+      "title": "General Preferences",
+      "description": "This is a sample screen for general preferences. Additional settings can be added here in the future.",
+      "usage": "Use this tab to manage general application preferences and settings."
+    }
+  }
+}

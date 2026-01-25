@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Startseite",
+    "welcome": "Willkommen bei der Startseite Micro-Frontend-Anwendung. Dies ist eine unabhängig bereitstellbare Anwendung, die Teil der größeren MFE-Architektur ist.",
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Zeigen Sie Ihr personalisiertes Dashboard mit schnellem Zugriff auf wichtige Funktionen an."
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivität",
+      "description": "Bleiben Sie mit Ihren neuesten Aktivitäten und Updates auf dem Laufenden."
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "description": "Greifen Sie mit einem Klick auf häufig verwendete Funktionen zu."
+    }
+  }
+}

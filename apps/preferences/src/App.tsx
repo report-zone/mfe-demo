@@ -5,10 +5,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { ThemeContextProvider } from './context/ThemeContext';
 import GeneralTab from './components/GeneralTab';
 import ThemesTab from './components/ThemesTab';
+import { useI18n } from './i18n/I18nContext';
 
 const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
 
   // Determine active tab based on route
   const getTabValue = () => {
@@ -43,13 +45,13 @@ const App: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <SettingsIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
             <Typography variant="h4" component="h1">
-              Preferences
+              {t('preferences.title')}
             </Typography>
           </Box>
 
           <Tabs value={getTabValue()} onChange={handleTabChange} sx={{ mb: 3 }}>
-            <Tab label="General" />
-            <Tab label="Themes" />
+            <Tab label={t('preferences.tabs.general')} />
+            <Tab label={t('preferences.tabs.themes')} />
           </Tabs>
 
           <Routes>

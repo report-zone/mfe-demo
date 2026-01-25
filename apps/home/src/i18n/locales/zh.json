@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "主页",
+    "welcome": "欢迎来到主页微前端应用程序。这是一个独立部署的应用程序，是更大的MFE架构的一部分。",
+    "dashboard": {
+      "title": "仪表板",
+      "description": "查看您的个性化仪表板，快速访问关键功能。"
+    },
+    "recentActivity": {
+      "title": "最近活动",
+      "description": "及时了解您的最近活动和更新。"
+    },
+    "quickActions": {
+      "title": "快速操作",
+      "description": "一键访问常用功能。"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "account": {
+    "title": "Account",
+    "description": "Manage your account information and profile settings.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "bio": "Bio",
+    "bioPlaceholder": "Software developer with a passion for building great applications.",
+    "saveChanges": "Save Changes"
+  }
+}

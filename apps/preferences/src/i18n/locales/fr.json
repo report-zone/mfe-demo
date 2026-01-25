@@ -1,0 +1,14 @@
+{
+  "preferences": {
+    "title": "Préférences",
+    "tabs": {
+      "general": "Général",
+      "themes": "Thèmes"
+    },
+    "general": {
+      "title": "Préférences générales",
+      "description": "Ceci est un écran d'exemple pour les préférences générales. Des paramètres supplémentaires peuvent être ajoutés ici à l'avenir.",
+      "usage": "Utilisez cet onglet pour gérer les préférences générales et les paramètres de l'application."
+    }
+  }
+}

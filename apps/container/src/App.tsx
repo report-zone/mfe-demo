@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { I18nProvider } from './i18n/I18nContext';
+import { i18nConfig } from './i18n/config';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
@@ -178,14 +180,16 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ThemeProvider theme={currentTheme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    <I18nProvider config={i18nConfig}>
+      <ThemeProvider theme={currentTheme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </I18nProvider>
   );
 };
 

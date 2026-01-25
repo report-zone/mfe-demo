@@ -13,8 +13,11 @@ import {
   Alert,
 } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { useI18n } from './i18n/I18nContext';
 
 const App: React.FC = () => {
+  const { t } = useI18n();
+
   const users = [
     { id: 1, name: 'John Doe', email: 'john@example.com', role: 'User', status: 'Active' },
     { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Admin', status: 'Active' },
@@ -27,14 +30,14 @@ const App: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <AdminPanelSettingsIcon sx={{ fontSize: 40, mr: 2, color: 'error.main' }} />
           <Typography variant="h4" component="h1">
-            Admin Panel
+            {t('admin.title')}
           </Typography>
         </Box>
         <Alert severity="warning" sx={{ mb: 2 }}>
-          This is a protected admin area. Only users with admin role can access this page.
+          {t('admin.warning')}
         </Alert>
         <Typography variant="body1" color="text.secondary" paragraph>
-          Manage users, permissions, and system settings.
+          {t('admin.description')}
         </Typography>
       </Paper>
 
@@ -42,11 +45,11 @@ const App: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>{t('admin.table.id')}</TableCell>
+              <TableCell>{t('admin.table.name')}</TableCell>
+              <TableCell>{t('admin.table.email')}</TableCell>
+              <TableCell>{t('admin.table.role')}</TableCell>
+              <TableCell>{t('admin.table.status')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -57,14 +60,18 @@ const App: React.FC = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Chip
-                    label={user.role}
+                    label={t(
+                      `admin.table.${user.role === 'Admin' ? 'adminRole' : 'userRole'}`
+                    )}
                     color={user.role === 'Admin' ? 'error' : 'default'}
                     size="small"
                   />
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={user.status}
+                    label={t(
+                      `admin.table.${user.status === 'Active' ? 'active' : 'inactive'}`
+                    )}
                     color={user.status === 'Active' ? 'success' : 'default'}
                     size="small"
                   />

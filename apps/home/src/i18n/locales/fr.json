@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Accueil",
+    "welcome": "Bienvenue dans l'application micro frontend Accueil. Il s'agit d'une application déployable de manière indépendante qui fait partie de l'architecture MFE plus large.",
+    "dashboard": {
+      "title": "Tableau de bord",
+      "description": "Consultez votre tableau de bord personnalisé avec un accès rapide aux fonctionnalités clés."
+    },
+    "recentActivity": {
+      "title": "Activité récente",
+      "description": "Restez informé de vos activités et mises à jour récentes."
+    },
+    "quickActions": {
+      "title": "Actions rapides",
+      "description": "Accédez aux fonctionnalités fréquemment utilisées en un clic."
+    }
+  }
+}

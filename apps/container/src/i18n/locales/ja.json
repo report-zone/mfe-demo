@@ -1,0 +1,13 @@
+{
+  "header": {
+    "appTitle": "MFEデモアプリケーション",
+    "welcome": "ようこそ、{{username}}",
+    "logout": "ログアウト"
+  },
+  "navbar": {
+    "home": "ホーム",
+    "preferences": "設定",
+    "account": "アカウント",
+    "admin": "管理者"
+  }
+}

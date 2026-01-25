@@ -1,0 +1,14 @@
+{
+  "preferences": {
+    "title": "Einstellungen",
+    "tabs": {
+      "general": "Allgemein",
+      "themes": "Themen"
+    },
+    "general": {
+      "title": "Allgemeine Einstellungen",
+      "description": "Dies ist ein Beispielbildschirm für allgemeine Einstellungen. Zukünftig können hier weitere Einstellungen hinzugefügt werden.",
+      "usage": "Verwenden Sie diese Registerkarte, um allgemeine Anwendungseinstellungen und -einstellungen zu verwalten."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "header": {
+    "appTitle": "MFE演示应用程序",
+    "welcome": "欢迎，{{username}}",
+    "logout": "登出"
+  },
+  "navbar": {
+    "home": "主页",
+    "preferences": "偏好设置",
+    "account": "账户",
+    "admin": "管理员"
+  }
+}

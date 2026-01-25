@@ -2,26 +2,28 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar, Box } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useI18n } from '../i18n/I18nContext';
 
 const drawerWidth = 240;
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: string;
   adminOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { path: '/', label: 'Home' },
-  { path: '/preferences', label: 'Preferences' },
-  { path: '/account', label: 'Account' },
-  { path: '/admin', label: 'Admin', adminOnly: true },
+  { path: '/', labelKey: 'navbar.home' },
+  { path: '/preferences', labelKey: 'navbar.preferences' },
+  { path: '/account', labelKey: 'navbar.account' },
+  { path: '/admin', labelKey: 'navbar.admin', adminOnly: true },
 ];
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin } = useAuth();
+  const { t } = useI18n();
 
   const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
 
@@ -46,7 +48,7 @@ const Navbar: React.FC = () => {
                 selected={location.pathname === item.path}
                 onClick={() => navigate(item.path)}
               >
-                <ListItemText primary={item.label} />
+                <ListItemText primary={t(item.labelKey)} />
               </ListItemButton>
             </ListItem>
           ))}
