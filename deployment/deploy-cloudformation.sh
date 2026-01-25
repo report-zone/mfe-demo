@@ -202,9 +202,11 @@ deploy_stack() {
     print_info "Waiting for stack operation to complete..."
     
     if [ "$OPERATION" == "create-stack" ]; then
-        aws cloudformation wait stack-create-complete \
+        if ! aws cloudformation wait stack-create-complete \
             --stack-name "$stack_name" \
-            --region "$AWS_REGION"
+            --region "$AWS_REGION" 2>/dev/null; then
+            print_error "Stack creation failed"
+        fi
     else
         aws cloudformation wait stack-update-complete \
             --stack-name "$stack_name" \
@@ -216,9 +218,9 @@ deploy_stack() {
         --stack-name "$stack_name" \
         --query 'Stacks[0].StackStatus' \
         --output text \
-        --region "$AWS_REGION")
+        --region "$AWS_REGION" 2>/dev/null || echo "UNKNOWN")
     
-    if [[ "$STACK_STATUS" == *"COMPLETE"* ]]; then
+    if [[ "$STACK_STATUS" == *"COMPLETE"* ]] && [[ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ]]; then
         print_success "Stack operation completed successfully"
         
         # Show outputs
@@ -232,6 +234,16 @@ deploy_stack() {
         return 0
     else
         print_error "Stack operation failed with status: $STACK_STATUS"
+        
+        # Show recent stack events to help diagnose the issue
+        print_info "Recent stack events (showing last 20):"
+        aws cloudformation describe-stack-events \
+            --stack-name "$stack_name" \
+            --max-items 20 \
+            --query 'StackEvents[?ResourceStatus==`CREATE_FAILED` || ResourceStatus==`UPDATE_FAILED` || ResourceStatus==`DELETE_FAILED`].[Timestamp,ResourceType,LogicalResourceId,ResourceStatus,ResourceStatusReason]' \
+            --output table \
+            --region "$AWS_REGION" 2>/dev/null || print_warning "Could not retrieve stack events"
+        
         return 1
     fi
 }
