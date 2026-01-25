@@ -23,8 +23,10 @@ import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
 import { convertThemeDefinitionToMuiTheme } from '../utils/themeUtils';
 import { loadThemeFromFile } from '../utils/themeFileOperations';
+import { useI18n } from '../i18n/I18nContext';
 
 const ThemesTab: React.FC = () => {
+  const { t } = useI18n();
   const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage, removeCustomTheme } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
@@ -51,18 +53,18 @@ const ThemesTab: React.FC = () => {
       };
       addCustomTheme(theme);
       loadThemesFromStorage();
-      setSnackbar({ open: true, message: 'Theme loaded and added to selection!', severity: 'success' });
+      setSnackbar({ open: true, message: t('preferences.themes.themeLoaded'), severity: 'success' });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error loading theme file';
+      const errorMessage = error instanceof Error ? error.message : t('preferences.themes.loadError');
       setSnackbar({ open: true, message: errorMessage, severity: 'error' });
     }
   };
 
   const handleDeleteTheme = (themeId: string) => {
-    if (window.confirm('Are you sure you want to delete this custom theme?')) {
+    if (window.confirm(t('preferences.themes.deleteConfirm'))) {
       removeCustomTheme(themeId);
       loadThemesFromStorage();
-      setSnackbar({ open: true, message: 'Theme deleted successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: t('preferences.themes.themeDeleted'), severity: 'success' });
     }
   };
 
@@ -70,28 +72,28 @@ const ThemesTab: React.FC = () => {
     <Box>
       <Paper sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5">Themes</Typography>
+          <Typography variant="h5">{t('preferences.themes.title')}</Typography>
           <Stack direction="row" spacing={2}>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleCreateTheme}
             >
-              Create Custom Theme
+              {t('preferences.themes.createButton')}
             </Button>
             <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={handleLoadAndAddTheme}>
-              Load Custom Theme
+              {t('preferences.themes.loadButton')}
             </Button>
           </Stack>
         </Box>
 
         <Typography variant="body2" color="text.secondary" paragraph>
-          Choose from default themes or create your own custom theme.
+          {t('preferences.themes.description')}
         </Typography>
 
         <Paper variant="outlined" sx={{ p: 2, mb: 4 }}>
           <Typography variant="h6" gutterBottom>
-            Select Theme
+            {t('preferences.themes.selectTheme')}
           </Typography>
           <RadioGroup
             value={currentTheme.id}
@@ -120,7 +122,7 @@ const ThemesTab: React.FC = () => {
                         {theme.name}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {theme.isCustom ? 'Custom Theme' : 'Default Theme'}
+                        {theme.isCustom ? t('preferences.themes.customTheme') : t('preferences.themes.defaultTheme')}
                       </Typography>
                     </Box>
                   }
@@ -134,7 +136,7 @@ const ThemesTab: React.FC = () => {
                   </Tooltip>
                 )}
                 {theme.isCustom && (
-                  <Tooltip title="Delete custom theme" placement="left">
+                  <Tooltip title={t('preferences.themes.deleteTooltip')} placement="left">
                     <IconButton 
                       size="small" 
                       sx={{ ml: 1 }} 

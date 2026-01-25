@@ -16,6 +16,103 @@
       "description": "アプリケーションインターフェースの優先言語を選択します。",
       "currentLanguage": "現在の言語",
       "selectLanguage": "言語を選択"
+    },
+    "themes": {
+      "title": "テーマ",
+      "createButton": "カスタムテーマを作成",
+      "loadButton": "カスタムテーマを読み込む",
+      "description": "デフォルトのテーマから選択するか、独自のカスタムテーマを作成します。",
+      "selectTheme": "テーマを選択",
+      "customTheme": "カスタムテーマ",
+      "defaultTheme": "デフォルトテーマ",
+      "deleteTooltip": "カスタムテーマを削除",
+      "deleteConfirm": "このカスタムテーマを削除してもよろしいですか？",
+      "themeLoaded": "テーマが読み込まれ、選択に追加されました！",
+      "themeDeleted": "テーマが正常に削除されました！",
+      "loadError": "テーマファイルの読み込みエラー"
+    },
+    "themeEditor": {
+      "title": "テーマエディター",
+      "themeName": "テーマ名",
+      "version": "バージョン",
+      "versionPlaceholder": "例：1.0.0",
+      "themeDescription": "テーマの説明",
+      "descriptionPlaceholder": "テーマを説明してください...",
+      "reset": "リセット",
+      "open": "開く",
+      "save": "保存",
+      "tabs": {
+        "primary": "プライマリ",
+        "secondary": "セカンダリ",
+        "status": "ステータス",
+        "background": "背景",
+        "components": "コンポーネント",
+        "muiComponents": "MUIコンポーネント"
+      },
+      "colors": {
+        "primaryMain": "プライマリメイン",
+        "primaryLight": "プライマリライト",
+        "primaryDark": "プライマリダーク",
+        "secondaryMain": "セカンダリメイン",
+        "secondaryLight": "セカンダリライト",
+        "secondaryDark": "セカンダリダーク",
+        "error": "エラーカラー",
+        "warning": "警告カラー",
+        "info": "情報カラー",
+        "success": "成功カラー",
+        "backgroundDefault": "デフォルト背景",
+        "backgroundPaper": "ペーパー背景",
+        "text": "テキストカラー",
+        "textSecondary": "セカンダリテキスト"
+      },
+      "typography": {
+        "fontFamily": "フォントファミリー",
+        "fontSize": "フォントサイズ",
+        "fontWeightLight": "フォントウェイト（ライト）",
+        "fontWeightRegular": "フォントウェイト（レギュラー）",
+        "fontWeightMedium": "フォントウェイト（ミディアム）",
+        "fontWeightBold": "フォントウェイト（ボールド）"
+      },
+      "spacing": {
+        "unit": "間隔単位"
+      },
+      "borderRadius": {
+        "value": "ボーダー半径"
+      },
+      "messages": {
+        "themeLoaded": "テーマが正常に読み込まれました！",
+        "themeSaved": "テーマがファイルシステムに保存されました！",
+        "resetToDefaults": "デフォルト値にリセットしました！",
+        "fileExists": "このファイルは既にこのセッションで保存されています。上書きしますか？",
+        "enterFilename": "ファイル名を入力してください",
+        "unsavedChanges": "保存されていない変更があります。本当に閉じますか？",
+        "loadError": "テーマファイルの読み込みエラー"
+      },
+      "dialogs": {
+        "overwrite": {
+          "title": "ファイルは既に存在します",
+          "message": "このファイルは既にこのセッションで保存されています。上書きしますか、それとも別の名前で保存しますか？",
+          "overwrite": "上書き",
+          "rename": "名前を変更"
+        },
+        "rename": {
+          "title": "名前を付けて保存",
+          "message": "テーマの新しいファイル名を入力してください：",
+          "label": "ファイル名",
+          "cancel": "キャンセル",
+          "save": "保存"
+        },
+        "unsaved": {
+          "title": "保存されていない変更",
+          "message": "保存されていない変更があります。本当に閉じますか？",
+          "discard": "変更を破棄",
+          "cancel": "キャンセル"
+        }
+      },
+      "preview": {
+        "title": "プレビュー",
+        "description": "さまざまなMaterial-UIコンポーネントでテーマがどのように見えるかをプレビューします。"
+      }
     }
   }
 }

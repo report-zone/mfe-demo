@@ -52,6 +52,7 @@ import {
   isFilenameSavedInSession,
   trackSavedFilename,
 } from '../utils/themeFileOperations';
+import { useI18n } from '../i18n/I18nContext';
 
 interface ThemeEditorDialogProps {
   open: boolean;
@@ -62,6 +63,7 @@ interface ThemeEditorDialogProps {
 
 
 const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
@@ -337,7 +339,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     downloadThemeAsFile(definition, filename);
     trackSavedFilename(filename);
     setHasUnsavedChanges(false);
-    setSnackbar({ open: true, message: 'Theme saved to file system!', severity: 'success' });
+    setSnackbar({ open: true, message: t('preferences.themeEditor.messages.themeSaved'), severity: 'success' });
     setTimeout(() => onClose(), 1000);
   };
 
@@ -360,7 +362,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
   const handleRenameConfirm = () => {
     if (!newFilename.trim()) {
-      setSnackbar({ open: true, message: 'Please enter a filename', severity: 'error' });
+      setSnackbar({ open: true, message: t('preferences.themeEditor.messages.enterFilename'), severity: 'error' });
       return;
     }
 
@@ -388,7 +390,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
   const handleResetToDefaults = () => {
     setThemeDefinition(createDefaultThemeDefinition());
     setHasUnsavedChanges(true);
-    setSnackbar({ open: true, message: 'Reset to default values!', severity: 'info' });
+    setSnackbar({ open: true, message: t('preferences.themeEditor.messages.resetToDefaults'), severity: 'info' });
   };
 
   const handleClose = () => {
@@ -410,15 +412,15 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       const validation = validateThemeDefinition(definition);
       
       if (!validation.isValid) {
-        setSnackbar({ open: true, message: validation.error || 'Invalid theme file', severity: 'error' });
+        setSnackbar({ open: true, message: validation.error || t('preferences.themeEditor.messages.loadError'), severity: 'error' });
         return;
       }
       
       setThemeDefinition(definition);
       setHasUnsavedChanges(true);
-      setSnackbar({ open: true, message: 'Theme loaded successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: t('preferences.themeEditor.messages.themeLoaded'), severity: 'success' });
     } catch (error) {
-      setSnackbar({ open: true, message: error instanceof Error ? error.message : 'Error loading theme file', severity: 'error' });
+      setSnackbar({ open: true, message: error instanceof Error ? error.message : t('preferences.themeEditor.messages.loadError'), severity: 'error' });
     }
   };
 
@@ -430,16 +432,16 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
             <CloseIcon />
           </IconButton>
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            Theme Editor
+            {t('preferences.themeEditor.title')}
           </Typography>
           <Button color="inherit" startIcon={<RestartAltIcon />} onClick={handleResetToDefaults}>
-            Reset
+            {t('preferences.themeEditor.reset')}
           </Button>
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
-            Open
+            {t('preferences.themeEditor.open')}
           </Button>
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
-            Save
+            {t('preferences.themeEditor.save')}
           </Button>
         </Toolbar>
       </AppBar>
@@ -449,7 +451,7 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
-              label="Theme Name"
+              label={t('preferences.themeEditor.themeName')}
               value={themeDefinition.name}
               onChange={(e) => updateThemeDefinition({ name: e.target.value })}
             />
@@ -457,21 +459,21 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
-              label="Version"
+              label={t('preferences.themeEditor.version')}
               value={themeDefinition.version}
               onChange={(e) => updateThemeDefinition({ version: e.target.value })}
-              placeholder="e.g., 1.0.0"
+              placeholder={t('preferences.themeEditor.versionPlaceholder')}
             />
           </Grid>
         </Grid>
         <TextField
           fullWidth
-          label="Theme Description"
+          label={t('preferences.themeEditor.themeDescription')}
           value={themeDefinition.description || ''}
           onChange={(e) => updateThemeDefinition({ description: e.target.value })}
           multiline
           rows={2}
-          placeholder="Describe your theme..."
+          placeholder={t('preferences.themeEditor.descriptionPlaceholder')}
           sx={{ mt: 2, mb: 3 }}
         />
 
@@ -479,29 +481,29 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Grid size={{ xs: 12, md: 7 }}>
             <Paper sx={{ p: 2, height: 'calc(100vh - 240px)', overflow: 'auto' }}>
               <Tabs value={activeTab} onChange={(_e, v) => setActiveTab(v)} variant="scrollable">
-                <Tab label="Primary" />
-                <Tab label="Secondary" />
-                <Tab label="Status" />
-                <Tab label="Background" />
-                <Tab label="Components" />
-                <Tab label="MUI Components" />
+                <Tab label={t('preferences.themeEditor.tabs.primary')} />
+                <Tab label={t('preferences.themeEditor.tabs.secondary')} />
+                <Tab label={t('preferences.themeEditor.tabs.status')} />
+                <Tab label={t('preferences.themeEditor.tabs.background')} />
+                <Tab label={t('preferences.themeEditor.tabs.components')} />
+                <Tab label={t('preferences.themeEditor.tabs.muiComponents')} />
               </Tabs>
 
               <Box sx={{ mt: 3 }}>
                 {activeTab === 0 && (
                   <Box>
                     <ColorPicker
-                      label="Primary Main"
+                      label={t('preferences.themeEditor.colors.primaryMain')}
                       value={themeDefinition.colors.primaryMain}
                       onChange={(v) => handleColorChange('colors.primaryMain', v)}
                     />
                     <ColorPicker
-                      label="Primary Light"
+                      label={t('preferences.themeEditor.colors.primaryLight')}
                       value={themeDefinition.colors.primaryLight}
                       onChange={(v) => handleColorChange('colors.primaryLight', v)}
                     />
                     <ColorPicker
-                      label="Primary Dark"
+                      label={t('preferences.themeEditor.colors.primaryDark')}
                       value={themeDefinition.colors.primaryDark}
                       onChange={(v) => handleColorChange('colors.primaryDark', v)}
                     />
@@ -511,17 +513,17 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 {activeTab === 1 && (
                   <Box>
                     <ColorPicker
-                      label="Secondary Main"
+                      label={t('preferences.themeEditor.colors.secondaryMain')}
                       value={themeDefinition.colors.secondaryMain}
                       onChange={(v) => handleColorChange('colors.secondaryMain', v)}
                     />
                     <ColorPicker
-                      label="Secondary Light"
+                      label={t('preferences.themeEditor.colors.secondaryLight')}
                       value={themeDefinition.colors.secondaryLight}
                       onChange={(v) => handleColorChange('colors.secondaryLight', v)}
                     />
                     <ColorPicker
-                      label="Secondary Dark"
+                      label={t('preferences.themeEditor.colors.secondaryDark')}
                       value={themeDefinition.colors.secondaryDark}
                       onChange={(v) => handleColorChange('colors.secondaryDark', v)}
                     />
@@ -531,22 +533,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                 {activeTab === 2 && (
                   <Box>
                     <ColorPicker
-                      label="Error Color"
+                      label={t('preferences.themeEditor.colors.error')}
                       value={themeDefinition.colors.errorMain}
                       onChange={(v) => handleColorChange('colors.errorMain', v)}
                     />
                     <ColorPicker
-                      label="Warning Color"
+                      label={t('preferences.themeEditor.colors.warning')}
                       value={themeDefinition.colors.warningMain}
                       onChange={(v) => handleColorChange('colors.warningMain', v)}
                     />
                     <ColorPicker
-                      label="Info Color"
+                      label={t('preferences.themeEditor.colors.info')}
                       value={themeDefinition.colors.infoMain}
                       onChange={(v) => handleColorChange('colors.infoMain', v)}
                     />
                     <ColorPicker
-                      label="Success Color"
+                      label={t('preferences.themeEditor.colors.success')}
                       value={themeDefinition.colors.successMain}
                       onChange={(v) => handleColorChange('colors.successMain', v)}
                     />
@@ -570,22 +572,22 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
                       </Select>
                     </FormControl>
                     <ColorPicker
-                      label="Background Color"
+                      label={t('preferences.themeEditor.colors.backgroundDefault')}
                       value={themeDefinition.colors.backgroundDefault}
                       onChange={(v) => handleColorChange('colors.backgroundDefault', v)}
                     />
                     <ColorPicker
-                      label="Paper Color"
+                      label={t('preferences.themeEditor.colors.backgroundPaper')}
                       value={themeDefinition.colors.backgroundPaper}
                       onChange={(v) => handleColorChange('colors.backgroundPaper', v)}
                     />
                     <ColorPicker
-                      label="Text Primary Color"
+                      label={t('preferences.themeEditor.colors.text')}
                       value={themeDefinition.colors.textPrimary}
                       onChange={(v) => handleColorChange('colors.textPrimary', v)}
                     />
                     <ColorPicker
-                      label="Text Secondary Color"
+                      label={t('preferences.themeEditor.colors.textSecondary')}
                       value={themeDefinition.colors.textSecondary}
                       onChange={(v) => handleColorChange('colors.textSecondary', v)}
                     />
@@ -1337,27 +1339,26 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
 
       {/* Confirm Close Dialog */}
       <ConfirmDialog open={confirmClose} onClose={() => setConfirmClose(false)}>
-        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogTitle>{t('preferences.themeEditor.dialogs.unsaved.title')}</DialogTitle>
         <DialogContent>
           <Typography>
-            You have unsaved changes. Are you sure you want to close without saving?
+            {t('preferences.themeEditor.dialogs.unsaved.message')}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmClose(false)}>Cancel</Button>
+          <Button onClick={() => setConfirmClose(false)}>{t('preferences.themeEditor.dialogs.unsaved.cancel')}</Button>
           <Button onClick={handleConfirmClose} color="error" variant="contained">
-            Close Without Saving
+            {t('preferences.themeEditor.dialogs.unsaved.discard')}
           </Button>
         </DialogActions>
       </ConfirmDialog>
 
       {/* Overwrite File Dialog */}
       <ConfirmDialog open={showOverwriteDialog} onClose={() => setShowOverwriteDialog(false)}>
-        <DialogTitle>Replace Existing File?</DialogTitle>
+        <DialogTitle>{t('preferences.themeEditor.dialogs.overwrite.title')}</DialogTitle>
         <DialogContent>
           <Typography>
-            A file named &quot;{pendingSave?.filename}&quot; was already saved during this session. 
-            Do you want to replace it with the new version?
+            {t('preferences.themeEditor.dialogs.overwrite.message')}
           </Typography>
           <Typography sx={{ mt: 2 }}>
             <strong>Note:</strong> Due to browser limitations, clicking &quot;Replace&quot; will download the file again. 
@@ -1369,27 +1370,27 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowOverwriteDialog(false)}>Cancel</Button>
+          <Button onClick={() => setShowOverwriteDialog(false)}>{t('preferences.themeEditor.dialogs.rename.cancel')}</Button>
           <Button onClick={handleOverwriteRename} color="primary" variant="outlined">
-            Save As Different Name
+            {t('preferences.themeEditor.dialogs.overwrite.rename')}
           </Button>
           <Button onClick={handleOverwriteConfirm} color="warning" variant="contained">
-            Replace
+            {t('preferences.themeEditor.dialogs.overwrite.overwrite')}
           </Button>
         </DialogActions>
       </ConfirmDialog>
 
       {/* Rename Theme Dialog */}
       <ConfirmDialog open={showRenameDialog} onClose={handleRenameCancel}>
-        <DialogTitle>Save As Different Filename</DialogTitle>
+        <DialogTitle>{t('preferences.themeEditor.dialogs.rename.title')}</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Enter a new filename for your theme:
+            {t('preferences.themeEditor.dialogs.rename.message')}
           </Typography>
           <TextField
             autoFocus
             fullWidth
-            label="Filename"
+            label={t('preferences.themeEditor.dialogs.rename.label')}
             value={newFilename}
             onChange={(e) => setNewFilename(e.target.value)}
             placeholder="my-custom-theme"
@@ -1403,9 +1404,9 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleRenameCancel}>Cancel</Button>
+          <Button onClick={handleRenameCancel}>{t('preferences.themeEditor.dialogs.rename.cancel')}</Button>
           <Button onClick={handleRenameConfirm} color="primary" variant="contained">
-            Save
+            {t('preferences.themeEditor.dialogs.rename.save')}
           </Button>
         </DialogActions>
       </ConfirmDialog>
