@@ -4,19 +4,72 @@ This directory contains scripts and configuration for deploying the MFE Demo app
 
 ## Quick Start
 
+### Option 1: Interactive Setup (Recommended for First-Time Users)
+
+```bash
+# Run the setup wizard - it will guide you through configuration
+./setup-wizard.sh
+```
+
+### Option 2: Manual Setup
+
 ```bash
 # 1. Configure deployment
 cp config.example.yaml config.yaml
 # Edit config.yaml with your settings
 
-# 2. Deploy infrastructure (CloudFormation stacks)
+# 2. (Optional) Test your setup
+./test-setup.sh
+
+# 3. Deploy infrastructure (CloudFormation stacks)
 ./deploy-cloudformation.sh all
 
-# 3. Build and deploy applications
+# 4. Build and deploy applications
 ./deploy-apps.sh all
 ```
 
 ## Scripts
+
+### setup-wizard.sh (NEW)
+
+Interactive setup wizard that guides you through the configuration process.
+
+**Features:**
+- Checks prerequisites (AWS CLI, Node.js, Yarn)
+- Verifies AWS credentials
+- Creates and configures config.yaml
+- Provides step-by-step deployment instructions
+
+**Usage:**
+```bash
+./setup-wizard.sh
+```
+
+### test-setup.sh (NEW)
+
+Validates your deployment setup before deploying.
+
+**Checks:**
+- Directory structure
+- CloudFormation templates
+- Script syntax
+- Configuration files
+- Documentation
+- Required tools (AWS CLI, Node.js, Yarn)
+
+**Usage:**
+```bash
+./test-setup.sh
+```
+
+### validate-templates.sh (NEW)
+
+Validates CloudFormation template syntax.
+
+**Usage:**
+```bash
+./validate-templates.sh
+```
 
 ### deploy-cloudformation.sh
 
