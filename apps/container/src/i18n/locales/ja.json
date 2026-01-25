@@ -9,5 +9,32 @@
     "preferences": "設定",
     "account": "アカウント",
     "admin": "管理者"
+  },
+  "home": {
+    "title": "ホーム",
+    "welcome": "ホームマイクロフロントエンドアプリケーションへようこそ。これは、より大きなMFEアーキテクチャの一部である、独立してデプロイ可能なアプリケーションです。",
+    "dashboard": {
+      "title": "ダッシュボード",
+      "description": "主要な機能へのクイックアクセスを備えた、パーソナライズされたダッシュボードを表示します。"
+    },
+    "recentActivity": {
+      "title": "最近のアクティビティ",
+      "description": "最近のアクティビティと更新情報を最新の状態に保ちます。"
+    },
+    "quickActions": {
+      "title": "クイックアクション",
+      "description": "よく使う機能にワンクリックでアクセスできます。"
+    }
+  },
+  "account": {
+    "title": "アカウント",
+    "description": "アカウント情報とプロフィール設定を管理します。",
+    "firstName": "名",
+    "lastName": "姓",
+    "email": "メールアドレス",
+    "phoneNumber": "電話番号",
+    "bio": "自己紹介",
+    "bioPlaceholder": "優れたアプリケーションの構築に情熱を持つソフトウェア開発者。",
+    "saveChanges": "変更を保存"
   }
 }

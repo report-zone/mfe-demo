@@ -9,5 +9,32 @@
     "preferences": "Preferencias",
     "account": "Cuenta",
     "admin": "Admin"
+  },
+  "home": {
+    "title": "Inicio",
+    "welcome": "Bienvenido a la aplicación de micro frontend de Inicio. Esta es una aplicación desplegable de forma independiente que forma parte de la arquitectura MFE más amplia.",
+    "dashboard": {
+      "title": "Panel de control",
+      "description": "Vea su panel de control personalizado con acceso rápido a las funciones clave."
+    },
+    "recentActivity": {
+      "title": "Actividad reciente",
+      "description": "Manténgase al día con sus actividades y actualizaciones recientes."
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "description": "Acceda a las funciones más utilizadas con un solo clic."
+    }
+  },
+  "account": {
+    "title": "Cuenta",
+    "description": "Administre la información de su cuenta y la configuración de su perfil.",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "phoneNumber": "Número de teléfono",
+    "bio": "Biografía",
+    "bioPlaceholder": "Desarrollador de software apasionado por crear excelentes aplicaciones.",
+    "saveChanges": "Guardar cambios"
   }
 }

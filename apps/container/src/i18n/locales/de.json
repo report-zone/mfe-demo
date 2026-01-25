@@ -9,5 +9,32 @@
     "preferences": "Einstellungen",
     "account": "Konto",
     "admin": "Admin"
+  },
+  "home": {
+    "title": "Startseite",
+    "welcome": "Willkommen in der Startseiten-Microfrontend-Anwendung. Dies ist eine unabhängig bereitstellbare Anwendung, die Teil der größeren MFE-Architektur ist.",
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Sehen Sie Ihr personalisiertes Dashboard mit schnellem Zugriff auf wichtige Funktionen."
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivität",
+      "description": "Bleiben Sie auf dem Laufenden über Ihre letzten Aktivitäten und Aktualisierungen."
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "description": "Greifen Sie mit einem Klick auf häufig verwendete Funktionen zu."
+    }
+  },
+  "account": {
+    "title": "Konto",
+    "description": "Verwalten Sie Ihre Kontoinformationen und Profileinstellungen.",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail",
+    "phoneNumber": "Telefonnummer",
+    "bio": "Bio",
+    "bioPlaceholder": "Softwareentwickler mit einer Leidenschaft für die Erstellung großartiger Anwendungen.",
+    "saveChanges": "Änderungen speichern"
   }
 }
