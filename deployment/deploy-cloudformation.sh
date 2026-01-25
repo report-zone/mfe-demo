@@ -119,10 +119,46 @@ deploy_stack() {
         return 1
     fi
     
-    # Check if stack exists
+    # Check if stack exists and get its status
     if aws cloudformation describe-stacks --stack-name "$stack_name" &> /dev/null; then
-        print_info "Stack exists. Updating..."
-        OPERATION="update-stack"
+        STACK_STATUS=$(aws cloudformation describe-stacks \
+            --stack-name "$stack_name" \
+            --query 'Stacks[0].StackStatus' \
+            --output text \
+            --region "$AWS_REGION")
+        
+        # If stack is in a failed state, it must be deleted before creating
+        if [ "$STACK_STATUS" == "ROLLBACK_COMPLETE" ] || [ "$STACK_STATUS" == "UPDATE_ROLLBACK_FAILED" ]; then
+            print_warning "Stack is in $STACK_STATUS state and cannot be updated"
+            print_info "Deleting stack before recreating..."
+            
+            aws cloudformation delete-stack \
+                --stack-name "$stack_name" \
+                --region "$AWS_REGION"
+            
+            print_info "Waiting for stack deletion to complete..."
+            aws cloudformation wait stack-delete-complete \
+                --stack-name "$stack_name" \
+                --region "$AWS_REGION"
+            
+            print_success "Stack deleted successfully"
+            print_info "Creating new stack..."
+            OPERATION="create-stack"
+        elif [[ "$STACK_STATUS" == *"FAILED"* ]] && [ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ] && [ "$STACK_STATUS" != "UPDATE_ROLLBACK_FAILED" ]; then
+            # Handle other failed states that may need manual intervention (e.g., DELETE_FAILED, ROLLBACK_FAILED)
+            print_error "Stack is in $STACK_STATUS state"
+            print_error "This state may require manual intervention"
+            print_info "Please check the stack in AWS Console and delete it manually if needed"
+            return 1
+        elif [[ "$STACK_STATUS" == *"ROLLBACK"* ]] && [ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ] && [ "$STACK_STATUS" != "UPDATE_ROLLBACK_FAILED" ]; then
+            # Handle rollback-in-progress states
+            print_warning "Stack is in $STACK_STATUS state"
+            print_info "Please wait for the rollback to complete or fail, then try again"
+            return 1
+        else
+            print_info "Stack exists in $STACK_STATUS state. Updating..."
+            OPERATION="update-stack"
+        fi
     else
         print_info "Stack does not exist. Creating..."
         OPERATION="create-stack"

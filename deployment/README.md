@@ -71,6 +71,22 @@ Validates CloudFormation template syntax.
 ./validate-templates.sh
 ```
 
+### test-rollback-handling.sh (NEW)
+
+Tests the ROLLBACK_COMPLETE state handling in deploy-cloudformation.sh.
+
+**Validates:**
+- ROLLBACK_COMPLETE state detection
+- UPDATE_ROLLBACK_FAILED state detection
+- Stack deletion logic
+- Stack-delete-complete waiter
+- Error handling for other failed states
+
+**Usage:**
+```bash
+./test-rollback-handling.sh
+```
+
 ### deploy-cloudformation.sh
 
 Deploys AWS infrastructure using CloudFormation templates.
@@ -85,6 +101,12 @@ Deploys AWS infrastructure using CloudFormation templates.
 - `cognito` or `auth` - Deploy Cognito User Pool stack
 - `all` - Deploy all stacks (default)
 
+**Features:**
+- Automatic detection and handling of failed stack states
+- Auto-recovery from `ROLLBACK_COMPLETE` state (deletes and recreates)
+- Auto-recovery from `UPDATE_ROLLBACK_FAILED` state (deletes and recreates)
+- Clear error messages for states requiring manual intervention
+
 **Examples:**
 ```bash
 # Deploy all infrastructure
@@ -96,6 +118,10 @@ Deploys AWS infrastructure using CloudFormation templates.
 # Deploy only Cognito
 ./deploy-cloudformation.sh cognito
 ```
+
+**Troubleshooting:**
+- If a stack is in `ROLLBACK_COMPLETE` or `UPDATE_ROLLBACK_FAILED` state, the script will automatically delete it and recreate it
+- For other failed states (e.g., `DELETE_FAILED`, `ROLLBACK_FAILED`), manual intervention may be required via AWS Console
 
 ### deploy-apps.sh
 
