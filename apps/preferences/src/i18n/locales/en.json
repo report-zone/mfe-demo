@@ -16,6 +16,104 @@
       "description": "Select your preferred language for the application interface.",
       "currentLanguage": "Current Language",
       "selectLanguage": "Select Language"
+    },
+    "themes": {
+      "title": "Themes",
+      "createButton": "Create Custom Theme",
+      "loadButton": "Load Custom Theme",
+      "description": "Choose from default themes or create your own custom theme.",
+      "selectTheme": "Select Theme",
+      "customTheme": "Custom Theme",
+      "defaultTheme": "Default Theme",
+      "deleteTooltip": "Delete custom theme",
+      "deleteConfirm": "Are you sure you want to delete this custom theme?",
+      "themeLoaded": "Theme loaded and added to selection!",
+      "themeDeleted": "Theme deleted successfully!",
+      "loadError": "Error loading theme file"
+    },
+    "themeEditor": {
+      "title": "Theme Editor",
+      "themeName": "Theme Name",
+      "version": "Version",
+      "versionPlaceholder": "e.g., 1.0.0",
+      "themeDescription": "Theme Description",
+      "descriptionPlaceholder": "Describe your theme...",
+      "reset": "Reset",
+      "open": "Open",
+      "save": "Save",
+      "tabs": {
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "status": "Status",
+        "background": "Background",
+        "components": "Components",
+        "muiComponents": "MUI Components"
+      },
+      "colors": {
+        "primaryMain": "Primary Main",
+        "primaryLight": "Primary Light",
+        "primaryDark": "Primary Dark",
+        "secondaryMain": "Secondary Main",
+        "secondaryLight": "Secondary Light",
+        "secondaryDark": "Secondary Dark",
+        "error": "Error Color",
+        "warning": "Warning Color",
+        "info": "Info Color",
+        "success": "Success Color",
+        "backgroundDefault": "Default Background",
+        "backgroundPaper": "Paper Background",
+        "text": "Text Color",
+        "textSecondary": "Secondary Text"
+      },
+      "typography": {
+        "fontFamily": "Font Family",
+        "fontSize": "Font Size",
+        "fontWeightLight": "Font Weight Light",
+        "fontWeightRegular": "Font Weight Regular",
+        "fontWeightMedium": "Font Weight Medium",
+        "fontWeightBold": "Font Weight Bold"
+      },
+      "spacing": {
+        "unit": "Spacing Unit"
+      },
+      "borderRadius": {
+        "value": "Border Radius"
+      },
+      "messages": {
+        "themeLoaded": "Theme loaded successfully!",
+        "themeSaved": "Theme saved to file system!",
+        "resetToDefaults": "Reset to default values!",
+        "fileExists": "This file was already saved in this session. Overwrite it?",
+        "enterFilename": "Please enter a filename",
+        "filenameUsed": "Filename \"{filename}\" was also used in this session. Please choose a different name.",
+        "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+        "loadError": "Error loading theme file"
+      },
+      "dialogs": {
+        "overwrite": {
+          "title": "File Already Exists",
+          "message": "This file was already saved in this session. Do you want to overwrite it or save with a different name?",
+          "overwrite": "Overwrite",
+          "rename": "Rename"
+        },
+        "rename": {
+          "title": "Save As",
+          "message": "Enter a new filename for the theme:",
+          "label": "Filename",
+          "cancel": "Cancel",
+          "save": "Save"
+        },
+        "unsaved": {
+          "title": "Unsaved Changes",
+          "message": "You have unsaved changes. Are you sure you want to close?",
+          "discard": "Discard Changes",
+          "cancel": "Cancel"
+        }
+      },
+      "preview": {
+        "title": "Preview",
+        "description": "Preview how your theme looks with various Material-UI components."
+      }
     }
   }
 }

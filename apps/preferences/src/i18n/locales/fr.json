@@ -16,6 +16,104 @@
       "description": "Sélectionnez votre langue préférée pour l'interface de l'application.",
       "currentLanguage": "Langue actuelle",
       "selectLanguage": "Sélectionner la langue"
+    },
+    "themes": {
+      "title": "Thèmes",
+      "createButton": "Créer un thème personnalisé",
+      "loadButton": "Charger un thème personnalisé",
+      "description": "Choisissez parmi les thèmes par défaut ou créez votre propre thème personnalisé.",
+      "selectTheme": "Sélectionner un thème",
+      "customTheme": "Thème personnalisé",
+      "defaultTheme": "Thème par défaut",
+      "deleteTooltip": "Supprimer le thème personnalisé",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce thème personnalisé?",
+      "themeLoaded": "Thème chargé et ajouté à la sélection!",
+      "themeDeleted": "Thème supprimé avec succès!",
+      "loadError": "Erreur lors du chargement du fichier de thème"
+    },
+    "themeEditor": {
+      "title": "Éditeur de thème",
+      "themeName": "Nom du thème",
+      "version": "Version",
+      "versionPlaceholder": "par ex., 1.0.0",
+      "themeDescription": "Description du thème",
+      "descriptionPlaceholder": "Décrivez votre thème...",
+      "reset": "Réinitialiser",
+      "open": "Ouvrir",
+      "save": "Enregistrer",
+      "tabs": {
+        "primary": "Primaire",
+        "secondary": "Secondaire",
+        "status": "Statut",
+        "background": "Arrière-plan",
+        "components": "Composants",
+        "muiComponents": "Composants MUI"
+      },
+      "colors": {
+        "primaryMain": "Primaire principal",
+        "primaryLight": "Primaire clair",
+        "primaryDark": "Primaire foncé",
+        "secondaryMain": "Secondaire principal",
+        "secondaryLight": "Secondaire clair",
+        "secondaryDark": "Secondaire foncé",
+        "error": "Couleur d'erreur",
+        "warning": "Couleur d'avertissement",
+        "info": "Couleur d'information",
+        "success": "Couleur de succès",
+        "backgroundDefault": "Arrière-plan par défaut",
+        "backgroundPaper": "Arrière-plan papier",
+        "text": "Couleur du texte",
+        "textSecondary": "Texte secondaire"
+      },
+      "typography": {
+        "fontFamily": "Famille de polices",
+        "fontSize": "Taille de police",
+        "fontWeightLight": "Poids de police léger",
+        "fontWeightRegular": "Poids de police régulier",
+        "fontWeightMedium": "Poids de police moyen",
+        "fontWeightBold": "Poids de police gras"
+      },
+      "spacing": {
+        "unit": "Unité d'espacement"
+      },
+      "borderRadius": {
+        "value": "Rayon de bordure"
+      },
+      "messages": {
+        "themeLoaded": "Thème chargé avec succès!",
+        "themeSaved": "Thème enregistré dans le système de fichiers!",
+        "resetToDefaults": "Réinitialiser aux valeurs par défaut!",
+        "fileExists": "Ce fichier a déjà été enregistré dans cette session. L'écraser?",
+        "enterFilename": "Veuillez entrer un nom de fichier",
+        "filenameUsed": "Le nom de fichier \"{filename}\" a également été utilisé dans cette session. Veuillez choisir un nom différent.",
+        "unsavedChanges": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir fermer?",
+        "loadError": "Erreur lors du chargement du fichier de thème"
+      },
+      "dialogs": {
+        "overwrite": {
+          "title": "Le fichier existe déjà",
+          "message": "Ce fichier a déjà été enregistré dans cette session. Voulez-vous l'écraser ou enregistrer avec un nom différent?",
+          "overwrite": "Écraser",
+          "rename": "Renommer"
+        },
+        "rename": {
+          "title": "Enregistrer sous",
+          "message": "Entrez un nouveau nom de fichier pour le thème:",
+          "label": "Nom de fichier",
+          "cancel": "Annuler",
+          "save": "Enregistrer"
+        },
+        "unsaved": {
+          "title": "Modifications non enregistrées",
+          "message": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir fermer?",
+          "discard": "Abandonner les modifications",
+          "cancel": "Annuler"
+        }
+      },
+      "preview": {
+        "title": "Aperçu",
+        "description": "Prévisualisez l'apparence de votre thème avec divers composants Material-UI."
+      }
     }
   }
 }

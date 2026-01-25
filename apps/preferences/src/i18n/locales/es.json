@@ -16,6 +16,104 @@
       "description": "Seleccione su idioma preferido para la interfaz de la aplicación.",
       "currentLanguage": "Idioma actual",
       "selectLanguage": "Seleccionar idioma"
+    },
+    "themes": {
+      "title": "Temas",
+      "createButton": "Crear tema personalizado",
+      "loadButton": "Cargar tema personalizado",
+      "description": "Elija entre temas predeterminados o cree su propio tema personalizado.",
+      "selectTheme": "Seleccionar tema",
+      "customTheme": "Tema personalizado",
+      "defaultTheme": "Tema predeterminado",
+      "deleteTooltip": "Eliminar tema personalizado",
+      "deleteConfirm": "¿Está seguro de que desea eliminar este tema personalizado?",
+      "themeLoaded": "¡Tema cargado y agregado a la selección!",
+      "themeDeleted": "¡Tema eliminado con éxito!",
+      "loadError": "Error al cargar el archivo de tema"
+    },
+    "themeEditor": {
+      "title": "Editor de temas",
+      "themeName": "Nombre del tema",
+      "version": "Versión",
+      "versionPlaceholder": "por ejemplo, 1.0.0",
+      "themeDescription": "Descripción del tema",
+      "descriptionPlaceholder": "Describa su tema...",
+      "reset": "Restablecer",
+      "open": "Abrir",
+      "save": "Guardar",
+      "tabs": {
+        "primary": "Primario",
+        "secondary": "Secundario",
+        "status": "Estado",
+        "background": "Fondo",
+        "components": "Componentes",
+        "muiComponents": "Componentes MUI"
+      },
+      "colors": {
+        "primaryMain": "Primario principal",
+        "primaryLight": "Primario claro",
+        "primaryDark": "Primario oscuro",
+        "secondaryMain": "Secundario principal",
+        "secondaryLight": "Secundario claro",
+        "secondaryDark": "Secundario oscuro",
+        "error": "Color de error",
+        "warning": "Color de advertencia",
+        "info": "Color de información",
+        "success": "Color de éxito",
+        "backgroundDefault": "Fondo predeterminado",
+        "backgroundPaper": "Fondo de papel",
+        "text": "Color de texto",
+        "textSecondary": "Texto secundario"
+      },
+      "typography": {
+        "fontFamily": "Familia de fuentes",
+        "fontSize": "Tamaño de fuente",
+        "fontWeightLight": "Grosor de fuente ligero",
+        "fontWeightRegular": "Grosor de fuente regular",
+        "fontWeightMedium": "Grosor de fuente medio",
+        "fontWeightBold": "Grosor de fuente negrita"
+      },
+      "spacing": {
+        "unit": "Unidad de espaciado"
+      },
+      "borderRadius": {
+        "value": "Radio de borde"
+      },
+      "messages": {
+        "themeLoaded": "¡Tema cargado con éxito!",
+        "themeSaved": "¡Tema guardado en el sistema de archivos!",
+        "resetToDefaults": "¡Restablecer a valores predeterminados!",
+        "fileExists": "Este archivo ya se guardó en esta sesión. ¿Sobrescribirlo?",
+        "enterFilename": "Por favor, ingrese un nombre de archivo",
+        "filenameUsed": "El nombre de archivo \"{filename}\" también se usó en esta sesión. Por favor, elija un nombre diferente.",
+        "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+        "loadError": "Error al cargar el archivo de tema"
+      },
+      "dialogs": {
+        "overwrite": {
+          "title": "El archivo ya existe",
+          "message": "Este archivo ya se guardó en esta sesión. ¿Desea sobrescribirlo o guardar con un nombre diferente?",
+          "overwrite": "Sobrescribir",
+          "rename": "Renombrar"
+        },
+        "rename": {
+          "title": "Guardar como",
+          "message": "Ingrese un nuevo nombre de archivo para el tema:",
+          "label": "Nombre de archivo",
+          "cancel": "Cancelar",
+          "save": "Guardar"
+        },
+        "unsaved": {
+          "title": "Cambios sin guardar",
+          "message": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+          "discard": "Descartar cambios",
+          "cancel": "Cancelar"
+        }
+      },
+      "preview": {
+        "title": "Vista previa",
+        "description": "Obtenga una vista previa de cómo se ve su tema con varios componentes de Material-UI."
+      }
     }
   }
 }
