@@ -25,8 +25,11 @@ const PreferencesMFE: React.FC = () => {
 };
 
 // Standalone mode - for development
-if (import.meta.env.DEV) {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
+// Only create root if we're running standalone (not imported as a module)
+if (import.meta.env.DEV && document.getElementById('root') && !document.getElementById('root')?.hasAttribute('data-root-created')) {
+  const rootElement = document.getElementById('root')!;
+  rootElement.setAttribute('data-root-created', 'true');
+  ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <I18nProvider config={i18nConfig}>
         <ThemeProvider theme={theme}>
