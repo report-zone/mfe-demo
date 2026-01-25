@@ -119,6 +119,20 @@ deploy_stack() {
         return 1
     fi
     
+    # Validate CloudFormation template syntax
+    print_info "Validating CloudFormation template..."
+    if ! aws cloudformation validate-template \
+        --template-body "file://$template_file" \
+        --region "$AWS_REGION" &> /dev/null; then
+        print_error "Template validation failed"
+        print_info "Running detailed validation..."
+        aws cloudformation validate-template \
+            --template-body "file://$template_file" \
+            --region "$AWS_REGION" || true
+        return 1
+    fi
+    print_success "Template validation passed"
+    
     # Check if stack exists and get its status
     if aws cloudformation describe-stacks --stack-name "$stack_name" &> /dev/null; then
         STACK_STATUS=$(aws cloudformation describe-stacks \
