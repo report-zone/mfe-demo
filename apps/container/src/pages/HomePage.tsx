@@ -1,20 +1,22 @@
 import React from 'react';
 import { Box, Typography, Paper, Card, CardContent, Grid } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
+import { useI18n } from '../i18n/I18nContext';
 
 const HomePage: React.FC = () => {
+  const { t } = useI18n();
+
   return (
     <Box sx={{ p: 3 }}>
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <HomeIcon sx={{ fontSize: 40, mr: 2, color: 'primary.main' }} />
           <Typography variant="h4" component="h1">
-            Home
+            {t('home.title')}
           </Typography>
         </Box>
         <Typography variant="body1" color="text.secondary" paragraph>
-          Welcome to the Home micro frontend application. This is an independently deployable
-          application that is part of the larger MFE architecture.
+          {t('home.welcome')}
         </Typography>
       </Paper>
 
@@ -23,10 +25,10 @@ const HomePage: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Dashboard
+                {t('home.dashboard.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                View your personalized dashboard with quick access to key features.
+                {t('home.dashboard.description')}
               </Typography>
             </CardContent>
           </Card>
@@ -35,10 +37,10 @@ const HomePage: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Recent Activity
+                {t('home.recentActivity.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Stay up to date with your recent activities and updates.
+                {t('home.recentActivity.description')}
               </Typography>
             </CardContent>
           </Card>
@@ -47,10 +49,10 @@ const HomePage: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Quick Actions
+                {t('home.quickActions.title')}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Access frequently used features with one click.
+                {t('home.quickActions.description')}
               </Typography>
             </CardContent>
           </Card>
