@@ -196,7 +196,11 @@ invalidate_cache() {
         print_success "Invalidation created: $INVALIDATION_ID"
         print_info "Waiting for invalidation to complete..."
         
-        # Wait for invalidation in background and show progress
+        # Wait for invalidation with timeout (max 10 minutes)
+        TIMEOUT=600
+        ELAPSED=0
+        
+        # Start wait process in background
         aws cloudfront wait invalidation-completed \
             --distribution-id "$distribution_id" \
             --id "$INVALIDATION_ID" \
@@ -204,23 +208,33 @@ invalidate_cache() {
         
         local wait_pid=$!
         
-        # Show progress while waiting
-        while kill -0 $wait_pid 2>/dev/null; do
+        # Show progress while waiting with timeout
+        while [ $ELAPSED -lt $TIMEOUT ] && kill -0 $wait_pid 2>/dev/null; do
             echo -n "."
             sleep 2
+            ELAPSED=$((ELAPSED + 2))
         done
-        
-        # Wait for the background process and capture exit status
-        wait $wait_pid
-        local wait_status=$?
         
         echo ""
         
-        if [ $wait_status -eq 0 ]; then
-            print_success "Cache invalidation completed"
+        # Check if process is still running
+        if kill -0 $wait_pid 2>/dev/null; then
+            # Process still running after timeout
+            print_warning "Invalidation wait timed out after ${TIMEOUT}s"
+            print_info "Cache invalidation continues in background - check AWS console"
+            # Don't kill the wait process, just continue
+            return 0
         else
-            print_warning "Cache invalidation is in progress (check AWS console for status)"
-            print_info "This is normal - invalidation can take several minutes"
+            # Process completed - check exit status
+            wait $wait_pid 2>/dev/null
+            local wait_status=$?
+            
+            if [ $wait_status -eq 0 ]; then
+                print_success "Cache invalidation completed"
+            else
+                print_warning "Cache invalidation is in progress"
+                print_info "This is normal - invalidation can take several minutes"
+            fi
         fi
         
         return 0

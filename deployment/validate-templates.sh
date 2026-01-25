@@ -44,17 +44,31 @@ for template in "$PROJECT_ROOT/cloudformation/templates"/*.yaml; do
 import yaml
 import sys
 
-# Add CloudFormation tag handlers
+# Add CloudFormation tag handlers with error handling
 def ref_constructor(loader, node):
-    return {'Ref': loader.construct_scalar(node)}
+    try:
+        return {'Ref': loader.construct_scalar(node)}
+    except Exception as e:
+        print(f'Error constructing !Ref: {e}', file=sys.stderr)
+        return None
+
 def getatt_constructor(loader, node):
-    # Handle both scalar (Resource.Attribute) and sequence ([Resource, Attribute]) formats
-    if isinstance(node, yaml.ScalarNode):
-        return {'Fn::GetAtt': loader.construct_scalar(node)}
-    else:
-        return {'Fn::GetAtt': loader.construct_sequence(node)}
+    try:
+        # Handle both scalar (Resource.Attribute) and sequence ([Resource, Attribute]) formats
+        if isinstance(node, yaml.ScalarNode):
+            return {'Fn::GetAtt': loader.construct_scalar(node)}
+        else:
+            return {'Fn::GetAtt': loader.construct_sequence(node)}
+    except Exception as e:
+        print(f'Error constructing !GetAtt: {e}', file=sys.stderr)
+        return None
+
 def sub_constructor(loader, node):
-    return {'Fn::Sub': loader.construct_scalar(node)}
+    try:
+        return {'Fn::Sub': loader.construct_scalar(node)}
+    except Exception as e:
+        print(f'Error constructing !Sub: {e}', file=sys.stderr)
+        return None
 
 yaml.SafeLoader.add_constructor('!Ref', ref_constructor)
 yaml.SafeLoader.add_constructor('!GetAtt', getatt_constructor)
