@@ -85,7 +85,6 @@
         "resetToDefaults": "¡Restablecer a valores predeterminados!",
         "fileExists": "Este archivo ya se guardó en esta sesión. ¿Sobrescribirlo?",
         "enterFilename": "Por favor, ingrese un nombre de archivo",
-        "filenameUsed": "El nombre de archivo \"{filename}\" también se usó en esta sesión. Por favor, elija un nombre diferente.",
         "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
         "loadError": "Error al cargar el archivo de tema"
       },

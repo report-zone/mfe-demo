@@ -85,7 +85,6 @@
         "resetToDefaults": "重置为默认值！",
         "fileExists": "此文件已在此会话中保存。覆盖它吗？",
         "enterFilename": "请输入文件名",
-        "filenameUsed": "文件名 \"{filename}\" 也在此会话中使用过。请选择不同的名称。",
         "unsavedChanges": "您有未保存的更改。您确定要关闭吗？",
         "loadError": "加载主题文件时出错"
       },

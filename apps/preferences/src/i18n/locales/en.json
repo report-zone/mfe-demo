@@ -85,7 +85,6 @@
         "resetToDefaults": "Reset to default values!",
         "fileExists": "This file was already saved in this session. Overwrite it?",
         "enterFilename": "Please enter a filename",
-        "filenameUsed": "Filename \"{filename}\" was also used in this session. Please choose a different name.",
         "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
         "loadError": "Error loading theme file"
       },

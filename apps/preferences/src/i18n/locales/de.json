@@ -85,7 +85,6 @@
         "resetToDefaults": "Auf Standardwerte zurückgesetzt!",
         "fileExists": "Diese Datei wurde bereits in dieser Sitzung gespeichert. Überschreiben?",
         "enterFilename": "Bitte geben Sie einen Dateinamen ein",
-        "filenameUsed": "Dateiname \"{filename}\" wurde auch in dieser Sitzung verwendet. Bitte wählen Sie einen anderen Namen.",
         "unsavedChanges": "Sie haben ungespeicherte Änderungen. Möchten Sie wirklich schließen?",
         "loadError": "Fehler beim Laden der Themadatei"
       },

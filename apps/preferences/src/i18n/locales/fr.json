@@ -85,7 +85,6 @@
         "resetToDefaults": "Réinitialiser aux valeurs par défaut!",
         "fileExists": "Ce fichier a déjà été enregistré dans cette session. L'écraser?",
         "enterFilename": "Veuillez entrer un nom de fichier",
-        "filenameUsed": "Le nom de fichier \"{filename}\" a également été utilisé dans cette session. Veuillez choisir un nom différent.",
         "unsavedChanges": "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir fermer?",
         "loadError": "Erreur lors du chargement du fichier de thème"
       },
