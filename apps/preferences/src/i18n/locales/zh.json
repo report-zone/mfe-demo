@@ -3,12 +3,19 @@
     "title": "偏好设置",
     "tabs": {
       "general": "常规",
-      "themes": "主题"
+      "themes": "主题",
+      "languages": "语言"
     },
     "general": {
       "title": "常规偏好设置",
       "description": "这是常规偏好设置的示例屏幕。将来可以在此处添加其他设置。",
       "usage": "使用此选项卡管理常规应用程序偏好设置和设置。"
+    },
+    "languages": {
+      "title": "语言设置",
+      "description": "选择您喜欢的应用程序界面语言。",
+      "currentLanguage": "当前语言",
+      "selectLanguage": "选择语言"
     }
   }
 }

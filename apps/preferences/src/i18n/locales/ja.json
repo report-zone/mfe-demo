@@ -3,12 +3,19 @@
     "title": "設定",
     "tabs": {
       "general": "一般",
-      "themes": "テーマ"
+      "themes": "テーマ",
+      "languages": "言語"
     },
     "general": {
       "title": "一般設定",
       "description": "これは一般設定のサンプル画面です。将来的にここに追加の設定を追加できます。",
       "usage": "このタブを使用して、一般的なアプリケーションの設定と設定を管理します。"
+    },
+    "languages": {
+      "title": "言語設定",
+      "description": "アプリケーションインターフェースの優先言語を選択します。",
+      "currentLanguage": "現在の言語",
+      "selectLanguage": "言語を選択"
     }
   }
 }

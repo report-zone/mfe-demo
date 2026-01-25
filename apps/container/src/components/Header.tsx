@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { logError } from '../utils/errorHandler';
 import { useI18n } from '../i18n/I18nContext';
-import LanguageSwitcher from './LanguageSwitcher';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -26,7 +25,6 @@ const Header: React.FC = () => {
         </Typography>
         {user && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <LanguageSwitcher />
             <Typography variant="body2">
               {t('header.welcome', { username: user.username })}
             </Typography>

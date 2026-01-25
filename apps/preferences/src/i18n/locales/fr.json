@@ -3,12 +3,19 @@
     "title": "Préférences",
     "tabs": {
       "general": "Général",
-      "themes": "Thèmes"
+      "themes": "Thèmes",
+      "languages": "Langues"
     },
     "general": {
       "title": "Préférences générales",
       "description": "Ceci est un écran d'exemple pour les préférences générales. Des paramètres supplémentaires peuvent être ajoutés ici à l'avenir.",
       "usage": "Utilisez cet onglet pour gérer les préférences générales et les paramètres de l'application."
+    },
+    "languages": {
+      "title": "Paramètres de langue",
+      "description": "Sélectionnez votre langue préférée pour l'interface de l'application.",
+      "currentLanguage": "Langue actuelle",
+      "selectLanguage": "Sélectionner la langue"
     }
   }
 }

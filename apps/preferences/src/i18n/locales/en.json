@@ -3,12 +3,19 @@
     "title": "Preferences",
     "tabs": {
       "general": "General",
-      "themes": "Themes"
+      "themes": "Themes",
+      "languages": "Languages"
     },
     "general": {
       "title": "General Preferences",
       "description": "This is a sample screen for general preferences. Additional settings can be added here in the future.",
       "usage": "Use this tab to manage general application preferences and settings."
+    },
+    "languages": {
+      "title": "Language Settings",
+      "description": "Select your preferred language for the application interface.",
+      "currentLanguage": "Current Language",
+      "selectLanguage": "Select Language"
     }
   }
 }

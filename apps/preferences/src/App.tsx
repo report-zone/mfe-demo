@@ -5,6 +5,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { ThemeContextProvider } from './context/ThemeContext';
 import GeneralTab from './components/GeneralTab';
 import ThemesTab from './components/ThemesTab';
+import LanguagesTab from './components/LanguagesTab';
 import { useI18n } from './i18n/I18nContext';
 
 const App: React.FC = () => {
@@ -15,6 +16,7 @@ const App: React.FC = () => {
   // Determine active tab based on route
   const getTabValue = () => {
     if (location.pathname.includes('themes')) return 1;
+    if (location.pathname.includes('languages')) return 2;
     return 0;
   };
 
@@ -23,6 +25,8 @@ const App: React.FC = () => {
       navigate('general');
     } else if (newValue === 1) {
       navigate('themes');
+    } else if (newValue === 2) {
+      navigate('languages');
     }
   };
 
@@ -52,11 +56,13 @@ const App: React.FC = () => {
           <Tabs value={getTabValue()} onChange={handleTabChange} sx={{ mb: 3 }}>
             <Tab label={t('preferences.tabs.general')} />
             <Tab label={t('preferences.tabs.themes')} />
+            <Tab label={t('preferences.tabs.languages')} />
           </Tabs>
 
           <Routes>
             <Route path="general" element={<GeneralTab />} />
             <Route path="themes" element={<ThemesTab />} />
+            <Route path="languages" element={<LanguagesTab />} />
             <Route path="/" element={<GeneralTab />} />
           </Routes>
         </Paper>
