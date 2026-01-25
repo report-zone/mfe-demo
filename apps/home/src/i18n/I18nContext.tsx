@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import I18n, { Language, I18nConfig } from './index';
 
 interface I18nContextType {
@@ -14,17 +14,68 @@ interface I18nProviderProps {
   config: I18nConfig;
 }
 
+const LANGUAGE_STORAGE_KEY = 'selectedLanguage';
+
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) => {
   const [i18n] = useState(() => new I18n(config));
-  const [language, setLanguageState] = useState<Language>(config.defaultLanguage);
+  
+  // Initialize language from localStorage if available
+  const getInitialLanguage = (): Language => {
+    try {
+      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (stored && ['en', 'fr', 'de', 'zh', 'es', 'ja'].includes(stored)) {
+        return stored as Language;
+      }
+    } catch (error) {
+      console.error('Failed to load language from localStorage', error);
+    }
+    return config.defaultLanguage;
+  };
+
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage());
+
+  // Initialize i18n with the stored language
+  useEffect(() => {
+    i18n.setLanguage(language);
+  }, [i18n, language]);
 
   const setLanguage = useCallback(
     (newLanguage: Language) => {
       i18n.setLanguage(newLanguage);
       setLanguageState(newLanguage);
+      
+      // Persist to localStorage
+      try {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+      } catch (error) {
+        console.error('Failed to save language to localStorage', error);
+      }
+
+      // Broadcast language change to other MFEs
+      window.dispatchEvent(
+        new CustomEvent('languageChanged', {
+          detail: { language: newLanguage },
+        })
+      );
     },
     [i18n]
   );
+
+  // Listen for language changes from other MFEs
+  useEffect(() => {
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ language: Language }>;
+      if (customEvent.detail?.language) {
+        i18n.setLanguage(customEvent.detail.language);
+        setLanguageState(customEvent.detail.language);
+      }
+    };
+
+    window.addEventListener('languageChanged', handleLanguageChange);
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {

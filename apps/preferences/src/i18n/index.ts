@@ -72,7 +72,8 @@ class I18n {
     // Replace parameters if provided
     if (params) {
       Object.keys(params).forEach(paramKey => {
-        translation = (translation as string).replace(`{{${paramKey}}}`, params[paramKey]);
+        const regex = new RegExp(`\\{\\{${paramKey}\\}\\}`, 'g');
+        translation = (translation as string).replace(regex, params[paramKey]);
       });
     }
 
