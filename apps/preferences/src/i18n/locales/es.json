@@ -1,0 +1,21 @@
+{
+  "preferences": {
+    "title": "Preferencias",
+    "tabs": {
+      "general": "General",
+      "themes": "Temas",
+      "languages": "Idiomas"
+    },
+    "general": {
+      "title": "Preferencias generales",
+      "description": "Esta es una pantalla de muestra para preferencias generales. Se pueden agregar configuraciones adicionales aquí en el futuro.",
+      "usage": "Use esta pestaña para administrar las preferencias y configuraciones generales de la aplicación."
+    },
+    "languages": {
+      "title": "Configuración de idioma",
+      "description": "Seleccione su idioma preferido para la interfaz de la aplicación.",
+      "currentLanguage": "Idioma actual",
+      "selectLanguage": "Seleccionar idioma"
+    }
+  }
+}

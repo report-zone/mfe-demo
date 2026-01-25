@@ -1,0 +1,13 @@
+{
+  "header": {
+    "appTitle": "Application de démonstration MFE",
+    "welcome": "Bienvenue, {{username}}",
+    "logout": "Déconnexion"
+  },
+  "navbar": {
+    "home": "Accueil",
+    "preferences": "Préférences",
+    "account": "Compte",
+    "admin": "Admin"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "admin": {
+    "title": "Panel de administración",
+    "warning": "Esta es un área de administración protegida. Solo los usuarios con rol de administrador pueden acceder a esta página.",
+    "description": "Administre usuarios, permisos y configuraciones del sistema.",
+    "table": {
+      "id": "ID",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "status": "Estado",
+      "userRole": "Usuario",
+      "adminRole": "Administrador",
+      "active": "Activo",
+      "inactive": "Inactivo"
+    }
+  }
+}

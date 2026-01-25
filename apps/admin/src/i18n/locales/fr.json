@@ -1,0 +1,18 @@
+{
+  "admin": {
+    "title": "Panneau d'administration",
+    "warning": "Ceci est une zone d'administration protégée. Seuls les utilisateurs ayant le rôle d'administrateur peuvent accéder à cette page.",
+    "description": "Gérer les utilisateurs, les permissions et les paramètres système.",
+    "table": {
+      "id": "ID",
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "status": "Statut",
+      "userRole": "Utilisateur",
+      "adminRole": "Administrateur",
+      "active": "Actif",
+      "inactive": "Inactif"
+    }
+  }
+}

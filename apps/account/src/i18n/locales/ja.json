@@ -1,0 +1,13 @@
+{
+  "account": {
+    "title": "アカウント",
+    "description": "アカウント情報とプロフィール設定を管理します。",
+    "firstName": "名",
+    "lastName": "姓",
+    "email": "メール",
+    "phoneNumber": "電話番号",
+    "bio": "自己紹介",
+    "bioPlaceholder": "優れたアプリケーションの構築に情熱を持つソフトウェア開発者。",
+    "saveChanges": "変更を保存"
+  }
+}

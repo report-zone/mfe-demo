@@ -1,0 +1,13 @@
+{
+  "account": {
+    "title": "Compte",
+    "description": "Gérez les informations de votre compte et les paramètres de votre profil.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phoneNumber": "Numéro de téléphone",
+    "bio": "Bio",
+    "bioPlaceholder": "Développeur de logiciels passionné par la création d'excellentes applications.",
+    "saveChanges": "Enregistrer les modifications"
+  }
+}

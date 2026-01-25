@@ -3,9 +3,11 @@ import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { logError } from '../utils/errorHandler';
+import { useI18n } from '../i18n/I18nContext';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t } = useI18n();
 
   const handleLogout = async () => {
     try {
@@ -19,13 +21,15 @@ const Header: React.FC = () => {
     <AppBar position="fixed" sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          MFE Demo Application
+          {t('header.appTitle')}
         </Typography>
         {user && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body2">Welcome, {user.username}</Typography>
+            <Typography variant="body2">
+              {t('header.welcome', { username: user.username })}
+            </Typography>
             <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>
-              Logout
+              {t('header.logout')}
             </Button>
           </Box>
         )}

@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Inicio",
+    "welcome": "Bienvenido a la aplicación de micro frontend de Inicio. Esta es una aplicación implementable de forma independiente que forma parte de la arquitectura MFE más grande.",
+    "dashboard": {
+      "title": "Panel de control",
+      "description": "Vea su panel de control personalizado con acceso rápido a las características clave."
+    },
+    "recentActivity": {
+      "title": "Actividad reciente",
+      "description": "Manténgase al día con sus actividades y actualizaciones recientes."
+    },
+    "quickActions": {
+      "title": "Acciones rápidas",
+      "description": "Acceda a las funciones de uso frecuente con un clic."
+    }
+  }
+}

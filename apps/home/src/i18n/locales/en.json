@@ -1,0 +1,18 @@
+{
+  "home": {
+    "title": "Home",
+    "welcome": "Welcome to the Home micro frontend application. This is an independently deployable application that is part of the larger MFE architecture.",
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "View your personalized dashboard with quick access to key features."
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "description": "Stay up to date with your recent activities and updates."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Access frequently used features with one click."
+    }
+  }
+}
