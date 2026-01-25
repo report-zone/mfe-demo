@@ -119,6 +119,24 @@ deploy_stack() {
         return 1
     fi
     
+    # Validate CloudFormation template syntax
+    print_info "Validating CloudFormation template..."
+    if ! aws cloudformation validate-template \
+        --template-body "file://$template_file" \
+        --region "$AWS_REGION" &> /dev/null; then
+        print_error "Template validation failed"
+        print_info "Running detailed validation..."
+        # Show detailed validation errors to help diagnose template issues
+        aws cloudformation validate-template \
+            --template-body "file://$template_file" \
+            --region "$AWS_REGION" 2>&1 || {
+            print_error "Template has syntax or validation errors"
+            return 1
+        }
+        return 1
+    fi
+    print_success "Template validation passed"
+    
     # Check if stack exists and get its status
     if aws cloudformation describe-stacks --stack-name "$stack_name" &> /dev/null; then
         STACK_STATUS=$(aws cloudformation describe-stacks \
@@ -202,13 +220,21 @@ deploy_stack() {
     print_info "Waiting for stack operation to complete..."
     
     if [ "$OPERATION" == "create-stack" ]; then
-        aws cloudformation wait stack-create-complete \
+        if ! aws cloudformation wait stack-create-complete \
             --stack-name "$stack_name" \
-            --region "$AWS_REGION"
+            --region "$AWS_REGION" 2>/dev/null; then
+            print_error "Stack creation failed"
+        fi
     else
+        # Update operations can fail with "No updates to be performed" which is not an error
+        # We'll check the actual status afterward to determine success/failure
         aws cloudformation wait stack-update-complete \
             --stack-name "$stack_name" \
-            --region "$AWS_REGION" 2>/dev/null || true
+            --region "$AWS_REGION" 2>/dev/null || {
+            # Update waiter can fail for legitimate reasons (no updates needed, or actual failure)
+            # The subsequent status check will determine the actual outcome
+            print_info "Update wait completed (checking final status...)"
+        }
     fi
     
     # Get stack status
@@ -216,9 +242,15 @@ deploy_stack() {
         --stack-name "$stack_name" \
         --query 'Stacks[0].StackStatus' \
         --output text \
-        --region "$AWS_REGION")
+        --region "$AWS_REGION" 2>/dev/null)
     
-    if [[ "$STACK_STATUS" == *"COMPLETE"* ]]; then
+    # If we couldn't get the status, the stack might have been deleted during rollback
+    if [ -z "$STACK_STATUS" ]; then
+        print_error "Unable to retrieve stack status - stack may have been deleted"
+        return 1
+    fi
+    
+    if [[ "$STACK_STATUS" == *"COMPLETE"* ]] && [[ "$STACK_STATUS" != "ROLLBACK_COMPLETE" ]]; then
         print_success "Stack operation completed successfully"
         
         # Show outputs
@@ -232,6 +264,19 @@ deploy_stack() {
         return 0
     else
         print_error "Stack operation failed with status: $STACK_STATUS"
+        
+        # Show recent stack events to help diagnose the issue
+        print_info "Recent stack events (showing failures):"
+        if ! aws cloudformation describe-stack-events \
+            --stack-name "$stack_name" \
+            --max-items 20 \
+            --query 'StackEvents[?ResourceStatus==`CREATE_FAILED` || ResourceStatus==`UPDATE_FAILED` || ResourceStatus==`DELETE_FAILED`].[Timestamp,ResourceType,LogicalResourceId,ResourceStatus,ResourceStatusReason]' \
+            --output table \
+            --region "$AWS_REGION" 2>/dev/null; then
+            print_warning "Could not retrieve stack events. The stack may no longer exist or you may lack permissions."
+            print_info "Check AWS Console CloudFormation section for more details."
+        fi
+        
         return 1
     fi
 }

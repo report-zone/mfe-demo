@@ -646,22 +646,38 @@ aws acm describe-certificate --certificate-arn <ARN> --region us-east-1
 
 #### 2. CloudFormation Stack Failed
 
-**Symptom:** Stack creation/update fails
+**Symptom:** Stack creation/update fails with ROLLBACK_COMPLETE status
 
 **Solution:**
-- Check CloudFormation console for error details
-- Common causes:
-  - Invalid parameters
-  - IAM permission issues
-  - Resource limits exceeded
-  - Certificate not validated
+
+The deployment script now automatically handles ROLLBACK_COMPLETE states by:
+1. Detecting the failed state
+2. Deleting the failed stack
+3. Recreating the stack from scratch
+4. Displaying detailed error events to help diagnose the issue
+
+Common causes and solutions:
+- **Invalid S3 Origin Configuration**: Fixed in recent updates to use proper S3 website endpoint
+- **S3 Bucket Name Collision**: Bucket names must be globally unique across all AWS accounts
+  - If deployment fails with "Bucket already exists", the bucket name is taken
+  - Solution: Use a different domain name or add a unique prefix
+- **Invalid parameters**: Check your config.yaml for correct domain and hosted zone ID
+- **IAM permission issues**: Ensure your AWS credentials have CloudFormation, S3, CloudFront, ACM, and Route53 permissions
+- **Resource limits exceeded**: Check AWS service quotas
+- **Certificate not validated**: ACM certificate validation can take up to 30 minutes
 
 ```bash
-# Get stack events
+# The script now shows detailed error events automatically
+./deployment/deploy-cloudformation.sh infrastructure
+
+# View all stack events (manual check)
 aws cloudformation describe-stack-events --stack-name mfe-demo-infrastructure
 
-# Delete failed stack
+# Delete failed stack (script now does this automatically)
 aws cloudformation delete-stack --stack-name mfe-demo-infrastructure
+
+# Validate template before deploying (script now does this automatically)
+aws cloudformation validate-template --template-body file://cloudformation/templates/s3-cloudfront.yaml
 ```
 
 #### 3. S3 Upload Permission Denied
