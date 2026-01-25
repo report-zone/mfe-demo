@@ -325,7 +325,7 @@ deploy_infrastructure() {
 BUCKET_NAME=$BUCKET_NAME
 CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_ID
 WEBSITE_URL=$WEBSITE_URL
-DEPLOYMENT_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+DEPLOYMENT_DATE="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 EOF
         
         print_success "Infrastructure info saved to deployment/infrastructure-info.txt"
@@ -368,7 +368,7 @@ USER_POOL_ID=$USER_POOL_ID
 CLIENT_ID=$CLIENT_ID
 HOSTED_UI_URL=$HOSTED_UI_URL
 AWS_REGION=$AWS_REGION
-DEPLOYMENT_DATE=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+DEPLOYMENT_DATE="$(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 EOF
         
         print_success "Cognito info saved to deployment/cognito-info.txt"
