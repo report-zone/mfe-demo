@@ -196,10 +196,11 @@ invalidate_cache() {
         print_success "Invalidation created: $INVALIDATION_ID"
         print_info "Waiting for invalidation to complete..."
         
+        # Wait for invalidation in background and show progress
         aws cloudfront wait invalidation-completed \
             --distribution-id "$distribution_id" \
             --id "$INVALIDATION_ID" \
-            --region "$AWS_REGION" &
+            --region "$AWS_REGION" 2>/dev/null &
         
         local wait_pid=$!
         
@@ -209,6 +210,7 @@ invalidate_cache() {
             sleep 2
         done
         
+        # Wait for the background process and capture exit status
         wait $wait_pid
         local wait_status=$?
         
@@ -218,6 +220,7 @@ invalidate_cache() {
             print_success "Cache invalidation completed"
         else
             print_warning "Cache invalidation is in progress (check AWS console for status)"
+            print_info "This is normal - invalidation can take several minutes"
         fi
         
         return 0

@@ -48,7 +48,11 @@ import sys
 def ref_constructor(loader, node):
     return {'Ref': loader.construct_scalar(node)}
 def getatt_constructor(loader, node):
-    return {'Fn::GetAtt': loader.construct_scalar(node)}
+    # Handle both scalar (Resource.Attribute) and sequence ([Resource, Attribute]) formats
+    if isinstance(node, yaml.ScalarNode):
+        return {'Fn::GetAtt': loader.construct_scalar(node)}
+    else:
+        return {'Fn::GetAtt': loader.construct_sequence(node)}
 def sub_constructor(loader, node):
     return {'Fn::Sub': loader.construct_scalar(node)}
 

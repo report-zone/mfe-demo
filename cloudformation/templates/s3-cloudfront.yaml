@@ -62,13 +62,6 @@ Resources:
             Action: 's3:GetObject'
             Resource: !Sub '${S3Bucket.Arn}/*'
 
-  # CloudFront Origin Access Identity
-  CloudFrontOAI:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'OAI for ${DomainName}'
-
   # ACM Certificate for HTTPS
   Certificate:
     Type: AWS::CertificateManager::Certificate
@@ -100,8 +93,6 @@ Resources:
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt S3Bucket.RegionalDomainName
-            S3OriginConfig:
-              OriginAccessIdentity: ''
             CustomOriginConfig:
               HTTPPort: 80
               HTTPSPort: 443

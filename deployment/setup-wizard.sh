@@ -197,12 +197,13 @@ ENVIRONMENT=${ENVIRONMENT:-production}
 echo ""
 print_info "Updating configuration file..."
 
-sed -i "s/region: us-east-1/region: $AWS_REGION/" "$CONFIG_FILE"
-sed -i "s/account_id: \"123456789012\"/account_id: \"$AWS_ACCOUNT\"/" "$CONFIG_FILE"
-sed -i "s/name: app.mfeworld.com/name: $DOMAIN_NAME/" "$CONFIG_FILE"
-sed -i "s/hosted_zone_id: Z1234567890ABC/hosted_zone_id: $HOSTED_ZONE_ID/" "$CONFIG_FILE"
-sed -i "s/environment: production/environment: $ENVIRONMENT/" "$CONFIG_FILE"
-sed -i "s/bucket_name: app.mfeworld.com/bucket_name: $DOMAIN_NAME/" "$CONFIG_FILE"
+# Use | as delimiter to avoid issues with forward slashes in values
+sed -i "s|region: us-east-1|region: $AWS_REGION|" "$CONFIG_FILE"
+sed -i "s|account_id: \"123456789012\"|account_id: \"$AWS_ACCOUNT\"|" "$CONFIG_FILE"
+sed -i "s|name: app.mfeworld.com|name: $DOMAIN_NAME|" "$CONFIG_FILE"
+sed -i "s|hosted_zone_id: Z1234567890ABC|hosted_zone_id: $HOSTED_ZONE_ID|" "$CONFIG_FILE"
+sed -i "s|environment: production|environment: $ENVIRONMENT|" "$CONFIG_FILE"
+sed -i "s|bucket_name: app.mfeworld.com|bucket_name: $DOMAIN_NAME|" "$CONFIG_FILE"
 
 print_success "Configuration updated"
 
