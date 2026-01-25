@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ThemeEditorDialog from '../components/ThemeEditorDialog';
 import { ThemeContextProvider } from '../context/ThemeContext';
+import { I18nProvider } from '../i18n/I18nContext';
+import { i18nConfig } from '../i18n/config';
 
 // Mock URL.createObjectURL which is not available in jsdom
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
@@ -14,9 +16,11 @@ const renderThemeEditor = (props = {}) => {
   };
 
   return render(
-    <ThemeContextProvider>
-      <ThemeEditorDialog {...defaultProps} {...props} />
-    </ThemeContextProvider>
+    <I18nProvider config={i18nConfig}>
+      <ThemeContextProvider>
+        <ThemeEditorDialog {...defaultProps} {...props} />
+      </ThemeContextProvider>
+    </I18nProvider>
   );
 };
 
@@ -216,16 +220,20 @@ describe('ThemeEditorDialog - Accordion Expand Behavior', () => {
 
     // Close dialog
     rerender(
-      <ThemeContextProvider>
-        <ThemeEditorDialog open={false} onClose={onClose} />
-      </ThemeContextProvider>
+      <I18nProvider config={i18nConfig}>
+        <ThemeContextProvider>
+          <ThemeEditorDialog open={false} onClose={onClose} />
+        </ThemeContextProvider>
+      </I18nProvider>
     );
     
     // Reopen dialog
     rerender(
-      <ThemeContextProvider>
-        <ThemeEditorDialog open={true} onClose={onClose} />
-      </ThemeContextProvider>
+      <I18nProvider config={i18nConfig}>
+        <ThemeContextProvider>
+          <ThemeEditorDialog open={true} onClose={onClose} />
+        </ThemeContextProvider>
+      </I18nProvider>
     );
     
     // Navigate to MUI Components tab again
