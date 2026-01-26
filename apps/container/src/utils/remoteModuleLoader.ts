@@ -22,11 +22,8 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
     return moduleCache[url];
   }
 
-  // Create and cache the loading promise
+  // Create and cache the loading promise using dynamic import
   const loadPromise = import(/* @vite-ignore */ url)
-    .then(module => {
-      return module;
-    })
     .catch(error => {
       // Remove from cache on error so retry is possible
       delete moduleCache[url];

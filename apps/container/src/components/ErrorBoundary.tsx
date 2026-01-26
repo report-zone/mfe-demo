@@ -14,7 +14,14 @@ interface State {
 /**
  * Error Boundary Component
  * 
- * Catches errors in child components and displays a fallback UI
+ * Catches JavaScript errors during rendering, in lifecycle methods,
+ * and in constructors of the component tree below it.
+ * 
+ * Note: Does NOT catch errors in:
+ * - Event handlers (use try-catch instead)
+ * - Asynchronous code (use try-catch or .catch())
+ * - Server-side rendering
+ * - Errors thrown in the error boundary itself
  */
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
