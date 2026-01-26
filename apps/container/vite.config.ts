@@ -22,6 +22,11 @@ export default defineConfig(({ command }) => {
     ],
     // Use base URL only in production build, not in dev mode
     base: command === 'build' ? '/container/' : '/',
+    define: {
+      // Define process.env as an empty object to prevent "process is not defined" errors
+      // This is needed when loading remote MFEs that may reference process
+      'process.env': JSON.stringify({}),
+    },
     resolve: {
       alias: useAliases ? {
         // Use local aliases for development or when remote URLs not configured
