@@ -28,6 +28,11 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    // Define import.meta.env.DEV as false for production builds
+    // This prevents "process is not defined" errors in production
+    'import.meta.env.DEV': 'false',
+  },
   preview: {
     port: 3003,
   },
