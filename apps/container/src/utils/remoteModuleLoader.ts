@@ -22,59 +22,13 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
     return moduleCache[url];
   }
 
-  // Create and cache the loading promise
-  const loadPromise = new Promise((resolve, reject) => {
-    // Create a script element for the module
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.crossOrigin = 'anonymous';
-    
-    // Generate a unique callback name for this module
-    const callbackName = `__remoteModuleCallback_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-    
-    // Create inline script that imports and exposes the module
-    const inlineScript = `
-      import * as module from '${url}';
-      window.${callbackName} = module;
-    `;
-    
-    script.textContent = inlineScript;
-    
-    // Handle successful load
-    const checkInterval = setInterval(() => {
-      if ((window as any)[callbackName]) {
-        clearInterval(checkInterval);
-        const module = (window as any)[callbackName];
-        delete (window as any)[callbackName];
-        document.head.removeChild(script);
-        resolve(module);
-      }
-    }, 10);
-    
-    // Handle errors
-    script.onerror = () => {
-      clearInterval(checkInterval);
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-      reject(new Error(`Failed to load remote module: ${url}`));
-    };
-    
-    // Timeout after 30 seconds
-    setTimeout(() => {
-      if ((window as any)[callbackName]) {
-        clearInterval(checkInterval);
-        delete (window as any)[callbackName];
-        if (document.head.contains(script)) {
-          document.head.removeChild(script);
-        }
-        reject(new Error(`Timeout loading remote module: ${url}`));
-      }
-    }, 30000);
-    
-    // Add script to document
-    document.head.appendChild(script);
-  });
+  // Create and cache the loading promise using dynamic import
+  const loadPromise = import(/* @vite-ignore */ url)
+    .catch(error => {
+      // Remove from cache on error so retry is possible
+      delete moduleCache[url];
+      throw new Error(`Failed to load remote module from ${url}: ${error.message}`);
+    });
 
   moduleCache[url] = loadPromise;
   return loadPromise;
