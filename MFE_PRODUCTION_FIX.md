@@ -23,13 +23,15 @@ Added an **import map** to the container's index.html that maps bare module spec
   {
     "imports": {
       "react": "https://esm.sh/react@18.3.1",
-      "react-dom": "https://esm.sh/react-dom@18.3.1",
-      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-      "react-router-dom": "https://esm.sh/react-router-dom@6.21.3"
+      "react-dom": "https://esm.sh/react-dom@18.3.1?deps=react@18.3.1",
+      "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+      "react-router-dom": "https://esm.sh/react-router-dom@6.21.3?deps=react@18.3.1,react-dom@18.3.1"
     }
   }
 </script>
 ```
+
+**CRITICAL**: The `?deps=` parameter in esm.sh URLs is essential to prevent multiple React instances. Without it, esm.sh will load React's peer dependencies with version ranges (e.g., `react@>=16.8`), creating duplicate React instances that break hooks like `useRef`, causing the error: "TypeError: Cannot read properties of null (reading 'useRef')".
 
 Additionally, updated the container's Vite configuration to externalize these same dependencies when building with remote MFE URLs. This ensures both the container and the MFEs use the **same React instance** from the CDN, preventing React version conflicts and duplicate React instances.
 
