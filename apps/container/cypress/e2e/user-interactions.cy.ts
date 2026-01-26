@@ -32,7 +32,7 @@ describe('User Interactions', () => {
       cy.get('input[name="username"]').type('testuser');
       cy.get('input[name="password"]').type('password123{enter}');
       // Form should attempt to submit
-      cy.url({ timeout: 10000 }).should('not.equal', 'http://localhost:3000/login');
+      cy.url({ timeout: 10000 }).should('not.equal', 'http://localhost:4000/login');
     });
   });
 
@@ -142,7 +142,7 @@ describe('User Interactions', () => {
       
       cy.get('button[type="submit"]').click();
       // Should attempt authentication
-      cy.url({ timeout: 10000 }).should('not.equal', 'http://localhost:3000/login');
+      cy.url({ timeout: 10000 }).should('not.equal', 'http://localhost:4000/login');
     });
 
     it('should respond to link clicks', () => {
