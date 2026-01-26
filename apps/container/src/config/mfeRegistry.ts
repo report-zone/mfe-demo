@@ -20,10 +20,7 @@ export interface MFEConfig {
 export const mfeRegistry: Record<string, MFEConfig> = {
   home: {
     name: 'Home',
-    loadComponent: () =>
-      import('../components/MFEPlaceholder').then(module => ({
-        default: () => module.default({ name: 'Home' }),
-      })),
+    loadComponent: () => import('@mfe-demo/home'),
     description: 'Home page micro frontend',
   },
   preferences: {
@@ -33,18 +30,12 @@ export const mfeRegistry: Record<string, MFEConfig> = {
   },
   account: {
     name: 'Account',
-    loadComponent: () =>
-      import('../components/MFEPlaceholder').then(module => ({
-        default: () => module.default({ name: 'Account' }),
-      })),
+    loadComponent: () => import('@mfe-demo/account'),
     description: 'User account management micro frontend',
   },
   admin: {
     name: 'Admin',
-    loadComponent: () =>
-      import('../components/MFEPlaceholder').then(module => ({
-        default: () => module.default({ name: 'Admin' }),
-      })),
+    loadComponent: () => import('@mfe-demo/admin'),
     description: 'Admin panel micro frontend',
   },
 };

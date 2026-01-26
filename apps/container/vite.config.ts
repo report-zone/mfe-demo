@@ -9,6 +9,9 @@ export default defineConfig(({ command }) => ({
   resolve: {
     alias: {
       '@mfe-demo/preferences': path.resolve(__dirname, '../preferences/src/main.tsx'),
+      '@mfe-demo/home': path.resolve(__dirname, '../home/src/main.tsx'),
+      '@mfe-demo/account': path.resolve(__dirname, '../account/src/main.tsx'),
+      '@mfe-demo/admin': path.resolve(__dirname, '../admin/src/main.tsx'),
     },
   },
   server: {
