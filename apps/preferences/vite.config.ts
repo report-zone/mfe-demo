@@ -34,6 +34,8 @@ export default defineConfig(({ mode }) => ({
     'import.meta.env.DEV': mode === 'development',
     // Define process.env to prevent "process is not defined" errors when loaded remotely
     'process.env': JSON.stringify({}),
+    // Also define process itself to prevent "process is not defined" errors
+    'process': JSON.stringify({ env: {} }),
   },
   preview: {
     port: 3002,
