@@ -24,7 +24,7 @@ const renderNavbar = () => {
     <I18nProvider config={i18nConfig}>
       <BrowserRouter>
         <AuthProvider>
-          <Navbar />
+          <Navbar mobileOpen={false} onDrawerToggle={() => {}} />
         </AuthProvider>
       </BrowserRouter>
     </I18nProvider>
@@ -43,9 +43,9 @@ describe('Navbar component', () => {
     renderNavbar();
 
     await waitFor(() => {
-      expect(screen.getByText('Home')).toBeDefined();
-      expect(screen.getByText('Preferences')).toBeDefined();
-      expect(screen.getByText('Account')).toBeDefined();
+      expect(screen.getAllByText('Home').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Preferences').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Account').length).toBeGreaterThan(0);
     });
   });
 
@@ -75,7 +75,7 @@ describe('Navbar component', () => {
     renderNavbar();
 
     await waitFor(() => {
-      expect(screen.getByText('Admin')).toBeDefined();
+      expect(screen.getAllByText('Admin').length).toBeGreaterThan(0);
     });
   });
 
@@ -90,13 +90,14 @@ describe('Navbar component', () => {
     renderNavbar();
 
     await waitFor(() => {
-      expect(screen.getByText('Preferences')).toBeDefined();
+      const preferencesLinks = screen.getAllByText('Preferences');
+      expect(preferencesLinks.length).toBeGreaterThan(0);
     });
 
-    const preferencesLink = screen.getByText('Preferences');
-    preferencesLink.click();
+    const preferencesLinks = screen.getAllByText('Preferences');
+    preferencesLinks[0].click();
 
     // Navigation would update the URL, but we're testing the click handler works
-    expect(preferencesLink).toBeDefined();
+    expect(preferencesLinks[0]).toBeDefined();
   });
 });
