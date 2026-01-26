@@ -103,6 +103,32 @@ APP_NAME=${1:-all}
 SKIP_BUILD=${2:-false}
 
 ###############################################################################
+# Function to set MFE remote URLs for container build
+###############################################################################
+set_mfe_remote_urls() {
+    # Validate WEBSITE_URL is set
+    if [ -z "$WEBSITE_URL" ]; then
+        print_error "WEBSITE_URL is not set. Cannot configure MFE remote URLs."
+        print_info "Please ensure infrastructure-info.txt exists and is sourced correctly."
+        return 1
+    fi
+    
+    print_info "Setting MFE remote URLs for container build..."
+    export VITE_MFE_HOME_URL="${WEBSITE_URL}/home"
+    export VITE_MFE_PREFERENCES_URL="${WEBSITE_URL}/preferences"
+    export VITE_MFE_ACCOUNT_URL="${WEBSITE_URL}/account"
+    export VITE_MFE_ADMIN_URL="${WEBSITE_URL}/admin"
+    
+    print_info "MFE URLs configured:"
+    print_info "  - Home: ${VITE_MFE_HOME_URL}"
+    print_info "  - Preferences: ${VITE_MFE_PREFERENCES_URL}"
+    print_info "  - Account: ${VITE_MFE_ACCOUNT_URL}"
+    print_info "  - Admin: ${VITE_MFE_ADMIN_URL}"
+    
+    return 0
+}
+
+###############################################################################
 # Function to build an application
 ###############################################################################
 build_app() {
@@ -111,6 +137,12 @@ build_app() {
     print_header "Building: $app_name"
     
     cd "$PROJECT_ROOT"
+    
+    # Set MFE remote URLs for container build
+    # This ensures MFEs are NOT bundled into the container
+    if [ "$app_name" == "container" ]; then
+        set_mfe_remote_urls || return 1
+    fi
     
     print_info "Running build for $app_name..."
     yarn build:$app_name
@@ -282,6 +314,11 @@ if [ "$APP_NAME" == "all" ]; then
     # Build all first
     if [ "$SKIP_BUILD" != "true" ]; then
         print_info "Building all applications..."
+        
+        # Set MFE remote URLs for container build
+        # This ensures MFEs are NOT bundled into the container
+        set_mfe_remote_urls || exit 1
+        
         cd "$PROJECT_ROOT"
         yarn build
         
