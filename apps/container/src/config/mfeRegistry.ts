@@ -7,12 +7,56 @@
  */
 
 import { ComponentType, lazy } from 'react';
+import { loadRemoteModule } from '../utils/remoteModuleLoader';
 
 export interface MFEConfig {
   name: string;
   loadComponent: () => Promise<{ default: ComponentType }>;
+  remoteUrl?: string; // URL for remote loading in production
   description?: string;
 }
+
+/**
+ * Get the remote URL for an MFE from environment variables
+ */
+const getMFERemoteUrl = (mfeName: string): string | undefined => {
+  const envVarName = `VITE_MFE_${mfeName.toUpperCase()}_URL`;
+  return import.meta.env[envVarName];
+};
+
+/**
+ * Create a loader function that handles both local (dev) and remote (prod) loading
+ */
+const createMFELoader = (
+  mfeName: string,
+): (() => Promise<{ default: ComponentType }>) => {
+  return () => {
+    const remoteUrl = getMFERemoteUrl(mfeName);
+    
+    // In development or if no remote URL is configured, use local import
+    if (import.meta.env.DEV || !remoteUrl) {
+      // Dynamic import to avoid bundling in production when not needed
+      switch (mfeName) {
+        case 'home':
+          return import('@mfe-demo/home');
+        case 'preferences':
+          return import('@mfe-demo/preferences');
+        case 'account':
+          return import('@mfe-demo/account');
+        case 'admin':
+          return import('@mfe-demo/admin');
+        default:
+          throw new Error(`Unknown MFE: ${mfeName}`);
+      }
+    }
+    
+    // In production with remote URL, load from remote
+    const moduleUrl = `${remoteUrl}/${mfeName}-mfe.js`;
+    return loadRemoteModule(moduleUrl).then(module => ({
+      default: module.default || module[Object.keys(module)[0]]
+    }));
+  };
+};
 
 /**
  * MFE Registry - Add new MFEs here without modifying MFELoader
@@ -20,22 +64,22 @@ export interface MFEConfig {
 export const mfeRegistry: Record<string, MFEConfig> = {
   home: {
     name: 'Home',
-    loadComponent: () => import('@mfe-demo/home'),
+    loadComponent: createMFELoader('home'),
     description: 'Home page micro frontend',
   },
   preferences: {
     name: 'Preferences',
-    loadComponent: () => import('@mfe-demo/preferences'),
+    loadComponent: createMFELoader('preferences'),
     description: 'User preferences micro frontend',
   },
   account: {
     name: 'Account',
-    loadComponent: () => import('@mfe-demo/account'),
+    loadComponent: createMFELoader('account'),
     description: 'User account management micro frontend',
   },
   admin: {
     name: 'Admin',
-    loadComponent: () => import('@mfe-demo/admin'),
+    loadComponent: createMFELoader('admin'),
     description: 'Admin panel micro frontend',
   },
 };
