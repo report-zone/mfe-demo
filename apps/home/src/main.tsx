@@ -15,11 +15,13 @@ const theme = createTheme({
   },
 });
 
-// Wrapper component for the MFE
-// Note: When loaded by container, this uses container's I18nProvider
-// The container's translations already include all home translations
+// Wrapper component that provides I18nProvider for the MFE
 const HomeMFE: React.FC = () => {
-  return <App />;
+  return (
+    <I18nProvider config={i18nConfig}>
+      <App />
+    </I18nProvider>
+  );
 };
 
 // Standalone mode - for development
