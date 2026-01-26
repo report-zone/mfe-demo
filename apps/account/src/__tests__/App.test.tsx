@@ -1,56 +1,66 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
+import { I18nProvider } from '../i18n/I18nContext';
+import { i18nConfig } from '../i18n/config';
+
+const renderApp = () => {
+  return render(
+    <I18nProvider config={i18nConfig}>
+      <App />
+    </I18nProvider>
+  );
+};
 
 describe('Account MFE - App Component', () => {
   it('should render account title', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByText('Account')).toBeDefined();
   });
 
   it('should render description', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByText(/Manage your account information/i)).toBeDefined();
   });
 
   it('should render account icon', () => {
-    const { container } = render(<App />);
+    const { container } = renderApp();
     const icon = container.querySelector('svg[data-testid="AccountCircleIcon"]');
     expect(icon).toBeDefined();
   });
 
   it('should render first name field', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByLabelText('First Name')).toBeDefined();
   });
 
   it('should render last name field', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByLabelText('Last Name')).toBeDefined();
   });
 
   it('should render email field', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByLabelText('Email')).toBeDefined();
   });
 
   it('should render phone number field', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByLabelText('Phone Number')).toBeDefined();
   });
 
   it('should render bio field', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByLabelText('Bio')).toBeDefined();
   });
 
   it('should render save changes button', () => {
-    render(<App />);
+    renderApp();
     expect(screen.getByText('Save Changes')).toBeDefined();
   });
 
   it('should have default values in form fields', () => {
-    render(<App />);
+    renderApp();
     const firstNameInput = screen.getByLabelText('First Name') as HTMLInputElement;
     expect(firstNameInput.value).toBe('John');
     
