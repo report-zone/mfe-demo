@@ -15,13 +15,11 @@ const theme = createTheme({
   },
 });
 
-// Wrapper component that provides I18nProvider for the MFE
+// Wrapper component for the MFE
+// Note: When loaded by container, this uses container's I18nProvider
+// The container's translations already include all account translations
 const AccountMFE: React.FC = () => {
-  return (
-    <I18nProvider config={i18nConfig}>
-      <App />
-    </I18nProvider>
-  );
+  return <App />;
 };
 
 // Standalone mode - for development
