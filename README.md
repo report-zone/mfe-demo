@@ -21,7 +21,7 @@ yarn dev
 # OR start just the container app
 yarn dev:container
 
-# Open http://localhost:3000
+# Open http://localhost:4000
 ```
 
 ## Overview
@@ -110,7 +110,7 @@ yarn dev
 ```
 
 This will start all 5 applications concurrently:
-- Container (port 3000)
+- Container (port 4000)
 - Home MFE (port 3001)
 - Preferences MFE (port 3002)
 - Account MFE (port 3003)
@@ -119,7 +119,7 @@ This will start all 5 applications concurrently:
 Run individual applications:
 
 ```bash
-# Container app (port 3000)
+# Container app (port 4000)
 yarn dev:container
 
 # Home MFE (port 3001)
