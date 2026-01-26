@@ -41,13 +41,13 @@ const App: React.FC = () => {
         </Typography>
       </Paper>
 
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+        <Table sx={{ minWidth: { xs: 300, sm: 650 } }}>
           <TableHead>
             <TableRow>
               <TableCell>{t('admin.table.id')}</TableCell>
               <TableCell>{t('admin.table.name')}</TableCell>
-              <TableCell>{t('admin.table.email')}</TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{t('admin.table.email')}</TableCell>
               <TableCell>{t('admin.table.role')}</TableCell>
               <TableCell>{t('admin.table.status')}</TableCell>
             </TableRow>
@@ -57,7 +57,7 @@ const App: React.FC = () => {
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
                 <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
                 <TableCell>
                   <Chip
                     label={t(

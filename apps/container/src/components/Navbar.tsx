@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar, Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar, Box, useTheme, useMediaQuery } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../i18n/I18nContext';
 
@@ -19,26 +19,30 @@ const navItems: NavItem[] = [
   { path: '/admin', labelKey: 'navbar.admin', adminOnly: true },
 ];
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  mobileOpen: boolean;
+  onDrawerToggle: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ mobileOpen, onDrawerToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin } = useAuth();
   const { t } = useI18n();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-    >
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      onDrawerToggle();
+    }
+  };
+
+  const drawerContent = (
+    <>
       <Toolbar />
       <Box sx={{ overflow: 'auto' }}>
         <List>
@@ -46,7 +50,7 @@ const Navbar: React.FC = () => {
             <ListItem key={item.path} disablePadding>
               <ListItemButton
                 selected={location.pathname === item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigation(item.path)}
               >
                 <ListItemText primary={t(item.labelKey)} />
               </ListItemButton>
@@ -54,7 +58,46 @@ const Navbar: React.FC = () => {
           ))}
         </List>
       </Box>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile
+        }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+      
+      {/* Desktop Drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 };
 

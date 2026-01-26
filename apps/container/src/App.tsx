@@ -51,6 +51,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -70,14 +75,15 @@ const AppContent: React.FC = () => {
           isAuthenticated ? (
             <Box sx={{ display: 'flex', minHeight: '100vh' }}>
               <CssBaseline />
-              <Header />
-              <Navbar />
+              <Header onDrawerToggle={handleDrawerToggle} />
+              <Navbar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} />
               <Box
                 component="main"
                 sx={{
                   flexGrow: 1,
                   p: 3,
                   mt: 8, // Add margin-top to account for fixed header
+                  width: { xs: '100%', md: 'calc(100% - 240px)' },
                 }}
               >
                 <Routes>

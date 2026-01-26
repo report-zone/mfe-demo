@@ -24,7 +24,7 @@ const renderHeader = () => {
     <I18nProvider config={i18nConfig}>
       <BrowserRouter>
         <AuthProvider>
-          <Header />
+          <Header onDrawerToggle={() => {}} />
         </AuthProvider>
       </BrowserRouter>
     </I18nProvider>
