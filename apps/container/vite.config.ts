@@ -26,6 +26,8 @@ export default defineConfig(({ command }) => {
       // Define process.env as an empty object to prevent "process is not defined" errors
       // This is needed when loading remote MFEs that may reference process
       'process.env': JSON.stringify({}),
+      // Also define process itself to prevent "process is not defined" errors
+      'process': JSON.stringify({ env: {} }),
     },
     resolve: {
       alias: useAliases ? {
