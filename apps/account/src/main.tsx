@@ -15,21 +15,33 @@ const theme = createTheme({
   },
 });
 
+// Wrapper component that provides I18nProvider for the MFE
+const AccountMFE: React.FC = () => {
+  return (
+    <I18nProvider config={i18nConfig}>
+      <App />
+    </I18nProvider>
+  );
+};
+
 // Standalone mode - for development
 if (import.meta.env.DEV) {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
-    <React.StrictMode>
-      <I18nProvider config={i18nConfig}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ThemeProvider>
-      </I18nProvider>
-    </React.StrictMode>
-  );
+  const rootElement = document.getElementById('root');
+  if (rootElement && !rootElement.hasChildNodes()) {
+    ReactDOM.createRoot(rootElement).render(
+      <React.StrictMode>
+        <I18nProvider config={i18nConfig}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ThemeProvider>
+        </I18nProvider>
+      </React.StrictMode>
+    );
+  }
 }
 
-// Export for container app
-export { default } from './App';
+// Export wrapped component for container app
+export default AccountMFE;
