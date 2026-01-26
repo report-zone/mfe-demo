@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: '/preferences/',  // Base URL for production deployment
   server: {
@@ -29,11 +29,11 @@ export default defineConfig({
     },
   },
   define: {
-    // Define import.meta.env.DEV as false for production builds
+    // Define import.meta.env.DEV based on build mode
     // This prevents "process is not defined" errors in production
-    'import.meta.env.DEV': 'false',
+    'import.meta.env.DEV': mode === 'development' ? 'true' : 'false',
   },
   preview: {
     port: 3002,
   },
-});
+}));
