@@ -28,7 +28,27 @@ In production builds, the container:
 
 ## Configuration
 
-### Step 1: Set Environment Variables
+### Automated Deployment (Recommended)
+
+**When using the provided deployment script (`deployment/deploy-apps.sh`), environment variables are automatically configured.** The script:
+1. Reads the `WEBSITE_URL` from `deployment/infrastructure-info.txt`
+2. Automatically sets `VITE_MFE_*_URL` environment variables before building the container
+3. Ensures MFEs are NOT bundled into the container
+
+Simply run:
+```bash
+./deployment/deploy-apps.sh all
+```
+
+The deployment script will automatically set:
+- `VITE_MFE_HOME_URL=${WEBSITE_URL}/home`
+- `VITE_MFE_PREFERENCES_URL=${WEBSITE_URL}/preferences`
+- `VITE_MFE_ACCOUNT_URL=${WEBSITE_URL}/account`
+- `VITE_MFE_ADMIN_URL=${WEBSITE_URL}/admin`
+
+### Manual Build (Advanced)
+
+If you're building manually outside of the deployment script, you need to set environment variables yourself:
 
 Create a `.env.production` file in `apps/container/` (or set environment variables in your CI/CD pipeline):
 
@@ -45,12 +65,12 @@ VITE_COGNITO_CLIENT_ID=your-client-id
 VITE_AWS_REGION=us-east-1
 ```
 
-### Step 2: Build Applications
+Then build applications:
 
 Build each application separately:
 
 ```bash
-# Build container (does NOT include MFE code)
+# Build container (does NOT include MFE code when env vars are set)
 yarn build:container
 
 # Build individual MFEs
@@ -63,7 +83,7 @@ yarn build:admin
 yarn build
 ```
 
-### Step 3: Deploy to S3
+### Deploy to S3
 
 Deploy each application to its own S3 path:
 
@@ -126,42 +146,56 @@ The MFE registry (`mfeRegistry.ts`) now:
 
 When deploying everything for the first time:
 
-1. Set environment variables (see Step 1 above)
-2. Build all applications: `yarn build`
-3. Deploy all: `./deployment/deploy-apps.sh all`
+1. Deploy infrastructure (if not already done): `./deployment/deploy-cloudformation.sh`
+2. Deploy all apps (builds automatically with correct env vars): `./deployment/deploy-apps.sh all`
+
+The deployment script automatically:
+- Sets `VITE_MFE_*_URL` environment variables based on your `WEBSITE_URL`
+- Builds the container WITHOUT bundling MFE code
+- Builds each MFE separately
+- Deploys everything to S3
+- Invalidates CloudFront cache
 
 ### Individual MFE Update
 
 When updating a single MFE:
 
 1. Make changes to the MFE (e.g., `apps/home/`)
-2. Build the MFE: `yarn build:home`
-3. Deploy only that MFE: `./deployment/deploy-apps.sh home`
-4. **The container automatically picks up the new version!**
+2. Deploy only that MFE: `./deployment/deploy-apps.sh home`
+3. **The container automatically picks up the new version!** (No container redeployment needed)
 
 ### Container Update
 
 When updating the container (shell app):
 
 1. Make changes to `apps/container/`
-2. Build the container: `yarn build:container`
-3. Deploy the container: `./deployment/deploy-apps.sh container`
+2. Deploy the container: `./deployment/deploy-apps.sh container`
 
 ## Troubleshooting
 
 ### MFEs Not Loading in Production
 
-1. **Check environment variables**: Ensure `VITE_MFE_*_URL` variables are set correctly
-2. **Verify CORS**: S3/CloudFront must allow CORS for the container domain
+When using the deployment script, this should not happen. If it does:
+
+1. **Check build output**: Look for `_virtual_mfe-remote_*` files in container build (should be ~0.10 kB each)
+2. **Verify infrastructure**: Ensure `deployment/infrastructure-info.txt` exists with correct `WEBSITE_URL`
 3. **Check browser console**: Look for loading errors or network issues
 4. **Verify file names**: MFE files should be `{mfename}-mfe.js` (e.g., `home-mfe.js`)
 
 ### Container Still Bundling MFEs
 
-If the container bundle includes MFE code:
-1. Verify you're building in production mode
-2. Check that environment variables are set during build
+If the container bundle includes MFE code (look for `main-*.js` files ~5-187 kB instead of `_virtual_mfe-remote_*.js` ~0.10 kB):
+
+**When using deployment script:**
+- This should not happen as environment variables are set automatically
+- Check that `deployment/infrastructure-info.txt` exists and contains `WEBSITE_URL`
+- Verify the deployment script output shows "Setting MFE remote URLs for container build..."
+
+**When building manually:**
+1. Verify you're building in production mode (`NODE_ENV=production`)
+2. Check that `VITE_MFE_*_URL` environment variables are set during build: `echo $VITE_MFE_HOME_URL`
 3. Clear build cache: `rm -rf apps/container/dist && yarn build:container`
+4. Verify environment variables are actually available to the build process
 
 ### Changes Not Appearing After Deployment
 
