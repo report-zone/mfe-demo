@@ -16,3 +16,21 @@ declare module '@mfe-demo/preferences' {
   const component: ComponentType;
   export default component;
 }
+
+declare module '@mfe-demo/home' {
+  import { ComponentType } from 'react';
+  const component: ComponentType;
+  export default component;
+}
+
+declare module '@mfe-demo/account' {
+  import { ComponentType } from 'react';
+  const component: ComponentType;
+  export default component;
+}
+
+declare module '@mfe-demo/admin' {
+  import { ComponentType } from 'react';
+  const component: ComponentType;
+  export default component;
+}

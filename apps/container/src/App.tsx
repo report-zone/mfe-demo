@@ -10,9 +10,6 @@ import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Loading from './components/Loading';
-import HomePage from './pages/HomePage';
-import AccountPage from './pages/AccountPage';
-import AdminPage from './pages/AdminPage';
 import { defaultTheme, darkTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 import { ThemeConverter } from './services/ThemeConverter';
@@ -88,7 +85,7 @@ const AppContent: React.FC = () => {
                     path="/"
                     element={
                       <ProtectedRoute>
-                        <HomePage />
+                        <MFELoader mfeName="home" />
                       </ProtectedRoute>
                     }
                   />
@@ -104,7 +101,7 @@ const AppContent: React.FC = () => {
                     path="/account"
                     element={
                       <ProtectedRoute>
-                        <AccountPage />
+                        <MFELoader mfeName="account" />
                       </ProtectedRoute>
                     }
                   />
@@ -112,7 +109,7 @@ const AppContent: React.FC = () => {
                     path="/admin"
                     element={
                       <ProtectedRoute requireAdmin>
-                        <AdminPage />
+                        <MFELoader mfeName="admin" />
                       </ProtectedRoute>
                     }
                   />

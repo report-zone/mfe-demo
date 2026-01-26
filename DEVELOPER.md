@@ -83,7 +83,7 @@ yarn dev:admin
 
 | Application | Port |
 | ----------- | ---- |
-| Container   | 3000 |
+| Container   | 4000 |
 | Home MFE    | 3001 |
 | Preferences | 3002 |
 | Account MFE | 3003 |
