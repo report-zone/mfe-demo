@@ -5,7 +5,7 @@ Parameters:
   DomainName:
     Type: String
     Description: 'Domain name for the application (e.g., app.mfeworld.com)'
-    AllowedPattern: '^[a-z0-9][a-z0-9-.]+(\.com|\.net|\.org|\.io|\.co|\.dev)$'
+    AllowedPattern: '^[a-z0-9][a-z0-9-.]+(\.com|\.net|\.org|\.io|\.co|\.dev|\.world)$'
     ConstraintDescription: 'Must be a valid domain name'
 
   HostedZoneId:
@@ -208,7 +208,7 @@ Resources:
       Type: A
       AliasTarget:
         DNSName: !GetAtt CloudFrontDistribution.DomainName
-        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (constant)
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront hosted zone ID (constant)
         EvaluateTargetHealth: false
 
 Outputs:
