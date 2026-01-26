@@ -106,6 +106,13 @@ SKIP_BUILD=${2:-false}
 # Function to set MFE remote URLs for container build
 ###############################################################################
 set_mfe_remote_urls() {
+    # Validate WEBSITE_URL is set
+    if [ -z "$WEBSITE_URL" ]; then
+        print_error "WEBSITE_URL is not set. Cannot configure MFE remote URLs."
+        print_info "Please ensure infrastructure-info.txt exists and is sourced correctly."
+        return 1
+    fi
+    
     print_info "Setting MFE remote URLs for container build..."
     export VITE_MFE_HOME_URL="${WEBSITE_URL}/home"
     export VITE_MFE_PREFERENCES_URL="${WEBSITE_URL}/preferences"
@@ -117,6 +124,8 @@ set_mfe_remote_urls() {
     print_info "  - Preferences: ${VITE_MFE_PREFERENCES_URL}"
     print_info "  - Account: ${VITE_MFE_ACCOUNT_URL}"
     print_info "  - Admin: ${VITE_MFE_ADMIN_URL}"
+    
+    return 0
 }
 
 ###############################################################################
@@ -132,7 +141,7 @@ build_app() {
     # Set MFE remote URLs for container build
     # This ensures MFEs are NOT bundled into the container
     if [ "$app_name" == "container" ]; then
-        set_mfe_remote_urls
+        set_mfe_remote_urls || return 1
     fi
     
     print_info "Running build for $app_name..."
@@ -308,7 +317,7 @@ if [ "$APP_NAME" == "all" ]; then
         
         # Set MFE remote URLs for container build
         # This ensures MFEs are NOT bundled into the container
-        set_mfe_remote_urls
+        set_mfe_remote_urls || exit 1
         
         cd "$PROJECT_ROOT"
         yarn build
