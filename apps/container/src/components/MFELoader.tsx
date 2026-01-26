@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { CircularProgress, Box } from '@mui/material';
 import { getMFEComponent } from '../config/mfeRegistry';
+import ErrorBoundary from './ErrorBoundary';
 
 interface MFELoaderProps {
   mfeName: string;
@@ -25,9 +26,11 @@ const MFELoader: React.FC<MFELoaderProps> = ({ mfeName }) => {
   const MFEComponent = getMFEComponent(mfeName);
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <MFEComponent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <MFEComponent />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
