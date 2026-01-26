@@ -30,7 +30,7 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
     script.crossOrigin = 'anonymous';
     
     // Generate a unique callback name for this module
-    const callbackName = `__remoteModuleCallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const callbackName = `__remoteModuleCallback_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     
     // Create inline script that imports and exposes the module
     const inlineScript = `
@@ -54,7 +54,9 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
     // Handle errors
     script.onerror = () => {
       clearInterval(checkInterval);
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
       reject(new Error(`Failed to load remote module: ${url}`));
     };
     
@@ -63,7 +65,9 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
       if ((window as any)[callbackName]) {
         clearInterval(checkInterval);
         delete (window as any)[callbackName];
-        document.head.removeChild(script);
+        if (document.head.contains(script)) {
+          document.head.removeChild(script);
+        }
         reject(new Error(`Timeout loading remote module: ${url}`));
       }
     }, 30000);

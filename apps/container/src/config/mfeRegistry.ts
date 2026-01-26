@@ -52,9 +52,17 @@ const createMFELoader = (
     
     // In production with remote URL, load from remote
     const moduleUrl = `${remoteUrl}/${mfeName}-mfe.js`;
-    return loadRemoteModule(moduleUrl).then(module => ({
-      default: module.default || module[Object.keys(module)[0]]
-    }));
+    return loadRemoteModule(moduleUrl).then(module => {
+      // Try to get the default export, or the first export if no default
+      if (module.default) {
+        return { default: module.default };
+      }
+      const keys = Object.keys(module);
+      if (keys.length > 0) {
+        return { default: module[keys[0]] };
+      }
+      throw new Error(`No exports found in remote module: ${mfeName}`);
+    });
   };
 };
 
