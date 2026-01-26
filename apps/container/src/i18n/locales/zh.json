@@ -36,5 +36,21 @@
     "bio": "简介",
     "bioPlaceholder": "热衷于构建出色应用程序的软件开发人员。",
     "saveChanges": "保存更改"
+  },
+  "admin": {
+    "title": "管理面板",
+    "warning": "这是一个受保护的管理区域。只有具有管理员角色的用户才能访问此页面。",
+    "description": "管理用户、权限和系统设置。",
+    "table": {
+      "id": "ID",
+      "name": "姓名",
+      "email": "电子邮件",
+      "role": "角色",
+      "status": "状态",
+      "userRole": "用户",
+      "adminRole": "管理员",
+      "active": "活跃",
+      "inactive": "不活跃"
+    }
   }
 }

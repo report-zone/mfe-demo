@@ -36,5 +36,21 @@
     "bio": "Bio",
     "bioPlaceholder": "Développeur de logiciels passionné par la création d'excellentes applications.",
     "saveChanges": "Enregistrer les modifications"
+  },
+  "admin": {
+    "title": "Panneau d'administration",
+    "warning": "Ceci est une zone d'administration protégée. Seuls les utilisateurs ayant le rôle d'administrateur peuvent accéder à cette page.",
+    "description": "Gérer les utilisateurs, les permissions et les paramètres système.",
+    "table": {
+      "id": "ID",
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "status": "Statut",
+      "userRole": "Utilisateur",
+      "adminRole": "Administrateur",
+      "active": "Actif",
+      "inactive": "Inactif"
+    }
   }
 }

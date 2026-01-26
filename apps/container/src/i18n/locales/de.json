@@ -36,5 +36,21 @@
     "bio": "Bio",
     "bioPlaceholder": "Softwareentwickler mit einer Leidenschaft für die Erstellung großartiger Anwendungen.",
     "saveChanges": "Änderungen speichern"
+  },
+  "admin": {
+    "title": "Admin-Panel",
+    "warning": "Dies ist ein geschützter Admin-Bereich. Nur Benutzer mit Admin-Rolle können auf diese Seite zugreifen.",
+    "description": "Verwalten Sie Benutzer, Berechtigungen und Systemeinstellungen.",
+    "table": {
+      "id": "ID",
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "status": "Status",
+      "userRole": "Benutzer",
+      "adminRole": "Administrator",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    }
   }
 }

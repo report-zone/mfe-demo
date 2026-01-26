@@ -60,6 +60,9 @@ describe('I18nContext', () => {
   });
 
   it('should handle parameters in translations', () => {
+    // Clear localStorage to ensure we start with default language
+    localStorage.clear();
+    
     const { result } = renderHook(() => useI18n(), {
       wrapper: ({ children }) => <I18nProvider config={testConfig}>{children}</I18nProvider>,
     });
