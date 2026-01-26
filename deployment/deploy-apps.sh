@@ -103,6 +103,23 @@ APP_NAME=${1:-all}
 SKIP_BUILD=${2:-false}
 
 ###############################################################################
+# Function to set MFE remote URLs for container build
+###############################################################################
+set_mfe_remote_urls() {
+    print_info "Setting MFE remote URLs for container build..."
+    export VITE_MFE_HOME_URL="${WEBSITE_URL}/home"
+    export VITE_MFE_PREFERENCES_URL="${WEBSITE_URL}/preferences"
+    export VITE_MFE_ACCOUNT_URL="${WEBSITE_URL}/account"
+    export VITE_MFE_ADMIN_URL="${WEBSITE_URL}/admin"
+    
+    print_info "MFE URLs configured:"
+    print_info "  - Home: ${VITE_MFE_HOME_URL}"
+    print_info "  - Preferences: ${VITE_MFE_PREFERENCES_URL}"
+    print_info "  - Account: ${VITE_MFE_ACCOUNT_URL}"
+    print_info "  - Admin: ${VITE_MFE_ADMIN_URL}"
+}
+
+###############################################################################
 # Function to build an application
 ###############################################################################
 build_app() {
@@ -115,17 +132,7 @@ build_app() {
     # Set MFE remote URLs for container build
     # This ensures MFEs are NOT bundled into the container
     if [ "$app_name" == "container" ]; then
-        print_info "Setting MFE remote URLs for container build..."
-        export VITE_MFE_HOME_URL="${WEBSITE_URL}/home"
-        export VITE_MFE_PREFERENCES_URL="${WEBSITE_URL}/preferences"
-        export VITE_MFE_ACCOUNT_URL="${WEBSITE_URL}/account"
-        export VITE_MFE_ADMIN_URL="${WEBSITE_URL}/admin"
-        
-        print_info "MFE URLs configured:"
-        print_info "  - Home: ${VITE_MFE_HOME_URL}"
-        print_info "  - Preferences: ${VITE_MFE_PREFERENCES_URL}"
-        print_info "  - Account: ${VITE_MFE_ACCOUNT_URL}"
-        print_info "  - Admin: ${VITE_MFE_ADMIN_URL}"
+        set_mfe_remote_urls
     fi
     
     print_info "Running build for $app_name..."
@@ -301,17 +308,7 @@ if [ "$APP_NAME" == "all" ]; then
         
         # Set MFE remote URLs for container build
         # This ensures MFEs are NOT bundled into the container
-        print_info "Setting MFE remote URLs for container build..."
-        export VITE_MFE_HOME_URL="${WEBSITE_URL}/home"
-        export VITE_MFE_PREFERENCES_URL="${WEBSITE_URL}/preferences"
-        export VITE_MFE_ACCOUNT_URL="${WEBSITE_URL}/account"
-        export VITE_MFE_ADMIN_URL="${WEBSITE_URL}/admin"
-        
-        print_info "MFE URLs configured:"
-        print_info "  - Home: ${VITE_MFE_HOME_URL}"
-        print_info "  - Preferences: ${VITE_MFE_PREFERENCES_URL}"
-        print_info "  - Account: ${VITE_MFE_ACCOUNT_URL}"
-        print_info "  - Admin: ${VITE_MFE_ADMIN_URL}"
+        set_mfe_remote_urls
         
         cd "$PROJECT_ROOT"
         yarn build
