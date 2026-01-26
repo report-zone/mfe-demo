@@ -18,11 +18,13 @@ export default defineConfig(({ command }) => ({
     port: 4000,
     host: true,
     watch: {
-      // Watch MFE source files for changes
+      // Enable watching of MFE source files in sibling directories
+      // The negated pattern allows Vite to watch node_modules/@mfe-demo packages
+      // which are aliased to the actual MFE source directories
       ignored: ['!**/node_modules/@mfe-demo/**'],
     },
     fs: {
-      // Allow serving files from the MFE directories
+      // Allow serving files from the MFE directories (parent of container)
       allow: ['..'],
     },
   },
