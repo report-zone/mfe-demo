@@ -26,18 +26,21 @@ const HomeMFE: React.FC = () => {
 
 // Standalone mode - for development
 if (import.meta.env.DEV) {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
-    <React.StrictMode>
-      <I18nProvider config={i18nConfig}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ThemeProvider>
-      </I18nProvider>
-    </React.StrictMode>
-  );
+  const rootElement = document.getElementById('root');
+  if (rootElement && !rootElement.hasChildNodes()) {
+    ReactDOM.createRoot(rootElement).render(
+      <React.StrictMode>
+        <I18nProvider config={i18nConfig}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ThemeProvider>
+        </I18nProvider>
+      </React.StrictMode>
+    );
+  }
 }
 
 // Export wrapped component for container app
