@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => ({
   define: {
     // Define import.meta.env.DEV based on build mode
     // This prevents "process is not defined" errors in production
-    'import.meta.env.DEV': mode === 'development' ? 'true' : 'false',
+    'import.meta.env.DEV': mode === 'development',
   },
   preview: {
     port: 3001,
