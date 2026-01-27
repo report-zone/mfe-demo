@@ -21,11 +21,13 @@ const skipBuild = process.argv.includes('--skip-build');
 
 console.log('🚀 Running Production Locally\n');
 
+// List of MFE applications
+const APPS = ['container', 'home', 'preferences', 'account', 'admin'];
+
 function checkDistExists() {
-  const apps = ['container', 'home', 'preferences', 'account', 'admin'];
   const missingDist = [];
   
-  for (const app of apps) {
+  for (const app of APPS) {
     const distPath = path.join(__dirname, '..', 'apps', app, 'dist');
     if (!fs.existsSync(distPath)) {
       missingDist.push(app);
@@ -37,10 +39,12 @@ function checkDistExists() {
 
 function runCommand(command, args = []) {
   return new Promise((resolve, reject) => {
+    // Only use shell for known safe commands
+    // This script only calls 'yarn' with predefined arguments
     const proc = spawn(command, args, {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
-      shell: true,
+      shell: process.platform === 'win32', // Only use shell on Windows for .cmd files
     });
 
     proc.on('close', (code) => {

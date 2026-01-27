@@ -150,9 +150,17 @@ Now the container will load MFEs remotely from the other preview servers, simula
 If you see errors about ports being in use:
 
 ```bash
-# Find and kill processes using the ports
-lsof -ti:4000,3001,3002,3003,3004 | xargs kill
+# Find processes using the ports
+lsof -ti:4000,3001,3002,3003,3004
+
+# Review the process IDs, then kill them individually (be careful!)
+kill <PID1> <PID2> <PID3>
+
+# Or use pkill to kill all vite preview processes (stops ALL vite servers)
+pkill -f "vite preview"
 ```
+
+**⚠️ Warning:** Always verify process IDs before killing them to avoid stopping unrelated processes.
 
 Then try again:
 ```bash
