@@ -65,7 +65,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
   useEffect(() => {
     const handleLanguageChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ language: Language }>;
-      if (customEvent.detail?.language) {
+      if (customEvent.detail?.language && customEvent.detail.language !== language) {
         i18n.setLanguage(customEvent.detail.language);
         setLanguageState(customEvent.detail.language);
         
@@ -82,7 +82,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
     };
-  }, [i18n]);
+  }, [i18n, language]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {
