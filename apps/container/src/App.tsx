@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { I18nProvider } from './i18n/I18nContext';
@@ -49,13 +49,66 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   return <>{children}</>;
 };
 
-const AppContent: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+/**
+ * Component to track current route and determine which MFE should be visible
+ */
+const MFEContainer: React.FC = () => {
+  const location = useLocation();
+  const { isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  // Determine which MFE should be visible based on current route
+  const getCurrentMFE = (): string => {
+    const path = location.pathname;
+    if (path.startsWith('/preferences')) return 'preferences';
+    if (path === '/account') return 'account';
+    if (path === '/admin') return 'admin';
+    return 'home';
+  };
+
+  const currentMFE = getCurrentMFE();
+
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <CssBaseline />
+      <Header onDrawerToggle={handleDrawerToggle} />
+      <Navbar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mt: 8, // Add margin-top to account for fixed header
+          width: { xs: '100%', md: 'calc(100% - 240px)' },
+        }}
+      >
+        {/* Keep all MFEs mounted but hide inactive ones */}
+        <Box sx={{ display: currentMFE === 'home' ? 'block' : 'none' }}>
+          <MFELoader mfeName="home" />
+        </Box>
+        <Box sx={{ display: currentMFE === 'preferences' ? 'block' : 'none' }}>
+          <MFELoader mfeName="preferences" />
+        </Box>
+        <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
+          <MFELoader mfeName="account" />
+        </Box>
+        {/* Only mount admin MFE if user is an admin */}
+        {isAdmin && (
+          <Box sx={{ display: currentMFE === 'admin' ? 'block' : 'none' }}>
+            <MFELoader mfeName="admin" />
+          </Box>
+        )}
+      </Box>
+    </Box>
+  );
+};
+
+const AppContent: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return <Loading />;
@@ -68,61 +121,14 @@ const AppContent: React.FC = () => {
       <Route path="/create-account" element={!isAuthenticated ? <CreateAccountPage /> : <Navigate to="/" replace />} />
       <Route path="/reset-password" element={!isAuthenticated ? <ResetPasswordPage /> : <Navigate to="/" replace />} />
 
-      {/* Protected routes */}
+      {/* Protected routes - All MFEs are mounted once and stay mounted */}
       <Route
         path="/*"
         element={
           isAuthenticated ? (
-            <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-              <CssBaseline />
-              <Header onDrawerToggle={handleDrawerToggle} />
-              <Navbar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} />
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  p: 3,
-                  mt: 8, // Add margin-top to account for fixed header
-                  width: { xs: '100%', md: 'calc(100% - 240px)' },
-                }}
-              >
-                <Routes>
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <MFELoader mfeName="home" />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/preferences/*"
-                    element={
-                      <ProtectedRoute>
-                        <MFELoader mfeName="preferences" />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/account"
-                    element={
-                      <ProtectedRoute>
-                        <MFELoader mfeName="account" />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/admin"
-                    element={
-                      <ProtectedRoute requireAdmin>
-                        <MFELoader mfeName="admin" />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Box>
-            </Box>
+            <ProtectedRoute>
+              <MFEContainer />
+            </ProtectedRoute>
           ) : (
             <Navigate to="/login" replace />
           )
