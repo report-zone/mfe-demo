@@ -16,24 +16,32 @@ The CloudFront configuration included a `DefaultRootObject: container/index.html
 ### Why This Happened
 
 CloudFront's `DefaultRootObject` serves a specific object for root requests, but **does not redirect the browser**. The browser stays at `/`, while the application code expects to be at `/container/`. This creates a routing conflict where:
-- Browser thinks it's at: `/`
-- React Router thinks it should be at: `/container/`
+- Browser is at: `/`
+- React Router expects to be at: `/container/`
 - Result: No routes match, blank page
 
 ## Solution
 
-Removed the `DefaultRootObject` configuration from the CloudFront distribution. Now the routing works as follows:
+The fix involves two changes:
 
-1. User visits `/` (root URL)
-2. CloudFront doesn't find an object at root → returns 403/404 error
-3. CustomErrorResponses configuration kicks in
-4. CloudFront serves `/container/index.html` with 200 status
-5. **Important**: The browser URL is updated to show `/container/`
-6. React Router sees `/container/` and routes correctly
+1. **Removed the `DefaultRootObject` from CloudFront configuration**: This prevents CloudFront from serving a confusing response where the URL and content don't match.
+
+2. **Added client-side redirect in App.tsx**: When the app loads at the root URL `/` but is built for `/container/`, it now automatically redirects the browser to `/container/`. This ensures the browser URL matches the React Router basename.
+
+### How It Works
+
+When a user visits `/` (root URL):
+1. CloudFront doesn't find an object at root → returns 403/404 error
+2. CustomErrorResponses serves `/container/index.html` with 200 status (browser still at `/`)
+3. React app loads and detects URL mismatch
+4. Client-side redirect: `window.location.replace('/container/')`
+5. Browser navigates to `/container/`
+6. React app loads correctly with matching basename
 
 ### Files Changed
 
 - `cloudformation/templates/s3-cloudfront.yaml`: Removed `DefaultRootObject: container/index.html`
+- `apps/container/src/App.tsx`: Added client-side redirect when URL mismatch is detected
 
 ## Deployment
 
@@ -48,7 +56,7 @@ To deploy this fix to production:
 2. **Wait for Stack Update**: The CloudFormation stack update will modify the CloudFront distribution configuration. This typically takes 10-15 minutes.
 
 3. **Test the Fix**:
-   - Visit https://mfe.world/ (should redirect to https://mfe.world/container/)
+   - Visit https://mfe.world/ (should automatically redirect to https://mfe.world/container/)
    - Verify the UI loads correctly
    - Test authentication and navigation
 
@@ -72,18 +80,21 @@ CustomErrorResponses:
 
 1. **Root URL Request** (`/`):
    - CloudFront: 403 error (no object at root)
-   - Error Response: Serve `/container/index.html`, status 200
+   - Error Response: Serve `/container/index.html`, status 200 (browser URL stays at `/`)
+   - React App: Detects URL mismatch (at `/` but expects `/container/`)
+   - Client-side Redirect: `window.location.replace('/container/')`
    - Browser: Navigates to `/container/`
    - App: Loads correctly with matching basename
 
 2. **Container URL Request** (`/container/`):
    - CloudFront: Serves `/container/index.html`
    - Browser: At `/container/`
-   - App: Loads correctly with matching basename
+   - App: Loads correctly with matching basename (no redirect needed)
 
-3. **Any Other URL** (e.g., `/foo/bar`):
+3. **Any Other URL** (e.g., `/preferences/general`):
    - CloudFront: 404 error (no object at path)
    - Error Response: Serve `/container/index.html`, status 200
+   - Browser: URL stays at `/preferences/general`
    - React Router: Takes over, handles SPA routing
 
 ## Testing Locally
@@ -113,7 +124,7 @@ python3 -m http.server 8000
 
 1. **Use `base: '/'` in vite.config.ts**: This would require deploying the container app files to the root of S3, breaking the organizational structure and requiring changes to all MFE deployments.
 
-2. **CloudFront Function for Redirect**: Add a CloudFront Function to explicitly redirect `/` to `/container/`. This is more complex and the current solution (using error responses) is simpler and standard for SPAs.
+2. **CloudFront Function for Redirect**: Add a CloudFront Function to explicitly redirect `/` to `/container/`. This would be cleaner but requires more complex infrastructure setup. The current solution (client-side redirect) is simpler.
 
 3. **Duplicate Deployment**: Deploy container app to both root and `/container/`. This wastes storage and complicates deployments.
 

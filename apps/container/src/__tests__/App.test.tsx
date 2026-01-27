@@ -48,4 +48,30 @@ describe('App Component', () => {
     // when the app is served at a subpath like /container/
     expect(true).toBe(true);
   });
+
+  it('should redirect to /container/ when at root URL in production', () => {
+    // Mock production environment where BASE_URL is /container/
+    const originalBaseUrl = import.meta.env.BASE_URL;
+    import.meta.env.BASE_URL = '/container/';
+    
+    // Mock location
+    const replaceMock = vi.fn();
+    Object.defineProperty(window, 'location', {
+      value: {
+        pathname: '/',
+        replace: replaceMock,
+      },
+      writable: true,
+    });
+
+    vi.mocked(authService.getCurrentUser).mockResolvedValue(null);
+
+    render(<App />);
+    
+    // Should have called replace to redirect to /container/
+    expect(replaceMock).toHaveBeenCalledWith('/container/');
+    
+    // Restore
+    import.meta.env.BASE_URL = originalBaseUrl;
+  });
 });
