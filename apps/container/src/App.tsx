@@ -26,29 +26,6 @@ interface ThemeChangeEvent extends CustomEvent {
   };
 }
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requireAdmin?: boolean;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requireAdmin && !isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-};
-
 /**
  * Component to track current route and determine which MFE should be visible
  */
@@ -56,6 +33,8 @@ const MFEContainer: React.FC = () => {
   const location = useLocation();
   const { isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Track which MFEs have been visited (and thus should stay mounted)
+  const [mountedMFEs, setMountedMFEs] = useState<Set<string>>(new Set());
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -64,13 +43,34 @@ const MFEContainer: React.FC = () => {
   // Determine which MFE should be visible based on current route
   const getCurrentMFE = (): string => {
     const path = location.pathname;
-    if (path.startsWith('/preferences')) return 'preferences';
+    // Match /preferences and any sub-routes like /preferences/theme
+    if (path === '/preferences' || path.startsWith('/preferences/')) return 'preferences';
     if (path === '/account') return 'account';
     if (path === '/admin') return 'admin';
-    return 'home';
+    if (path === '/') return 'home';
+    // Unknown paths default to home, trigger redirect
+    return 'unknown';
   };
 
   const currentMFE = getCurrentMFE();
+
+  // Mount the current MFE if not already mounted
+  // This ensures language settings are applied when MFE first loads
+  useEffect(() => {
+    if (currentMFE !== 'unknown' && !mountedMFEs.has(currentMFE)) {
+      setMountedMFEs(prev => new Set(prev).add(currentMFE));
+    }
+  }, [currentMFE, mountedMFEs]);
+
+  // Redirect to home if user is on unknown path
+  if (currentMFE === 'unknown') {
+    return <Navigate to="/" replace />;
+  }
+
+  // Redirect non-admin users from admin path to home
+  if (currentMFE === 'admin' && !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -86,18 +86,25 @@ const MFEContainer: React.FC = () => {
           width: { xs: '100%', md: 'calc(100% - 240px)' },
         }}
       >
-        {/* Keep all MFEs mounted but hide inactive ones */}
-        <Box sx={{ display: currentMFE === 'home' ? 'block' : 'none' }}>
-          <MFELoader mfeName="home" />
-        </Box>
-        <Box sx={{ display: currentMFE === 'preferences' ? 'block' : 'none' }}>
-          <MFELoader mfeName="preferences" />
-        </Box>
-        <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
-          <MFELoader mfeName="account" />
-        </Box>
-        {/* Only mount admin MFE if user is an admin */}
-        {isAdmin && (
+        {/* Lazy mount MFEs on first access, then keep them mounted */}
+        {/* Each MFE will pick up language settings from localStorage on initial mount */}
+        {mountedMFEs.has('home') && (
+          <Box sx={{ display: currentMFE === 'home' ? 'block' : 'none' }}>
+            <MFELoader mfeName="home" />
+          </Box>
+        )}
+        {mountedMFEs.has('preferences') && (
+          <Box sx={{ display: currentMFE === 'preferences' ? 'block' : 'none' }}>
+            <MFELoader mfeName="preferences" />
+          </Box>
+        )}
+        {mountedMFEs.has('account') && (
+          <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
+            <MFELoader mfeName="account" />
+          </Box>
+        )}
+        {/* Only mount admin MFE if user is an admin and has visited admin page */}
+        {isAdmin && mountedMFEs.has('admin') && (
           <Box sx={{ display: currentMFE === 'admin' ? 'block' : 'none' }}>
             <MFELoader mfeName="admin" />
           </Box>
@@ -121,14 +128,12 @@ const AppContent: React.FC = () => {
       <Route path="/create-account" element={!isAuthenticated ? <CreateAccountPage /> : <Navigate to="/" replace />} />
       <Route path="/reset-password" element={!isAuthenticated ? <ResetPasswordPage /> : <Navigate to="/" replace />} />
 
-      {/* Protected routes - All MFEs are mounted once and stay mounted */}
+      {/* Protected routes - MFEs are lazy mounted on first access and stay mounted */}
       <Route
         path="/*"
         element={
           isAuthenticated ? (
-            <ProtectedRoute>
-              <MFEContainer />
-            </ProtectedRoute>
+            <MFEContainer />
           ) : (
             <Navigate to="/login" replace />
           )
