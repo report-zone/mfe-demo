@@ -52,6 +52,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
       }
 
       // Broadcast language change to other MFEs
+      console.log('[I18n] Dispatching languageChanged event:', newLanguage);
       window.dispatchEvent(
         new CustomEvent('languageChanged', {
           detail: { language: newLanguage },
@@ -65,13 +66,14 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
   useEffect(() => {
     const handleLanguageChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ language: Language }>;
-      if (customEvent.detail?.language && customEvent.detail.language !== language) {
-        i18n.setLanguage(customEvent.detail.language);
-        setLanguageState(customEvent.detail.language);
+      if (customEvent.detail?.language) {
+        const newLanguage = customEvent.detail.language;
+        i18n.setLanguage(newLanguage);
+        setLanguageState(newLanguage);
         
         // Persist to localStorage
         try {
-          localStorage.setItem(LANGUAGE_STORAGE_KEY, customEvent.detail.language);
+          localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
         } catch (error) {
           console.error('Failed to save language to localStorage', error);
         }
@@ -79,10 +81,15 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
     };
 
     window.addEventListener('languageChanged', handleLanguageChange);
+    
+    // Debug: Log when listener is set up
+    console.log('[I18n] Language change listener registered for preferences');
+    
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
+      console.log('[I18n] Language change listener removed for preferences');
     };
-  }, [i18n, language]);
+  }, [i18n, setLanguageState]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {
