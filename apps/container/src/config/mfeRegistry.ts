@@ -28,7 +28,7 @@ const isLocalEnvironment = (): boolean => {
     hostname === '127.0.0.1' ||
     hostname.startsWith('192.168.') ||
     hostname.startsWith('10.') ||
-    hostname.startsWith('172.')
+    hostname.match(/^172\.(1[6-9]|2[0-9]|3[01])\./) !== null // RFC 1918: 172.16.0.0 - 172.31.255.255
   );
 };
 
