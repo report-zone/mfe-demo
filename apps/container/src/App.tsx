@@ -186,7 +186,7 @@ const App: React.FC = () => {
     <I18nProvider config={i18nConfig}>
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <AuthProvider>
             <AppContent />
           </AuthProvider>
