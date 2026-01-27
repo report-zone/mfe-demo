@@ -17,11 +17,40 @@ export interface MFEConfig {
 }
 
 /**
+ * Check if we're running in local/preview mode
+ * This is a runtime check to distinguish between preview (localhost) and actual production
+ */
+const isLocalEnvironment = (): boolean => {
+  // Check if running on localhost or local IP
+  const hostname = window.location.hostname;
+  return (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.match(/^172\.(1[6-9]|2[0-9]|3[01])\./) !== null // RFC 1918: 172.16.0.0 - 172.31.255.255
+  );
+};
+
+/**
  * Get the remote URL for an MFE from environment variables
  */
 const getMFERemoteUrl = (mfeName: string): string | undefined => {
   const envVarName = `VITE_MFE_${mfeName.toUpperCase()}_URL`;
   return import.meta.env[envVarName];
+};
+
+/**
+ * Get the port for an MFE in local development
+ */
+const getMFEPort = (mfeName: string): number => {
+  const ports: Record<string, number> = {
+    home: 3001,
+    preferences: 3002,
+    account: 3003,
+    admin: 3004,
+  };
+  return ports[mfeName] || 3000;
 };
 
 /**
@@ -32,10 +61,27 @@ const createMFELoader = (
 ): (() => Promise<{ default: ComponentType }>) => {
   return () => {
     const remoteUrl = getMFERemoteUrl(mfeName);
+    const isLocal = isLocalEnvironment();
     
-    // In development or if no remote URL is configured, use local import
-    if (import.meta.env.DEV || !remoteUrl) {
-      // Dynamic import to avoid bundling in production when not needed
+    // In development, localhost, or if no remote URL is configured, use local loading
+    if (import.meta.env.DEV || !remoteUrl || isLocal) {
+      // In preview mode (built but running locally), load from local preview servers
+      if (!import.meta.env.DEV && isLocal) {
+        const port = getMFEPort(mfeName);
+        const localMfeUrl = `http://localhost:${port}/${mfeName}/${mfeName}-mfe.js`;
+        return loadRemoteModule(localMfeUrl).then(module => {
+          if (module.default) {
+            return { default: module.default };
+          }
+          const keys = Object.keys(module);
+          if (keys.length > 0) {
+            return { default: module[keys[0]] };
+          }
+          throw new Error(`No exports found in local module: ${mfeName}`);
+        });
+      }
+      
+      // In dev mode, use module aliases
       switch (mfeName) {
         case 'home':
           return import('@mfe-demo/home');

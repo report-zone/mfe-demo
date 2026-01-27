@@ -40,5 +40,6 @@ export default defineConfig(({ mode }) => ({
   preview: {
     port: 3003,
     host: true,
+    cors: true, // Enable CORS for cross-origin MFE loading in preview mode
   },
 }));
