@@ -65,7 +65,9 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
   useEffect(() => {
     const handleLanguageChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ language: Language }>;
-      console.log('[I18n] Account MFE received languageChanged event:', customEvent.detail);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[I18n] Account MFE received languageChanged event:', customEvent.detail);
+      }
       if (customEvent.detail?.language) {
         const newLanguage = customEvent.detail.language;
         i18n.setLanguage(newLanguage);
@@ -82,14 +84,17 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
 
     window.addEventListener('languageChanged', handleLanguageChange);
     
-    // Debug: Log when listener is set up
-    console.log('[I18n] Language change listener registered for account MFE');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[I18n] Language change listener registered for account MFE');
+    }
     
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
-      console.log('[I18n] Language change listener removed for account MFE');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[I18n] Language change listener removed for account MFE');
+      }
     };
-  }, [i18n, setLanguageState]);
+  }, [i18n]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {

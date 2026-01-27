@@ -81,14 +81,17 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
 
     window.addEventListener('languageChanged', handleLanguageChange);
     
-    // Debug: Log when listener is set up
-    console.log('[I18n] Language change listener registered for container');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[I18n] Language change listener registered for container');
+    }
     
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
-      console.log('[I18n] Language change listener removed for container');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[I18n] Language change listener removed for container');
+      }
     };
-  }, [i18n, setLanguageState]);
+  }, [i18n]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {
