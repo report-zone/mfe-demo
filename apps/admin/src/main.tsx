@@ -15,15 +15,6 @@ const theme = createTheme({
   },
 });
 
-// Wrapper component that provides I18nProvider for the MFE
-const AdminMFE: React.FC = () => {
-  return (
-    <I18nProvider config={i18nConfig}>
-      <App />
-    </I18nProvider>
-  );
-};
-
 // Standalone mode - for development
 // Only create root if we're running standalone (not imported as a module)
 // Check if root element exists and hasn't been used yet
@@ -45,5 +36,6 @@ if (import.meta.env.DEV) {
   }
 }
 
-// Export wrapped component for container app
-export default AdminMFE;
+// Export App directly without I18nProvider wrapper
+// The container app already provides I18nProvider, so we use that shared context
+export default App;
