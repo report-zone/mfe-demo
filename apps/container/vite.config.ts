@@ -61,9 +61,10 @@ export default defineConfig(({ command, mode }) => {
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
-      // Externalize React and related libraries when using remote MFEs
+      // Externalize React and related libraries in production builds
       // This ensures the container and MFEs use the same React instance from the import map
-      external: hasRemoteUrls ? ['react', 'react-dom', 'react-dom/client', 'react-router-dom'] : [],
+      // Both prod:local and production deployment need this externalization
+      external: command === 'build' ? ['react', 'react-dom', 'react-dom/client', 'react-router-dom'] : [],
     },
   },
     preview: {
