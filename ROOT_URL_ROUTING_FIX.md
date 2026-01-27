@@ -132,7 +132,7 @@ python3 -m http.server 8000
 
 - The vite.config.ts correctly uses `base: '/container/'` for production builds
 - The app's basename is correctly set to `import.meta.env.BASE_URL` which resolves to `/container/` in production
-- No code changes were needed - only infrastructure configuration
+- Both infrastructure AND code changes were needed to fix this issue
 
 ## Verification Checklist
 

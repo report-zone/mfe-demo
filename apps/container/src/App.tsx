@@ -142,8 +142,8 @@ const App: React.FC = () => {
     const currentPath = window.location.pathname;
     
     // If we're at root but app expects /container/, redirect
-    if (expectedBase === '/container/' && (currentPath === '/' || currentPath === '')) {
-      window.location.replace('/container/');
+    if (expectedBase === '/container/' && currentPath === '/') {
+      window.location.replace(expectedBase);
       return; // Exit early, no need to continue initialization
     }
 
