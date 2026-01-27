@@ -66,12 +66,13 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
     const handleLanguageChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ language: Language }>;
       if (customEvent.detail?.language) {
-        i18n.setLanguage(customEvent.detail.language);
-        setLanguageState(customEvent.detail.language);
+        const newLanguage = customEvent.detail.language;
+        i18n.setLanguage(newLanguage);
+        setLanguageState(newLanguage);
         
         // Persist to localStorage
         try {
-          localStorage.setItem(LANGUAGE_STORAGE_KEY, customEvent.detail.language);
+          localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
         } catch (error) {
           console.error('Failed to save language to localStorage', error);
         }
@@ -79,8 +80,16 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
     };
 
     window.addEventListener('languageChanged', handleLanguageChange);
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[I18n] Language change listener registered for container');
+    }
+    
     return () => {
       window.removeEventListener('languageChanged', handleLanguageChange);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[I18n] Language change listener removed for container');
+      }
     };
   }, [i18n]);
 
