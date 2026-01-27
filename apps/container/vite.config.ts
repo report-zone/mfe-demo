@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { mfeRemoteResolver } from './vite-plugin-mfe-remote';
 
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command, mode }) => {
   // Check if remote MFE URLs are configured
   const hasRemoteUrls = !!(
     process.env.VITE_MFE_HOME_URL &&
@@ -15,13 +15,16 @@ export default defineConfig(({ command }) => {
   // Use aliases when in dev mode OR when remote URLs are not configured
   const useAliases = command !== 'build' || !hasRemoteUrls;
   
+  // Use base path for production builds and preview, but not for dev server
+  const isDevServer = command === 'serve' && mode === 'development';
+  
   return {
     plugins: [
       mfeRemoteResolver(), // Add MFE remote resolver plugin
       react(),
     ],
-    // Use base URL only in production build, not in dev mode
-    base: command === 'build' ? '/container/' : '/',
+    // Use base URL for production build and preview, not in dev mode
+    base: isDevServer ? '/' : '/container/',
     define: {
       // Define process.env as an empty object to prevent "process is not defined" errors
       // This is needed when loading remote MFEs that may reference process
