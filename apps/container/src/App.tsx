@@ -60,7 +60,7 @@ const MFEContainer: React.FC = () => {
     if (currentMFE !== 'unknown' && !mountedMFEs.has(currentMFE)) {
       setMountedMFEs(prev => new Set(prev).add(currentMFE));
     }
-  }, [currentMFE, mountedMFEs]);
+  }, [currentMFE]); // Only depend on currentMFE to avoid infinite loop
 
   // Redirect to home if user is on unknown path
   if (currentMFE === 'unknown') {
@@ -104,10 +104,15 @@ const MFEContainer: React.FC = () => {
           </Box>
         )}
         {/* Only mount admin MFE if user is an admin and has visited admin page */}
+        {/* If admin permissions are lost while mounted, redirect will handle it */}
         {isAdmin && mountedMFEs.has('admin') && (
           <Box sx={{ display: currentMFE === 'admin' ? 'block' : 'none' }}>
             <MFELoader mfeName="admin" />
           </Box>
+        )}
+        {/* If non-admin but admin MFE was previously mounted, show nothing (permissions changed) */}
+        {!isAdmin && mountedMFEs.has('admin') && currentMFE === 'admin' && (
+          <Navigate to="/" replace />
         )}
       </Box>
     </Box>
