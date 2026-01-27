@@ -14,12 +14,12 @@ yarn dev
 # OR start just container app
 yarn dev:container
 
-# Open http://localhost:3000
+# Open http://localhost:4000
 ```
 
 ## What's Included
 
-- **Container App** (port 3000): Main application with authentication, routing, and MFE loading
+- **Container App** (port 4000): Main application with authentication, routing, and MFE loading
 - **Home MFE** (port 3001): Home page micro frontend
 - **Preferences MFE** (port 3002): User preferences micro frontend  
 - **Account MFE** (port 3003): Account management micro frontend
@@ -85,6 +85,7 @@ yarn format              # Format code
 
 - **[README.md](./README.md)** - Complete project overview
 - **[DEVELOPER.md](./DEVELOPER.md)** - Developer guide with detailed instructions
+- **[RUNNING_PRODUCTION_LOCALLY.md](./RUNNING_PRODUCTION_LOCALLY.md)** - Test production builds locally
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment guide for AWS
 
 ## Tech Stack

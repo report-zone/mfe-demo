@@ -6,6 +6,7 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
 - **[Developer Guide](./DEVELOPER.md)** - Comprehensive development documentation
+- **[Running Production Locally](./RUNNING_PRODUCTION_LOCALLY.md)** - Test production builds locally
 - **[AWS Deployment Guide](./AWS_DEPLOYMENT_GUIDE.md)** - CloudFormation & AWS CLI deployment (production-ready)
 - **[Simple Deployment Guide](./DEPLOYMENT.md)** - Basic S3 deployment instructions
 
@@ -15,13 +16,20 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 # Install dependencies
 yarn install
 
-# Start all applications (container + all 4 MFEs)
+# Start all applications (container + all 4 MFEs) in development mode
 yarn dev
 
 # OR start just the container app
 yarn dev:container
 
 # Open http://localhost:4000
+```
+
+Want to test production builds locally? See [Running Production Locally](./RUNNING_PRODUCTION_LOCALLY.md).
+
+```bash
+# Build and run production locally
+yarn prod:local
 ```
 
 ## Overview
