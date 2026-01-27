@@ -87,7 +87,6 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub 'CloudFront distribution for ${DomainName}'
-        DefaultRootObject: container/index.html
         Aliases:
           - !Ref DomainName
         Origins:
