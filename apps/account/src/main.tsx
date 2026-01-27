@@ -15,8 +15,18 @@ const theme = createTheme({
   },
 });
 
+// Wrapper component that provides I18nProvider for the MFE
+const AccountMFE: React.FC = () => {
+  return (
+    <I18nProvider config={i18nConfig}>
+      <App />
+    </I18nProvider>
+  );
+};
+
 // Standalone mode - for development
-// Only render if we're running in dev mode (standalone)
+// Only create root if we're running standalone (not imported as a module)
+// Check if root element exists and hasn't been used yet
 if (import.meta.env.DEV) {
   const rootElement = document.getElementById('root');
   if (rootElement && !rootElement.hasChildNodes()) {
@@ -35,6 +45,5 @@ if (import.meta.env.DEV) {
   }
 }
 
-// Export App directly for container app
-// The container provides its own I18nProvider, so we don't wrap it here
-export default App;
+// Export wrapped component for container app
+export default AccountMFE;
