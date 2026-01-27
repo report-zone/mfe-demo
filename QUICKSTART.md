@@ -68,6 +68,9 @@ yarn build               # Build all apps
 yarn build:container     # Build container app
 yarn build:home          # Build home MFE
 
+# Production Preview (Local)
+yarn prod:local          # Build and run all apps in production mode locally
+
 # Testing
 yarn test:unit           # Run unit tests
 yarn lint                # Lint code

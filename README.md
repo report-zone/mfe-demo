@@ -153,6 +153,33 @@ yarn build:account
 yarn build:admin
 ```
 
+### Running Production Locally
+
+Run production builds locally to test the production setup:
+
+```bash
+# Build and run all applications in production mode
+yarn prod:local
+
+# Or skip rebuild if already built
+yarn prod:local --skip-build
+```
+
+This will:
+1. Build all applications (if needed)
+2. Start all preview servers on their respective ports
+3. Open http://localhost:4000 to view the application
+
+You can also run preview servers individually:
+
+```bash
+yarn preview:container  # Preview container on port 4000
+yarn preview:home       # Preview home MFE on port 3001
+yarn preview:preferences # Preview preferences MFE on port 3002
+yarn preview:account    # Preview account MFE on port 3003
+yarn preview:admin      # Preview admin MFE on port 3004
+```
+
 ### Testing
 
 Run all tests:
