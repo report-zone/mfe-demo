@@ -6,6 +6,7 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
 - **[Developer Guide](./DEVELOPER.md)** - Comprehensive development documentation
+- **[Running Production Locally](./RUNNING_PRODUCTION_LOCALLY.md)** - Test production builds locally
 - **[AWS Deployment Guide](./AWS_DEPLOYMENT_GUIDE.md)** - CloudFormation & AWS CLI deployment (production-ready)
 - **[Simple Deployment Guide](./DEPLOYMENT.md)** - Basic S3 deployment instructions
 
@@ -15,13 +16,20 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 # Install dependencies
 yarn install
 
-# Start all applications (container + all 4 MFEs)
+# Start all applications (container + all 4 MFEs) in development mode
 yarn dev
 
 # OR start just the container app
 yarn dev:container
 
 # Open http://localhost:4000
+```
+
+Want to test production builds locally? See [Running Production Locally](./RUNNING_PRODUCTION_LOCALLY.md).
+
+```bash
+# Build and run production locally
+yarn prod:local
 ```
 
 ## Overview
@@ -151,6 +159,33 @@ yarn build:home
 yarn build:preferences
 yarn build:account
 yarn build:admin
+```
+
+### Running Production Locally
+
+Run production builds locally to test the production setup:
+
+```bash
+# Build and run all applications in production mode
+yarn prod:local
+
+# Or skip rebuild if already built
+yarn prod:local --skip-build
+```
+
+This will:
+1. Build all applications (if needed)
+2. Start all preview servers on their respective ports
+3. Open http://localhost:4000 to view the application
+
+You can also run preview servers individually:
+
+```bash
+yarn preview:container  # Preview container on port 4000
+yarn preview:home       # Preview home MFE on port 3001
+yarn preview:preferences # Preview preferences MFE on port 3002
+yarn preview:account    # Preview account MFE on port 3003
+yarn preview:admin      # Preview admin MFE on port 3004
 ```
 
 ### Testing
