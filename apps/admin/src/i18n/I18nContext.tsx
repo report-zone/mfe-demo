@@ -68,6 +68,13 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
       if (customEvent.detail?.language) {
         i18n.setLanguage(customEvent.detail.language);
         setLanguageState(customEvent.detail.language);
+        
+        // Persist to localStorage
+        try {
+          localStorage.setItem(LANGUAGE_STORAGE_KEY, customEvent.detail.language);
+        } catch (error) {
+          console.error('Failed to save language to localStorage', error);
+        }
       }
     };
 
