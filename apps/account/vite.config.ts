@@ -39,5 +39,6 @@ export default defineConfig(({ mode }) => ({
   },
   preview: {
     port: 3003,
+    host: true,
   },
 }));
