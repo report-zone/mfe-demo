@@ -65,6 +65,7 @@ export default defineConfig(({ command }) => {
   },
     preview: {
       port: 4000,
+      host: true,
     },
   };
 });
