@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -10,31 +10,16 @@ import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import Loading from './components/Loading';
-import { defaultTheme, darkTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
-import { ThemeConverter } from './services/ThemeConverter';
-import { logger } from './services/loggerService';
+import { getMFEForRoute } from './config/routeMappings';
+import { useBaseUrlRedirect } from './hooks/useBaseUrlRedirect';
+import { useThemeManagement } from './hooks/useThemeManagement';
+import { useMFEMounting } from './hooks/useMFEMounting';
 
-interface StoredTheme {
-  id: string;
-  themeConfig?: unknown;
-}
-
-interface ThemeChangeEvent extends CustomEvent {
-  detail: {
-    themeConfig?: unknown;
-  };
-}
-
-/**
- * Component to track current route and determine which MFE should be visible
- */
 const MFEContainer: React.FC = () => {
   const location = useLocation();
   const { isAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  // Track which MFEs have been visited (and thus should stay mounted)
-  const [mountedMFEs, setMountedMFEs] = useState<Set<string>>(new Set());
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -42,25 +27,13 @@ const MFEContainer: React.FC = () => {
 
   // Determine which MFE should be visible based on current route
   const getCurrentMFE = (): string => {
-    const path = location.pathname;
-    // Match /preferences and any sub-routes like /preferences/theme
-    if (path === '/preferences' || path.startsWith('/preferences/')) return 'preferences';
-    if (path === '/account') return 'account';
-    if (path === '/admin') return 'admin';
-    if (path === '/') return 'home';
-    // Unknown paths default to home, trigger redirect
-    return 'unknown';
+    return getMFEForRoute(location.pathname);
   };
 
   const currentMFE = getCurrentMFE();
-
-  // Mount the current MFE if not already mounted
-  // This ensures language settings are applied when MFE first loads
-  useEffect(() => {
-    if (currentMFE !== 'unknown' && !mountedMFEs.has(currentMFE)) {
-      setMountedMFEs(prev => new Set(prev).add(currentMFE));
-    }
-  }, [currentMFE]); // Only depend on currentMFE to avoid infinite loop
+  
+  // Track which MFEs have been visited (and thus should stay mounted)
+  const mountedMFEs = useMFEMounting(currentMFE);
 
   // Redirect to home if user is on unknown path
   if (currentMFE === 'unknown') {
@@ -149,65 +122,11 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const [currentTheme, setCurrentTheme] = useState(defaultTheme);
-
-  useEffect(() => {
-    // Check if we're at root URL but app expects to be at /container/
-    // This handles the case where CloudFront serves /container/index.html for root requests
-    const expectedBase = import.meta.env.BASE_URL || '/';
-    const currentPath = window.location.pathname;
-    
-    // If we're at root but app expects /container/, redirect
-    if (expectedBase === '/container/' && currentPath === '/') {
-      window.location.replace(expectedBase);
-      return; // Exit early, no need to continue initialization
-    }
-
-    // Load theme from localStorage on mount
-    try {
-      const selectedThemeId = localStorage.getItem('selectedThemeId');
-      
-      if (selectedThemeId) {
-        // First, try to load from customThemes (includes both predefined and custom)
-        const customThemesJson = localStorage.getItem('customThemes');
-        let themeLoaded = false;
-        
-        if (customThemesJson) {
-          const themes: StoredTheme[] = JSON.parse(customThemesJson);
-          const theme = themes.find((t) => t.id === selectedThemeId);
-          if (theme && theme.themeConfig) {
-            setCurrentTheme(ThemeConverter.convertToTheme(theme.themeConfig));
-            themeLoaded = true;
-          }
-        }
-        
-        // Fallback to hardcoded default themes if not found in storage
-        if (!themeLoaded) {
-          if (selectedThemeId === 'light') {
-            setCurrentTheme(defaultTheme);
-          } else if (selectedThemeId === 'dark') {
-            setCurrentTheme(darkTheme);
-          }
-        }
-      }
-    } catch (error) {
-      logger.error('Failed to load theme from localStorage', 'App', error instanceof Error ? error : undefined);
-    }
-
-    // Listen for theme changes from preferences MFE
-    const handleThemeChange = (event: Event) => {
-      const themeEvent = event as ThemeChangeEvent;
-      const theme = themeEvent.detail;
-      if (theme && theme.themeConfig) {
-        setCurrentTheme(ThemeConverter.convertToTheme(theme.themeConfig));
-      }
-    };
-
-    window.addEventListener('themeChanged', handleThemeChange);
-    return () => {
-      window.removeEventListener('themeChanged', handleThemeChange);
-    };
-  }, []);
+  // Handle base URL redirects
+  useBaseUrlRedirect();
+  
+  // Manage theme state
+  const currentTheme = useThemeManagement();
 
   return (
     <I18nProvider config={i18nConfig}>

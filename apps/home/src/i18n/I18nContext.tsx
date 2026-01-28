@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import I18n, { Language, I18nConfig } from './index';
+import { IStorageService } from '../services/interfaces/IStorageService';
+import { IEventBus } from '../services/interfaces/IEventBus';
+import { localStorageService } from '../services/localStorageService';
+import { windowEventBus } from '../services/windowEventBus';
 
 interface I18nContextType {
   language: Language;
@@ -12,22 +16,30 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 interface I18nProviderProps {
   children: React.ReactNode;
   config: I18nConfig;
+  storageService?: IStorageService;
+  eventBus?: IEventBus;
 }
 
 const LANGUAGE_STORAGE_KEY = 'selectedLanguage';
+const SUPPORTED_LANGUAGES: Language[] = ['en', 'fr', 'de', 'zh', 'es', 'ja'];
 
-export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) => {
+export const I18nProvider: React.FC<I18nProviderProps> = ({ 
+  children, 
+  config,
+  storageService = localStorageService,
+  eventBus = windowEventBus,
+}) => {
   const [i18n] = useState(() => new I18n(config));
   
-  // Initialize language from localStorage if available
+  // Initialize language from storage if available
   const getInitialLanguage = (): Language => {
     try {
-      const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (stored && ['en', 'fr', 'de', 'zh', 'es', 'ja'].includes(stored)) {
+      const stored = storageService.getItem(LANGUAGE_STORAGE_KEY);
+      if (stored && SUPPORTED_LANGUAGES.includes(stored as Language)) {
         return stored as Language;
       }
     } catch (error) {
-      console.error('Failed to load language from localStorage', error);
+      console.error('Failed to load language from storage', error);
     }
     return config.defaultLanguage;
   };
@@ -44,57 +56,52 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children, config }) 
       i18n.setLanguage(newLanguage);
       setLanguageState(newLanguage);
       
-      // Persist to localStorage
+      // Persist to storage
       try {
-        localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+        storageService.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
       } catch (error) {
-        console.error('Failed to save language to localStorage', error);
+        console.error('Failed to save language to storage', error);
       }
 
       // Broadcast language change to other MFEs
-      window.dispatchEvent(
-        new CustomEvent('languageChanged', {
-          detail: { language: newLanguage },
-        })
-      );
+      eventBus.dispatch('languageChanged', { language: newLanguage });
     },
-    [i18n]
+    [i18n, storageService, eventBus]
   );
 
   // Listen for language changes from other MFEs
   useEffect(() => {
-    const handleLanguageChange = (event: Event) => {
-      const customEvent = event as CustomEvent<{ language: Language }>;
+    const handleLanguageChange = (detail: { language: Language }) => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('[I18n] Home MFE received languageChanged event:', customEvent.detail);
+        console.log('[I18n] Home MFE received languageChanged event:', detail);
       }
-      if (customEvent.detail?.language) {
-        const newLanguage = customEvent.detail.language;
+      if (detail?.language) {
+        const newLanguage = detail.language;
         i18n.setLanguage(newLanguage);
         setLanguageState(newLanguage);
         
-        // Persist to localStorage
+        // Persist to storage
         try {
-          localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+          storageService.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
         } catch (error) {
-          console.error('Failed to save language to localStorage', error);
+          console.error('Failed to save language to storage', error);
         }
       }
     };
 
-    window.addEventListener('languageChanged', handleLanguageChange);
+    const unsubscribe = eventBus.subscribe('languageChanged', handleLanguageChange);
     
     if (process.env.NODE_ENV === 'development') {
       console.log('[I18n] Language change listener registered for home MFE');
     }
     
     return () => {
-      window.removeEventListener('languageChanged', handleLanguageChange);
+      unsubscribe();
       if (process.env.NODE_ENV === 'development') {
         console.log('[I18n] Language change listener removed for home MFE');
       }
     };
-  }, [i18n]);
+  }, [i18n, storageService, eventBus]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {
