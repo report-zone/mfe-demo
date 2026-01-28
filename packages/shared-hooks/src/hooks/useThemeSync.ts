@@ -68,7 +68,7 @@ export function useThemeSync<T>(
     return () => {
       unsubscribe();
     };
-  }, [defaultTheme, storageService, eventBus, convertToTheme]);
+  }, [defaultTheme, storageService, eventBus]);
 
   return currentTheme;
 }

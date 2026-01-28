@@ -114,9 +114,9 @@ export class ThemeConverter {
     if (fullHex.length !== 6) return 0;
     
     // Extract RGB
-    const r = parseInt(fullHex.substr(0, 2), 16);
-    const g = parseInt(fullHex.substr(2, 2), 16);
-    const b = parseInt(fullHex.substr(4, 2), 16);
+    const r = parseInt(fullHex.substring(0, 0 + 2), 16);
+    const g = parseInt(fullHex.substring(2, 2 + 2), 16);
+    const b = parseInt(fullHex.substring(4, 4 + 2), 16);
     
     // Simple brightness calculation (average of RGB)
     // Light colors have high brightness (>200), dark colors have low (<100)

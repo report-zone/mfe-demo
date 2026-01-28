@@ -4,8 +4,6 @@
  * This script simulates the theme change flow in production mode
  */
 
-const { JSDOM } = require('jsdom');
-
 // Mock localStorage
 class MockLocalStorage {
   constructor() {
