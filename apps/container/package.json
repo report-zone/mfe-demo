@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "yarn workspace @mfe-demo/shared-hooks build",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
