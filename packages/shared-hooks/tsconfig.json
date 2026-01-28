@@ -6,10 +6,10 @@
     "declaration": true,
     "declarationMap": true,
     "jsx": "react-jsx",
-    "composite": true,
     "noEmit": false,
     "emitDeclarationOnly": false,
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
