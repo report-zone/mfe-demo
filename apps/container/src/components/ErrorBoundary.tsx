@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import { logger } from '../services/loggerService';
 
 interface Props {
   children: ReactNode;
@@ -34,7 +35,9 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    logger.error('ErrorBoundary caught an error', 'ErrorBoundary', error, {
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   handleReset = () => {

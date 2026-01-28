@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CustomTheme } from '../types/theme.types';
 import { defaultThemes } from '../themes/defaultThemes';
+import { IStorageService } from '../services/interfaces/IStorageService';
+import { IEventBus } from '../services/interfaces/IEventBus';
+import { localStorageService } from '../services/localStorageService';
+import { windowEventBus } from '../services/windowEventBus';
 
 interface ThemeContextType {
   currentTheme: CustomTheme;
@@ -23,16 +27,22 @@ export const useThemeContext = () => {
 
 interface ThemeContextProviderProps {
   children: ReactNode;
+  storageService?: IStorageService;
+  eventBus?: IEventBus;
 }
 
-export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ children }) => {
+export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ 
+  children,
+  storageService = localStorageService,
+  eventBus = windowEventBus,
+}) => {
   const [currentTheme, setCurrentTheme] = useState<CustomTheme>(defaultThemes[0]);
   const [themes, setThemes] = useState<CustomTheme[]>(defaultThemes);
 
-  // Load custom themes from localStorage on mount
+  // Load custom themes from storage on mount
   const loadThemesFromStorage = () => {
     try {
-      const storedThemes = localStorage.getItem('customThemes');
+      const storedThemes = storageService.getItem('customThemes');
       if (storedThemes) {
         const parsed = JSON.parse(storedThemes);
         setThemes([...defaultThemes, ...parsed]);
@@ -49,7 +59,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
   // Load selected theme after themes are loaded
   useEffect(() => {
     try {
-      const selectedThemeId = localStorage.getItem('selectedThemeId');
+      const selectedThemeId = storageService.getItem('selectedThemeId');
       if (selectedThemeId && themes.length > 0) {
         const theme = themes.find(t => t.id === selectedThemeId);
         if (theme) {
@@ -59,29 +69,29 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
     } catch (error) {
       console.error('Error loading selected theme:', error);
     }
-  }, [themes]);
+  }, [themes, storageService]);
 
   const setTheme = (theme: CustomTheme) => {
     setCurrentTheme(theme);
-    // Persist the selected theme ID to localStorage
+    // Persist the selected theme ID to storage
     try {
-      localStorage.setItem('selectedThemeId', theme.id);
+      storageService.setItem('selectedThemeId', theme.id);
       // Dispatch custom event to notify container app of theme change
-      window.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
+      eventBus.dispatch('themeChanged', theme);
     } catch (error) {
       console.error('Error saving selected theme:', error);
     }
   };
 
   const addCustomTheme = (theme: CustomTheme) => {
-    // Get custom themes from localStorage to ensure we have the latest
+    // Get custom themes from storage to ensure we have the latest
     try {
-      const storedThemes = localStorage.getItem('customThemes');
+      const storedThemes = storageService.getItem('customThemes');
       const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
       const updatedCustomThemes = [...existingCustomThemes, theme];
       
-      // Save to localStorage
-      localStorage.setItem('customThemes', JSON.stringify(updatedCustomThemes));
+      // Save to storage
+      storageService.setItem('customThemes', JSON.stringify(updatedCustomThemes));
       setThemes([...defaultThemes, ...updatedCustomThemes]);
     } catch (error) {
       console.error('Error saving theme to storage:', error);
@@ -90,12 +100,12 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
 
   const removeCustomTheme = (themeId: string) => {
     try {
-      const storedThemes = localStorage.getItem('customThemes');
+      const storedThemes = storageService.getItem('customThemes');
       const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
       const updatedCustomThemes = existingCustomThemes.filter((t: CustomTheme) => t.id !== themeId);
       
-      // Save to localStorage
-      localStorage.setItem('customThemes', JSON.stringify(updatedCustomThemes));
+      // Save to storage
+      storageService.setItem('customThemes', JSON.stringify(updatedCustomThemes));
       setThemes([...defaultThemes, ...updatedCustomThemes]);
       
       // If the deleted theme was selected, switch to default

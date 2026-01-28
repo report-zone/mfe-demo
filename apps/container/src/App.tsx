@@ -14,6 +14,7 @@ import { defaultTheme, darkTheme } from './config/theme';
 import MFELoader from './components/MFELoader';
 import { ThemeConverter } from './services/ThemeConverter';
 import { logger } from './services/loggerService';
+import { getMFEForRoute } from './config/routeMappings';
 
 interface StoredTheme {
   id: string;
@@ -42,14 +43,7 @@ const MFEContainer: React.FC = () => {
 
   // Determine which MFE should be visible based on current route
   const getCurrentMFE = (): string => {
-    const path = location.pathname;
-    // Match /preferences and any sub-routes like /preferences/theme
-    if (path === '/preferences' || path.startsWith('/preferences/')) return 'preferences';
-    if (path === '/account') return 'account';
-    if (path === '/admin') return 'admin';
-    if (path === '/') return 'home';
-    // Unknown paths default to home, trigger redirect
-    return 'unknown';
+    return getMFEForRoute(location.pathname);
   };
 
   const currentMFE = getCurrentMFE();
