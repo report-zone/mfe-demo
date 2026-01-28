@@ -29,7 +29,8 @@
       "deleteConfirm": "Are you sure you want to delete this custom theme?",
       "themeLoaded": "Theme loaded and added to selection!",
       "themeDeleted": "Theme deleted successfully!",
-      "loadError": "Error loading theme file"
+      "loadError": "Error loading theme file",
+      "componentShowcase": "Component Showcase"
     },
     "themeEditor": {
       "title": "Theme Editor",

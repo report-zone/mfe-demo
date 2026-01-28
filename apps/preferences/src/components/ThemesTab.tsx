@@ -12,11 +12,16 @@ import {
   Radio,
   IconButton,
   Tooltip,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThemeContext } from '../context/ThemeContext';
 import { CustomThemeDefinition } from '../types/theme.types';
 import ThemeEditorDialog from './ThemeEditorDialog';
@@ -156,7 +161,20 @@ const ThemesTab: React.FC = () => {
         </Paper>
 
         <Box sx={{ mt: 4 }}>
-          <ComponentShowcase />
+          <Accordion defaultExpanded={false}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="component-showcase-content"
+              id="component-showcase-header"
+            >
+              <Typography variant="h6">{t('preferences.themes.componentShowcase')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ThemeProvider theme={currentTheme.theme}>
+                <ComponentShowcase />
+              </ThemeProvider>
+            </AccordionDetails>
+          </Accordion>
         </Box>
       </Paper>
 

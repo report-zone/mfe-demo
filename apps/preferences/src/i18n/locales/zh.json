@@ -29,7 +29,8 @@
       "deleteConfirm": "您确定要删除此自定义主题吗？",
       "themeLoaded": "主题已加载并添加到选择中！",
       "themeDeleted": "主题删除成功！",
-      "loadError": "加载主题文件时出错"
+      "loadError": "加载主题文件时出错",
+      "componentShowcase": "组件展示"
     },
     "themeEditor": {
       "title": "主题编辑器",
