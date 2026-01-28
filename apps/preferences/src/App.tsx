@@ -44,9 +44,9 @@ const App: React.FC = () => {
     }
   };
 
-  // Helper to check if we're at a root path
+  // Helper to check if we're at the preferences root path
   const isRootPath = (pathname: string) => {
-    return pathname === '/' || pathname === '/preferences' || pathname === '/preferences/';
+    return pathname === '/preferences' || pathname === '/preferences/';
   };
 
   React.useEffect(() => {
