@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, renderHook, act } from '@testing-library/react';
-import { I18nProvider, useI18n } from '../I18nContext';
-import { I18nConfig } from '../index';
+import { I18nProvider, useI18n } from '@mfe-demo/shared-hooks';
+import { I18nConfig } from '@mfe-demo/shared-hooks';
 import React from 'react';
 
 const testConfig: I18nConfig = {

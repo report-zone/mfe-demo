@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import App from '../App';
-import { I18nProvider } from '../i18n/I18nContext';
+import { I18nProvider } from '@mfe-demo/shared-hooks';
 import { i18nConfig } from '../i18n/config';
 
 const renderApp = () => {

@@ -52,7 +52,7 @@ import {
   isFilenameSavedInSession,
   trackSavedFilename,
 } from '../utils/themeFileOperations';
-import { useI18n } from '../i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 interface ThemeEditorDialogProps {
   open: boolean;

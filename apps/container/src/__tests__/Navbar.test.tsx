@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { AuthProvider } from '../contexts/AuthContext';
-import { I18nProvider } from '../i18n/I18nContext';
+import { I18nProvider } from '@mfe-demo/shared-hooks';
 import { i18nConfig } from '../i18n/config';
 
 // Mock the auth service

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Paper, TextField, Button, Grid } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useI18n } from './i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const App: React.FC = () => {
   const { t } = useI18n();

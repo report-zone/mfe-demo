@@ -13,7 +13,7 @@ import {
   Alert,
 } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import { useI18n } from './i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const App: React.FC = () => {
   const { t } = useI18n();

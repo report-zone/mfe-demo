@@ -16,6 +16,7 @@
     "clean": "rm -rf dist node_modules .vite"
   },
   "dependencies": {
+    "@mfe-demo/shared-hooks": "1.0.0",
     "@aws-amplify/core": "^6.0.8",
     "@aws-amplify/ui-react": "^6.0.8",
     "@emotion/react": "^11.11.3",

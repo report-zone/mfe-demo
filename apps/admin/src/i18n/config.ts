@@ -1,4 +1,4 @@
-import { I18nConfig } from './index';
+import { I18nConfig } from '@mfe-demo/shared-hooks';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import de from './locales/de.json';

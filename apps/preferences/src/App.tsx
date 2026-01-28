@@ -6,7 +6,7 @@ import { ThemeContextProvider } from './context/ThemeContext';
 import GeneralTab from './components/GeneralTab';
 import ThemesTab from './components/ThemesTab';
 import LanguagesTab from './components/LanguagesTab';
-import { useI18n } from './i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const App: React.FC = () => {
   const navigate = useNavigate();

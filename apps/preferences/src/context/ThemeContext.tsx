@@ -1,10 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { CustomTheme } from '../types/theme.types';
 import { defaultThemes } from '../themes/defaultThemes';
-import { IStorageService } from '../services/interfaces/IStorageService';
-import { IEventBus } from '../services/interfaces/IEventBus';
-import { localStorageService } from '../services/localStorageService';
-import { windowEventBus } from '../services/windowEventBus';
+import { IStorageService, IEventBus, localStorageService, windowEventBus } from '@mfe-demo/shared-hooks';
 
 interface ThemeContextType {
   currentTheme: CustomTheme;

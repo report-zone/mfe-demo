@@ -9,8 +9,8 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
-import { useI18n } from '../i18n/I18nContext';
-import { Language } from '../i18n/index';
+import { useI18n } from '@mfe-demo/shared-hooks';
+import { Language } from '@mfe-demo/shared-hooks';
 
 const languageNames: Record<Language, string> = {
   en: 'English',

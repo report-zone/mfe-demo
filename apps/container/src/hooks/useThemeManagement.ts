@@ -3,10 +3,7 @@ import { Theme } from '@mui/material';
 import { defaultTheme, darkTheme } from '../config/theme';
 import { ThemeConverter } from '../services/ThemeConverter';
 import { logger } from '../services/loggerService';
-import { IStorageService } from '../services/interfaces/IStorageService';
-import { IEventBus } from '../services/interfaces/IEventBus';
-import { localStorageService } from '../services/localStorageService';
-import { windowEventBus } from '../services/windowEventBus';
+import { IStorageService, IEventBus, localStorageService, windowEventBus } from '@mfe-demo/shared-hooks';
 
 interface StoredTheme {
   id: string;

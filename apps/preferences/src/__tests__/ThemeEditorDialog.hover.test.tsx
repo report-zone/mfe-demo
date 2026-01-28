@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ThemeEditorDialog from '../components/ThemeEditorDialog';
 import { ThemeContextProvider } from '../context/ThemeContext';
-import { I18nProvider } from '../i18n/I18nContext';
+import { I18nProvider } from '@mfe-demo/shared-hooks';
 import { i18nConfig } from '../i18n/config';
 
 // Mock URL.createObjectURL which is not available in jsdom
