@@ -160,10 +160,3 @@ export const getMFEComponent = (mfeName: string): ComponentType => {
   }
   return lazy(config.loadComponent);
 };
-
-/**
- * Register a new MFE (for extensibility)
- */
-export const registerMFE = (key: string, config: MFEConfig): void => {
-  mfeRegistry[key] = config;
-};

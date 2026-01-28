@@ -34,28 +34,4 @@ export const loadRemoteModule = async (url: string): Promise<any> => {
   return loadPromise;
 };
 
-/**
- * Check if a URL is accessible
- * @param url - The URL to check
- * @returns Promise resolving to true if accessible, false otherwise
- */
-export const checkRemoteUrl = async (url: string): Promise<boolean> => {
-  try {
-    const response = await fetch(url, { method: 'HEAD', mode: 'cors' });
-    return response.ok;
-  } catch {
-    return false;
-  }
-};
 
-/**
- * Clear the module cache for a specific URL or all URLs
- * @param url - Optional URL to clear, if not provided clears all
- */
-export const clearModuleCache = (url?: string): void => {
-  if (url) {
-    delete moduleCache[url];
-  } else {
-    Object.keys(moduleCache).forEach(key => delete moduleCache[key]);
-  }
-};
