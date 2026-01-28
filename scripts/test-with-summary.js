@@ -117,8 +117,8 @@ console.log('-'.repeat(60));
 
 // Check if all passed
 const allPassed = results.every(r => r.status === 'passed');
-const passedCount = results.filter(r => r.status === 'passed').length;
-const failedCount = results.filter(r => r.status === 'failed').length;
+const passedMFEs = results.filter(r => r.status === 'passed').length;
+const failedMFEs = results.filter(r => r.status === 'failed').length;
 
 console.log(`\nTotal Test Files: ${totalTestFiles}`);
 console.log(`Total Tests: ${totalTests}`);
@@ -126,6 +126,7 @@ console.log(`Passed: ${totalPassed}`);
 if (totalFailed > 0) {
   console.log(`Failed: ${totalFailed}`);
 }
+console.log(`MFEs: ${passedMFEs}/${results.length} passed`);
 
 if (allPassed) {
   console.log('\n✓ All tests passed successfully!\n');

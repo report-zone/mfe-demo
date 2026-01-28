@@ -402,12 +402,12 @@ apps/container/coverage/index.html
 
 | Application | Unit Tests | Coverage |
 | ----------- | ---------- | -------- |
-| Container   | 79         | 82.37%   |
-| Home        | 7          | N/A      |
-| Preferences | 6          | N/A      |
+| Container   | 77         | 82.37%   |
+| Home        | 22         | N/A      |
+| Preferences | 53         | N/A      |
 | Account     | 10         | N/A      |
 | Admin       | 10         | N/A      |
-| **Total**   | **112**    | -        |
+| **Total**   | **172**    | -        |
 
 | E2E Test Suite      | Tests   |
 | ------------------- | ------- |
@@ -417,7 +417,7 @@ apps/container/coverage/index.html
 | Protected Routes    | ~12     |
 | **Total (approx.)** | **~50** |
 
-**Overall Test Count: ~162 tests**
+**Overall Test Count: ~222 tests (172 unit + ~50 E2E)**
 
 ## Next Steps
 
