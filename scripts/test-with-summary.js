@@ -5,6 +5,26 @@ const { execSync } = require('child_process');
  * Test runner script that executes all MFE tests and provides a summary
  */
 
+/**
+ * Parse coverage data from vitest output
+ * @param {string} cleanOutput - Output with ANSI codes stripped
+ * @returns {object|null} Coverage data or null if not found
+ */
+function parseCoverage(cleanOutput) {
+  // Example line: "All files          |   44.29 |    58.47 |   60.86 |   44.29 |"
+  // Handles both decimal and whole numbers (e.g., "100" or "100.00")
+  const coverageMatch = cleanOutput.match(/All files\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|/);
+  if (coverageMatch) {
+    return {
+      statements: parseFloat(coverageMatch[1]),
+      branches: parseFloat(coverageMatch[2]),
+      functions: parseFloat(coverageMatch[3]),
+      lines: parseFloat(coverageMatch[4]),
+    };
+  }
+  return null;
+}
+
 const MFE_APPS = [
   { name: 'container', workspace: '@mfe-demo/container' },
   { name: 'home', workspace: '@mfe-demo/home' },
@@ -19,7 +39,7 @@ let totalPassed = 0;
 let totalFailed = 0;
 let totalTestFiles = 0;
 
-console.log('Running tests for all MFEs...\n');
+console.log('Running tests for all MFEs with coverage...\n');
 
 for (const app of MFE_APPS) {
   console.log(`\n${'='.repeat(60)}`);
@@ -28,7 +48,7 @@ for (const app of MFE_APPS) {
 
   const startTime = Date.now();
   try {
-    const output = execSync(`yarn workspace ${app.workspace} test:unit`, {
+    const output = execSync(`yarn workspace ${app.workspace} test:unit --coverage`, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -52,12 +72,16 @@ for (const app of MFE_APPS) {
     totalTests += tests;
     totalPassed += tests;
 
+    // Parse coverage data
+    const coverage = parseCoverage(cleanOutput);
+
     results.push({
       name: app.name,
       status: 'passed',
       duration,
       testFiles,
       tests,
+      coverage,
     });
   } catch (error) {
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -82,6 +106,9 @@ for (const app of MFE_APPS) {
     totalPassed += tests;
     totalFailed += failedTests;
 
+    // Try to parse coverage even if tests failed
+    const coverage = parseCoverage(cleanOutput);
+
     results.push({
       name: app.name,
       status: 'failed',
@@ -89,6 +116,7 @@ for (const app of MFE_APPS) {
       testFiles: testFiles + failedTestFiles,
       tests: tests + failedTests,
       failed: failedTests,
+      coverage,
     });
   }
 }
@@ -127,6 +155,46 @@ if (totalFailed > 0) {
   console.log(`Failed: ${totalFailed}`);
 }
 console.log(`MFEs: ${passedMFEs}/${results.length} passed`);
+
+// Display coverage summary
+console.log('\n' + '='.repeat(60));
+console.log('CODE COVERAGE');
+console.log('='.repeat(60));
+console.log('\nCoverage by MFE:');
+console.log('-'.repeat(80));
+console.log('MFE'.padEnd(20) + 'Statements'.padEnd(15) + 'Branches'.padEnd(15) + 'Functions'.padEnd(15) + 'Lines');
+console.log('-'.repeat(80));
+
+for (const result of results) {
+  if (result.coverage) {
+    console.log(
+      `${result.name.padEnd(20)}${(result.coverage.statements + '%').padEnd(15)}${(result.coverage.branches + '%').padEnd(15)}${(result.coverage.functions + '%').padEnd(15)}${result.coverage.lines + '%'}`
+    );
+  } else {
+    console.log(
+      `${result.name.padEnd(20)}${'N/A'.padEnd(15)}${'N/A'.padEnd(15)}${'N/A'.padEnd(15)}N/A`
+    );
+  }
+}
+
+console.log('-'.repeat(80));
+
+// Calculate average coverage across all MFEs
+const mfesWithCoverage = results.filter(r => r.coverage);
+if (mfesWithCoverage.length > 0) {
+  const avgStatements =
+    mfesWithCoverage.reduce((sum, r) => sum + r.coverage.statements, 0) / mfesWithCoverage.length;
+  const avgBranches =
+    mfesWithCoverage.reduce((sum, r) => sum + r.coverage.branches, 0) / mfesWithCoverage.length;
+  const avgFunctions =
+    mfesWithCoverage.reduce((sum, r) => sum + r.coverage.functions, 0) / mfesWithCoverage.length;
+  const avgLines =
+    mfesWithCoverage.reduce((sum, r) => sum + r.coverage.lines, 0) / mfesWithCoverage.length;
+
+  console.log(
+    `\n${'Average'.padEnd(20)}${(avgStatements.toFixed(2) + '%').padEnd(15)}${(avgBranches.toFixed(2) + '%').padEnd(15)}${(avgFunctions.toFixed(2) + '%').padEnd(15)}${avgLines.toFixed(2) + '%'}`
+  );
+}
 
 if (allPassed) {
   console.log('\n✓ All tests passed successfully!\n');
