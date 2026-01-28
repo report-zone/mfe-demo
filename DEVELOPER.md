@@ -35,6 +35,10 @@ cd mfe-demo
 
 ```bash
 yarn install
+
+# If installation fails due to Cypress binary download issues
+# (common in restricted network environments):
+CYPRESS_INSTALL_BINARY=0 yarn install
 ```
 
 3. Set up environment variables:

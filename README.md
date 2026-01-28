@@ -19,6 +19,9 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 # Install dependencies
 yarn install
 
+# If Cypress binary download fails (restricted networks/CI), use this instead:
+# CYPRESS_INSTALL_BINARY=0 yarn install
+
 # Start all applications (container + all 4 MFEs) in development mode
 yarn dev
 
