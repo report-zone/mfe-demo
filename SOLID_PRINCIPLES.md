@@ -1,13 +1,13 @@
 # SOLID Principles Implementation Guide
 
-**Version**: 1.0  
+**Version**: 2.0  
 **Last Updated**: January 2026
 
 This document describes the SOLID principles refactoring applied to the MFE Demo application.
 
 ## Overview
 
-The codebase has been refactored to follow SOLID principles, making it more maintainable, testable, and extensible.
+The codebase has been comprehensively refactored to follow SOLID principles, making it more maintainable, testable, and extensible. This includes cross-cutting improvements across all MFE applications.
 
 ## SOLID Principles Applied
 
@@ -66,6 +66,19 @@ try {
 - **After**: Type-safe, domain-specific preferences context
 - **Benefits**: Type safety, clear API, focused responsibility
 
+**e) Container App Hooks (January 2026)**
+- **Before**: App.tsx mixed concerns (routing, theme, redirects in one component)
+- **After**: Extracted into focused custom hooks:
+  - `useBaseUrlRedirect` - handles base URL redirects only
+  - `useThemeManagement` - manages theme state and persistence only
+  - `useMFEMounting` - manages MFE mounting lifecycle only
+- **Benefits**: Each hook has one responsibility, easier to test and maintain
+
+**f) I18n and Theme Contexts (All MFEs)**
+- **Before**: Contexts handled storage, events, state management together
+- **After**: Dependencies injected via props, each concern isolated
+- **Benefits**: Separation of storage, event handling, and state logic
+
 ### 2. Open/Closed Principle (OCP)
 
 **Definition**: Software entities should be open for extension but closed for modification.
@@ -104,11 +117,16 @@ const darkTheme = createCustomTheme({
 - **After**: Data-driven route configuration
 - **Benefits**: Add routes by updating configuration
 
+**d) Route Mappings (`src/config/routeMappings.ts`) (January 2026)**
+- **Before**: Hard-coded if-statements in getCurrentMFE() function
+- **After**: Configuration array with flexible pattern matching
+- **Benefits**: Add new route mappings without modifying code
+
 ```typescript
-// Adding a new route
-export const protectedRoutes: RouteConfig[] = [
-  { path: '/', element: HomePage, requireAuth: true },
-  { path: '/new-page', element: NewPage, requireAuth: true }, // New!
+// Adding a new route mapping - just update the configuration
+export const routeMappings: RouteMapping[] = [
+  { pattern: '/preferences', mfeName: 'preferences', exact: false },
+  { pattern: '/new-feature', mfeName: 'newFeature', exact: true }, // New!
 ];
 ```
 
@@ -224,10 +242,52 @@ class CognitoAuthService implements IAuthService {
 </AuthProvider>
 ```
 
+**c) Storage and Event Bus Abstractions (January 2026)**
+- **Before**: All contexts directly used `localStorage` and `window` APIs
+- **After**: Abstractions via `IStorageService` and `IEventBus` interfaces
+
+```typescript
+// Interfaces
+export interface IStorageService {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+  // ...
+}
+
+export interface IEventBus {
+  dispatch<T>(eventName: string, detail?: T): void;
+  subscribe<T>(eventName: string, handler: (detail: T) => void): () => void;
+  unsubscribe<T>(eventName: string, handler: (detail: T) => void): void;
+}
+
+// Usage with dependency injection
+<I18nProvider 
+  config={config}
+  storageService={localStorageService}
+  eventBus={windowEventBus}
+>
+  {children}
+</I18nProvider>
+```
+
+**d) ErrorBoundary Logger Dependency (January 2026)**
+- **Before**: Used `console.error()` directly
+- **After**: Imports and uses logger service abstraction
+
+```typescript
+// Now uses logger service
+logger.error('ErrorBoundary caught an error', 'ErrorBoundary', error, {
+  componentStack: errorInfo.componentStack,
+});
+```
+
 **Benefits**:
 - Can swap from AWS Cognito to Auth0, Firebase, or any other provider
 - Easy to mock for testing
 - No changes needed in components when switching providers
+- Can swap localStorage for sessionStorage or custom storage
+- Can swap window events for message bus or other communication
 
 ## File Organization
 
@@ -235,6 +295,7 @@ class CognitoAuthService implements IAuthService {
 apps/container/src/
 ├── config/              # Configuration files (OCP)
 │   ├── mfeRegistry.ts   # MFE configuration
+│   ├── routeMappings.ts # Route-to-MFE mapping (NEW)
 │   ├── routes.ts        # Route configuration
 │   └── theme.ts         # Theme configuration
 ├── contexts/            # React contexts
@@ -244,17 +305,74 @@ apps/container/src/
 │   ├── DataContext.tsx
 │   └── UserPreferencesContext.tsx
 ├── hooks/               # Custom hooks (SRP)
-│   └── useMultiStepForm.ts
+│   ├── useMultiStepForm.ts
+│   ├── useBaseUrlRedirect.ts    # NEW - Base URL redirect logic
+│   ├── useThemeManagement.ts    # NEW - Theme state management
+│   └── useMFEMounting.ts        # NEW - MFE mounting lifecycle
 ├── services/            # Business logic layer
 │   ├── interfaces/      # Service interfaces (DIP)
-│   │   └── IAuthService.ts
-│   └── authService.ts
+│   │   ├── IAuthService.ts
+│   │   ├── IStorageService.ts   # NEW - Storage abstraction
+│   │   └── IEventBus.ts         # NEW - Event bus abstraction
+│   ├── authService.ts
+│   ├── localStorageService.ts   # NEW - LocalStorage implementation
+│   ├── windowEventBus.ts        # NEW - Window event bus implementation
+│   ├── loggerService.ts
+│   └── ThemeConverter.ts
 ├── utils/               # Utility functions (SRP)
 │   ├── errorHandler.ts
 │   └── validation.ts
 └── components/
-    └── MFELoader.tsx    # Uses registry (OCP)
+    ├── MFELoader.tsx    # Uses registry (OCP)
+    └── ErrorBoundary.tsx # Uses logger service (DIP)
+
+apps/[home|account|admin|preferences]/src/
+├── i18n/
+│   └── I18nContext.tsx  # Uses IStorageService & IEventBus (DIP)
+├── context/             # (preferences only)
+│   └── ThemeContext.tsx # Uses IStorageService & IEventBus (DIP)
+└── services/
+    ├── interfaces/
+    │   ├── IStorageService.ts
+    │   └── IEventBus.ts
+    ├── localStorageService.ts
+    └── windowEventBus.ts
 ```
+
+## Recent Improvements (January 2026)
+
+### Cross-MFE Service Abstractions
+
+All MFE applications now use standardized service abstractions:
+
+1. **Storage Abstraction (`IStorageService`)**
+   - Eliminates direct `localStorage` dependencies
+   - Enables testing with mock storage
+   - Supports swapping storage mechanisms (localStorage, sessionStorage, etc.)
+
+2. **Event Bus Abstraction (`IEventBus`)**
+   - Eliminates direct `window` event dependencies
+   - Properly handles event listener cleanup (fixes memory leaks)
+   - Supports different communication mechanisms
+
+3. **Dependency Injection Throughout**
+   - All contexts accept optional service dependencies
+   - Defaults to concrete implementations for convenience
+   - Easy to override for testing or custom implementations
+
+### Container App Refactoring
+
+Extracted complex App.tsx logic into focused hooks:
+- `useBaseUrlRedirect` - Single responsibility: handle redirects
+- `useThemeManagement` - Single responsibility: manage themes
+- `useMFEMounting` - Single responsibility: manage MFE lifecycle
+
+### Bug Fixes
+
+**WindowEventBus Memory Leak (January 2026)**
+- **Issue**: Event listeners were wrapped but cleanup used original handlers
+- **Fix**: Added WeakMap to track handler-to-listener mappings
+- **Impact**: Proper cleanup now prevents memory leaks across all MFEs
 
 ## Benefits Summary
 
