@@ -1,6 +1,6 @@
 # Shared Hooks Guide
 
-A comprehensive guide for creating and using hooks that can be shared across multiple Micro Frontends (MFEs) in this project.
+A comprehensive guide for creating and using hooks that can be shared across multiple Micro Frontends (MFEs).
 
 ## Table of Contents
 
@@ -226,28 +226,31 @@ export function useLocalStorage<T>(
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       try {
-        // Allow value to be a function for functional updates
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
-        
-        // Save state
-        setStoredValue(valueToStore);
-        
-        // Save to localStorage
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-        
-        // Broadcast change to other MFEs if event name provided
-        if (broadcastEvent) {
-          window.dispatchEvent(
-            new CustomEvent(broadcastEvent, {
-              detail: { value: valueToStore },
-            })
-          );
-        }
+        setStoredValue((prevValue) => {
+          // Allow value to be a function for functional updates
+          const valueToStore = typeof value === 'function' 
+            ? (value as (prev: T) => T)(prevValue) 
+            : value;
+          
+          // Save to localStorage
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          
+          // Broadcast change to other MFEs if event name provided
+          if (broadcastEvent) {
+            window.dispatchEvent(
+              new CustomEvent(broadcastEvent, {
+                detail: { value: valueToStore },
+              })
+            );
+          }
+          
+          return valueToStore;
+        });
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error);
       }
     },
-    [key, storedValue, broadcastEvent]
+    [key, broadcastEvent]
   );
 
   // Listen for changes from other MFEs
@@ -258,6 +261,13 @@ export function useLocalStorage<T>(
       const customEvent = event as CustomEvent<{ value: T }>;
       if (customEvent.detail?.value !== undefined) {
         setStoredValue(customEvent.detail.value);
+        
+        // Update localStorage when syncing from other MFEs
+        try {
+          window.localStorage.setItem(key, JSON.stringify(customEvent.detail.value));
+        } catch (error) {
+          console.error(`Error updating localStorage from sync for key "${key}":`, error);
+        }
       }
     };
 
@@ -266,7 +276,7 @@ export function useLocalStorage<T>(
     return () => {
       window.removeEventListener(broadcastEvent, handleStorageChange);
     };
-  }, [broadcastEvent]);
+  }, [broadcastEvent, key]);
 
   return [storedValue, setValue];
 }
@@ -301,17 +311,22 @@ export function createSharedStateHook<T>(
 
   const Provider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [state, setStateInternal] = useState<T>(initialValue);
+    const isUpdatingFromEvent = React.useRef(false);
 
     const setState = (value: T | ((prev: T) => T)) => {
       setStateInternal((prevState) => {
-        const newState = value instanceof Function ? value(prevState) : value;
+        const newState = typeof value === 'function' 
+          ? (value as (prev: T) => T)(prevState) 
+          : value;
         
-        // Broadcast change to other MFEs
-        window.dispatchEvent(
-          new CustomEvent(eventName, {
-            detail: { state: newState },
-          })
-        );
+        // Only broadcast if the change originated locally (not from another MFE)
+        if (!isUpdatingFromEvent.current) {
+          window.dispatchEvent(
+            new CustomEvent(eventName, {
+              detail: { state: newState },
+            })
+          );
+        }
         
         return newState;
       });
@@ -322,7 +337,11 @@ export function createSharedStateHook<T>(
       const handleStateChange = (event: Event) => {
         const customEvent = event as CustomEvent<{ state: T }>;
         if (customEvent.detail?.state !== undefined) {
+          // Mark that we're updating from an external event
+          isUpdatingFromEvent.current = true;
           setStateInternal(customEvent.detail.state);
+          // Reset the flag after state update
+          isUpdatingFromEvent.current = false;
         }
       };
 
@@ -501,6 +520,12 @@ window.addEventListener('themeChanged', (event) => {
 ## Testing Shared Hooks
 
 ### Unit Testing
+
+**Note:** The examples use `@testing-library/react` which should be installed as a dev dependency:
+
+```bash
+yarn workspace @mfe-demo/shared-hooks add -D @testing-library/react @testing-library/react-hooks
+```
 
 Create `packages/shared-hooks/src/__tests__/useLocalStorage.test.ts`:
 
@@ -810,9 +835,9 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const serialized = JSON.stringify(value);
       
-      // Check size before saving
-      if (serialized.length > 5000000) { // ~5MB limit
-        console.warn('Value too large for localStorage');
+      // Check size before saving (note: total localStorage limit is ~5-10MB per domain)
+      if (serialized.length > 5000000) { // ~5MB per item as safety limit
+        console.warn('Value too large for localStorage. Consider using a different storage mechanism.');
         return;
       }
       
@@ -990,9 +1015,22 @@ interface AuthState {
   user: { username: string; email: string } | null;
 }
 
+// Initialize from localStorage if available
+const getInitialAuthState = (): AuthState => {
+  try {
+    const stored = localStorage.getItem('authState');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Failed to load auth state from localStorage:', error);
+  }
+  return { isAuthenticated: false, user: null };
+};
+
 const { Provider, useSharedState } = createSharedStateHook<AuthState>(
   'authStateChanged',
-  { isAuthenticated: false, user: null }
+  getInitialAuthState()
 );
 
 export const AuthProvider = Provider;
@@ -1000,9 +1038,13 @@ export const AuthProvider = Provider;
 export function useAuth() {
   const { state, setState } = useSharedState();
   
-  // Persist to localStorage
+  // Persist to localStorage whenever state changes
   useEffect(() => {
-    localStorage.setItem('authState', JSON.stringify(state));
+    try {
+      localStorage.setItem('authState', JSON.stringify(state));
+    } catch (error) {
+      console.error('Failed to save auth state to localStorage:', error);
+    }
   }, [state]);
   
   const login = (username: string, email: string) => {
@@ -1048,7 +1090,11 @@ export function useDebouncedSharedState<T>(
   // Debounce updates to shared state
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (localValue !== storedValue) {
+      // Use JSON comparison for objects/arrays to avoid unnecessary updates
+      const localJSON = JSON.stringify(localValue);
+      const storedJSON = JSON.stringify(storedValue);
+      
+      if (localJSON !== storedJSON) {
         setStoredValue(localValue);
       }
     }, delay);
