@@ -68,19 +68,21 @@ apps/
 ### Run All Tests
 
 ```bash
-# Run all unit tests across all MFEs with a summary
+# Run all unit tests across all MFEs with a summary and coverage
 yarn test
 
 # Or explicitly (runs tests sequentially without summary)
 yarn test:unit:all
 ```
 
-The `yarn test` command runs all tests across the five MFEs and displays a summary at the end:
+The `yarn test` command runs all tests across the five MFEs with code coverage enabled and displays a comprehensive summary at the end:
 
 - Results by MFE (name, status, test count, duration)
 - Total test files
 - Total tests
 - Pass/fail counts
+- Code coverage stats (statements, branches, functions, lines) for each MFE
+- Average coverage across all MFEs
 
 Example output:
 
@@ -103,6 +105,23 @@ admin               ✓ PASSED       10          2.53s
 Total Test Files: 24
 Total Tests: 172
 Passed: 172
+
+============================================================
+CODE COVERAGE
+============================================================
+
+Coverage by MFE:
+--------------------------------------------------------------------------------
+MFE                 Statements     Branches       Functions      Lines
+--------------------------------------------------------------------------------
+container           44.29%         58.47%         60.86%         44.29%
+home                80.52%         77.5%          90.9%          80.52%
+preferences         75.20%         68.40%         80.30%         75.20%
+account             66.29%         57.69%         72.72%         66.29%
+admin               67.02%         68.57%         72.72%         67.02%
+--------------------------------------------------------------------------------
+
+Average             66.66%             66.25%             75.30%             66.66%
 
 ✓ All tests passed successfully!
 ```
