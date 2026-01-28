@@ -27,7 +27,7 @@
     "preview:account": "yarn workspace @mfe-demo/account preview",
     "preview:admin": "yarn workspace @mfe-demo/admin preview",
     "prod:local": "node scripts/run-production-local.js",
-    "test": "yarn test:unit:all",
+    "test": "node scripts/test-with-summary.js",
     "test:unit": "yarn workspace @mfe-demo/container test:unit",
     "test:unit:all": "yarn test:unit:container && yarn test:unit:home && yarn test:unit:preferences && yarn test:unit:account && yarn test:unit:admin",
     "test:unit:container": "yarn workspace @mfe-demo/container test:unit",
