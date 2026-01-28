@@ -327,6 +327,50 @@ yarn install
 
 ---
 
+### Issue: Cypress Binary Download Fails During Install
+
+**Symptoms:**
+- `yarn install` fails with error: "The Cypress App could not be downloaded"
+- Error message: "getaddrinfo ENOTFOUND download.cypress.io"
+- Installation stops before completing
+- Subsequent `yarn dev` or `yarn build` commands fail with "Cannot find module '@mfe-demo/shared-hooks'"
+
+**Root Cause:**
+In restricted network environments (CI servers, corporate networks, firewalls), Cypress binary download may be blocked or unavailable. This prevents the installation from completing, which means dependencies are not installed and the shared-hooks package cannot be built.
+
+**Solution:**
+Skip the Cypress binary download during installation. The Cypress package will still be installed for E2E test functionality, but the binary can be downloaded later when needed:
+
+```bash
+# Install dependencies without Cypress binary
+CYPRESS_INSTALL_BINARY=0 yarn install
+
+# After successful install, build shared-hooks
+yarn build:shared-hooks
+
+# Now you can run dev or build commands
+yarn dev
+# OR
+yarn build
+```
+
+**Alternative - Download Cypress Binary Later:**
+If you need to run E2E tests after installation:
+```bash
+# After successful install, download Cypress binary separately
+npx cypress install
+```
+
+**For CI Environments:**
+Add the environment variable to your CI configuration:
+```yaml
+# Example for GitHub Actions
+env:
+  CYPRESS_INSTALL_BINARY: 0
+```
+
+---
+
 ### Issue: TypeScript Compilation Errors After Dependency Update
 
 **Symptoms:**

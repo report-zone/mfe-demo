@@ -8,6 +8,9 @@ This is a micro frontend (MFE) architecture demonstration project.
 # Install dependencies
 yarn install
 
+# If Cypress binary download fails, use this instead:
+# CYPRESS_INSTALL_BINARY=0 yarn install
+
 # Start all apps (container + all 4 MFEs)
 yarn dev
 
