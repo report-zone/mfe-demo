@@ -12,3 +12,4 @@ export { I18nProvider, useI18n } from './i18n/I18nContext';
 // Hooks
 export { useLocalStorage } from './hooks/useLocalStorage';
 export { createSharedStateHook } from './hooks/createSharedStateHook';
+export { useThemeSync } from './hooks/useThemeSync';
