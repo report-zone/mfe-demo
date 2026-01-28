@@ -265,6 +265,24 @@ export { default } from './App';
 7. Add to root package.json scripts
 8. Install dependencies: `yarn install`
 
+## Creating Shared Hooks
+
+To create hooks that can be reused across multiple MFEs, see the **[Shared Hooks Guide](./SHARED_HOOKS_GUIDE.md)**. This guide covers:
+
+- Creating a shared package for hooks
+- Cross-MFE communication patterns
+- Testing shared hooks
+- Best practices and examples
+
+Quick overview:
+
+1. Create a shared package: `packages/shared-hooks`
+2. Add your hook code with TypeScript types
+3. Add the package as a dependency in MFEs
+4. Import and use: `import { useMyHook } from '@mfe-demo/shared-hooks'`
+
+**Current Pattern**: This project uses code duplication for hooks (e.g., `I18nContext` is duplicated across MFEs). See the Shared Hooks Guide for migrating to shared packages.
+
 ## Testing
 
 ### Unit Tests
@@ -521,6 +539,7 @@ yarn install
 - [Vitest Documentation](https://vitest.dev)
 - [AWS Amplify Documentation](https://docs.amplify.aws)
 - [TypeScript Documentation](https://www.typescriptlang.org)
+- [Shared Hooks Guide](./SHARED_HOOKS_GUIDE.md) - Creating reusable hooks across MFEs
 
 ## License
 

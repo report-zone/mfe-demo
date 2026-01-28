@@ -6,6 +6,7 @@ An MFE architecture demo using React, TypeScript, React Router, Material UI v6, 
 
 - **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
 - **[Developer Guide](./DEVELOPER.md)** - Comprehensive development documentation
+- **[Shared Hooks Guide](./SHARED_HOOKS_GUIDE.md)** - Creating hooks shared across MFEs
 - **[AWS Deployment Guide](./AWS_DEPLOYMENT_GUIDE.md)** - CloudFormation & AWS CLI deployment (production-ready)
 - **[Testing Guide](./TESTING.md)** - Testing strategies and setup
 - **[Troubleshooting Guide](./TROUBLESHOOTING.md)** - Common issues and solutions
