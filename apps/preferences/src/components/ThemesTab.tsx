@@ -23,7 +23,7 @@ import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
 import { convertThemeDefinitionToMuiTheme } from '../utils/themeUtils';
 import { loadThemeFromFile } from '../utils/themeFileOperations';
-import { useI18n } from '../i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const ThemesTab: React.FC = () => {
   const { t } = useI18n();

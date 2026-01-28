@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import I18n, { I18nConfig } from '../index';
+import { I18n, I18nConfig } from '@mfe-demo/shared-hooks';
 
 describe('I18n', () => {
   const testConfig: I18nConfig = {

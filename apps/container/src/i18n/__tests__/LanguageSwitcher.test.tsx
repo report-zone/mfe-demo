@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { I18nProvider } from '../I18nContext';
-import { I18nConfig } from '../index';
+import { I18nProvider, I18nConfig } from '@mfe-demo/shared-hooks';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 const testConfig: I18nConfig = {

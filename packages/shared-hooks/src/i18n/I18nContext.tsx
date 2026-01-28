@@ -29,9 +29,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   storageService = localStorageService,
   eventBus = windowEventBus,
 }) => {
-  const [i18n] = useState(() => new I18n(config));
-  
-  // Initialize language from storage if available
+  // Helper to get initial language from storage
   const getInitialLanguage = (): Language => {
     try {
       const stored = storageService.getItem(LANGUAGE_STORAGE_KEY);
@@ -44,12 +42,15 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     return config.defaultLanguage;
   };
 
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage());
-
-  // Initialize i18n with the stored language
-  useEffect(() => {
-    i18n.setLanguage(language);
-  }, [i18n, language]);
+  // Initialize both language state and i18n instance with the stored language
+  const [language, setLanguageState] = useState<Language>(() => getInitialLanguage());
+  
+  const [i18n] = useState(() => {
+    const instance = new I18n(config);
+    // Set the language immediately during initialization
+    instance.setLanguage(getInitialLanguage());
+    return instance;
+  });
 
   const setLanguage = useCallback(
     (newLanguage: Language) => {
@@ -73,7 +74,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   useEffect(() => {
     const handleLanguageChange = (detail: { language: Language }) => {
       if (process.env.NODE_ENV === 'development') {
-        console.log('[I18n] Home MFE received languageChanged event:', detail);
+        console.log('[I18n] Received languageChanged event:', detail);
       }
       if (detail?.language) {
         const newLanguage = detail.language;
@@ -92,13 +93,13 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
     const unsubscribe = eventBus.subscribe('languageChanged', handleLanguageChange);
     
     if (process.env.NODE_ENV === 'development') {
-      console.log('[I18n] Language change listener registered for home MFE');
+      console.log('[I18n] Language change listener registered');
     }
     
     return () => {
       unsubscribe();
       if (process.env.NODE_ENV === 'development') {
-        console.log('[I18n] Language change listener removed for home MFE');
+        console.log('[I18n] Language change listener removed');
       }
     };
   }, [i18n, storageService, eventBus]);

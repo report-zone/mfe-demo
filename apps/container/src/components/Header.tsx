@@ -4,7 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useAuth } from '../contexts/AuthContext';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { logError } from '../utils/errorHandler';
-import { useI18n } from '../i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 interface HeaderProps {
   onDrawerToggle: () => void;

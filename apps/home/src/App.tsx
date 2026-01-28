@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Paper, Card, CardContent, Grid } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import { useI18n } from './i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const App: React.FC = () => {
   const { t } = useI18n();

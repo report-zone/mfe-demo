@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import { useI18n } from '../i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const GeneralTab: React.FC = () => {
   const { t } = useI18n();

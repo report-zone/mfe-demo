@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar, Box, useTheme, useMediaQuery } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
-import { useI18n } from '../i18n/I18nContext';
+import { useI18n } from '@mfe-demo/shared-hooks';
 
 const drawerWidth = 240;
 
