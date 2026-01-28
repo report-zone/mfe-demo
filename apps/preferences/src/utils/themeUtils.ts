@@ -260,6 +260,23 @@ const isLightModeText = (textPrimary: string): boolean => {
 };
 
 /**
+ * Filters component overrides to only include valid MUI component names
+ * Valid component names start with "Mui" (e.g., MuiButton, MuiCard)
+ * This prevents theme-level keys like 'breakpoints', 'palette' from being
+ * misinterpreted as component overrides
+ */
+const filterValidComponentOverrides = (overrides: Record<string, unknown>): Record<string, unknown> => {
+  const filtered: Record<string, unknown> = {};
+  for (const key in overrides) {
+    // Only include keys that start with "Mui" (valid component override names)
+    if (key.startsWith('Mui')) {
+      filtered[key] = overrides[key];
+    }
+  }
+  return filtered;
+};
+
+/**
  * Converts a CustomThemeDefinition to a Material-UI Theme
  * Following Single Responsibility Principle: Only handles theme conversion
  * 
@@ -281,6 +298,11 @@ export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefiniti
   const shouldUseDefaultBackgroundAndText = 
     (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
     (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+  
+  // Filter component overrides to only include valid MUI component names
+  const validComponentOverrides = filterValidComponentOverrides(
+    definition.muiComponentOverrides || {}
+  );
   
   return createTheme({
     palette: {
@@ -337,7 +359,7 @@ export const convertThemeDefinitionToMuiTheme = (definition: CustomThemeDefiniti
     shape: {
       borderRadius: definition.componentOverrides?.button?.borderRadius || 4,
     },
-    components: definition.muiComponentOverrides || {},
+    components: validComponentOverrides,
   });
 };
 

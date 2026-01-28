@@ -157,6 +157,23 @@ export class ThemeConverter {
   }
 
   /**
+   * Filters component overrides to only include valid MUI component names
+   * Valid component names start with "Mui" (e.g., MuiButton, MuiCard)
+   * This prevents theme-level keys like 'breakpoints', 'palette' from being
+   * misinterpreted as component overrides
+   */
+  private static filterValidComponentOverrides(overrides: Record<string, unknown>): Record<string, unknown> {
+    const filtered: Record<string, unknown> = {};
+    for (const key in overrides) {
+      // Only include keys that start with "Mui" (valid component override names)
+      if (key.startsWith('Mui')) {
+        filtered[key] = overrides[key];
+      }
+    }
+    return filtered;
+  }
+
+  /**
    * Converts a CustomThemeDefinition to a MUI Theme
    * 
    * When palette mode is 'dark' but colors are for light mode (or vice versa),
@@ -179,6 +196,11 @@ export class ThemeConverter {
     const shouldUseDefaultBackgroundAndText = 
       (mode === 'dark' && hasLightModeBackground && hasLightModeText) ||
       (mode === 'light' && !hasLightModeBackground && !hasLightModeText);
+    
+    // Filter component overrides to only include valid MUI component names
+    const validComponentOverrides = this.filterValidComponentOverrides(
+      config.muiComponentOverrides || {}
+    );
     
     return createTheme({
       palette: {
@@ -235,7 +257,7 @@ export class ThemeConverter {
       shape: {
         borderRadius: config.componentOverrides?.button?.borderRadius || 4,
       },
-      components: config.muiComponentOverrides || {},
+      components: validComponentOverrides,
     });
   }
 
