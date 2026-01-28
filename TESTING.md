@@ -11,6 +11,7 @@ The project follows a comprehensive testing approach with two main types of test
 Unit tests verify individual components, hooks, utilities, and contexts in isolation. They ensure that each piece of code works correctly on its own.
 
 **Coverage Goals:**
+
 - ✅ **Statements**: > 80%
 - ✅ **Branches**: > 75%
 - ✅ **Functions**: > 80%
@@ -67,11 +68,43 @@ apps/
 ### Run All Tests
 
 ```bash
-# Run all unit tests across all MFEs
+# Run all unit tests across all MFEs with a summary
 yarn test
 
-# Or explicitly
+# Or explicitly (runs tests sequentially without summary)
 yarn test:unit:all
+```
+
+The `yarn test` command runs all tests across the five MFEs and displays a summary at the end:
+
+- Results by MFE (name, status, test count, duration)
+- Total test files
+- Total tests
+- Pass/fail counts
+
+Example output:
+
+```
+============================================================
+TEST SUMMARY
+============================================================
+
+Results by MFE:
+------------------------------------------------------------
+MFE                 Status         Tests       Duration
+------------------------------------------------------------
+container           ✓ PASSED       77          10.38s
+home                ✓ PASSED       22          2.77s
+preferences         ✓ PASSED       53          41.64s
+account             ✓ PASSED       10          3.32s
+admin               ✓ PASSED       10          2.53s
+------------------------------------------------------------
+
+Total Test Files: 24
+Total Tests: 172
+Passed: 172
+
+✓ All tests passed successfully!
 ```
 
 ### Run Tests by Application
@@ -126,6 +159,7 @@ yarn test:watch
 **Total Tests: 79 passing**
 
 #### Components (98.27% coverage)
+
 - ✅ Header component (5 tests)
 - ✅ Navbar component (4 tests)
 - ✅ MFELoader component (3 tests)
@@ -133,14 +167,17 @@ yarn test:watch
 - ✅ MFEPlaceholder component (4 tests)
 
 #### Contexts (82.37% coverage)
+
 - ✅ AuthContext (2 tests)
 - ✅ DataContext (3 tests)
 - ✅ UserPreferencesContext (7 tests)
 
 #### Hooks (100% coverage)
+
 - ✅ useMultiStepForm (11 tests)
 
 #### Utilities (100% coverage)
+
 - ✅ Validation utilities (20 tests)
   - Password validation
   - Email validation
@@ -155,6 +192,7 @@ yarn test:watch
 ### Home MFE
 
 **Tests: 7 passing**
+
 - App component rendering
 - Card content validation
 - Icon display
@@ -163,6 +201,7 @@ yarn test:watch
 ### Preferences MFE
 
 **Tests: 6 passing**
+
 - App component rendering
 - Tab navigation
 - Settings UI
@@ -171,6 +210,7 @@ yarn test:watch
 ### Account MFE
 
 **Tests: 10 passing**
+
 - Form field rendering
 - Input validation
 - Default values
@@ -179,6 +219,7 @@ yarn test:watch
 ### Admin MFE
 
 **Tests: 10 passing**
+
 - Admin panel rendering
 - User table display
 - Role and status chips
@@ -187,6 +228,7 @@ yarn test:watch
 ## E2E Test Coverage
 
 ### Authentication Flow (authentication.cy.ts)
+
 - ✅ Login page elements
 - ✅ Form validation
 - ✅ Invalid credential handling
@@ -196,6 +238,7 @@ yarn test:watch
 - ✅ Navigation to reset password
 
 ### Navigation (navigation.cy.ts)
+
 - ✅ Public routes accessibility
 - ✅ Protected routes (redirect when unauthenticated)
 - ✅ Navigation menu items
@@ -204,6 +247,7 @@ yarn test:watch
 - ✅ Unknown route handling
 
 ### User Interactions (user-interactions.cy.ts)
+
 - ✅ Form input handling
 - ✅ Password masking
 - ✅ Form submission
@@ -213,6 +257,7 @@ yarn test:watch
 - ✅ Multiple rapid clicks handling
 
 ### Protected Routes (protected-routes.cy.ts)
+
 - ✅ Authentication requirements
 - ✅ Admin-only access control
 - ✅ Session persistence
@@ -225,14 +270,15 @@ yarn test:watch
 ### Writing Unit Tests
 
 1. **Arrange-Act-Assert Pattern**
+
    ```typescript
    it('should validate password length', () => {
      // Arrange
      const password = 'short';
-     
+
      // Act
      const result = validatePassword(password);
-     
+
      // Assert
      expect(result.isValid).toBe(false);
    });
@@ -257,19 +303,21 @@ yarn test:watch
    - Test real user interactions
 
 2. **Use Custom Commands**
+
    ```typescript
    // Define in commands.ts
    Cypress.Commands.add('login', (username, password) => {
      // Login logic
    });
-   
+
    // Use in tests
    cy.login('testuser', 'password123');
    ```
 
 3. **Use Fixtures for Test Data**
+
    ```typescript
-   cy.fixture('users').then((users) => {
+   cy.fixture('users').then(users => {
      cy.login(users.testUser.username, users.testUser.password);
    });
    ```
@@ -300,6 +348,7 @@ yarn test:coverage
 ```
 
 View the HTML report at:
+
 ```
 apps/container/coverage/index.html
 ```
@@ -309,16 +358,20 @@ apps/container/coverage/index.html
 ### Common Issues
 
 **Issue: Tests fail with "Cannot find module"**
+
 - Solution: Run `yarn install` to ensure all dependencies are installed
 
 **Issue: E2E tests timeout**
+
 - Solution: Increase timeout in cypress.config.ts or specific tests
 - Ensure the development server is running on localhost:3000
 
 **Issue: Snapshot mismatches**
+
 - Solution: Review the changes and update snapshots if intentional
 
 **Issue: Flaky tests**
+
 - Solution: Use proper `waitFor` and avoid hardcoded delays
 - Check for race conditions in async operations
 
@@ -348,7 +401,7 @@ apps/container/coverage/index.html
 ## Test Summary
 
 | Application | Unit Tests | Coverage |
-|-------------|------------|----------|
+| ----------- | ---------- | -------- |
 | Container   | 79         | 82.37%   |
 | Home        | 7          | N/A      |
 | Preferences | 6          | N/A      |
@@ -356,13 +409,13 @@ apps/container/coverage/index.html
 | Admin       | 10         | N/A      |
 | **Total**   | **112**    | -        |
 
-| E2E Test Suite        | Tests |
-|----------------------|-------|
-| Authentication       | ~8    |
-| Navigation           | ~15   |
-| User Interactions    | ~15   |
-| Protected Routes     | ~12   |
-| **Total (approx.)**  | **~50** |
+| E2E Test Suite      | Tests   |
+| ------------------- | ------- |
+| Authentication      | ~8      |
+| Navigation          | ~15     |
+| User Interactions   | ~15     |
+| Protected Routes    | ~12     |
+| **Total (approx.)** | **~50** |
 
 **Overall Test Count: ~162 tests**
 

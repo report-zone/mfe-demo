@@ -44,7 +44,7 @@ for (const app of MFE_APPS) {
     // Vitest outputs: "Test Files  X passed (X)" and "Tests  Y passed (Y)"
     const testFilesMatch = cleanOutput.match(/Test Files\s+(\d+)\s+passed/);
     const testsMatch = cleanOutput.match(/Tests\s+(\d+)\s+passed/);
-    
+
     const testFiles = testFilesMatch ? parseInt(testFilesMatch[1]) : 0;
     const tests = testsMatch ? parseInt(testsMatch[1]) : 0;
 
@@ -61,7 +61,7 @@ for (const app of MFE_APPS) {
     });
   } catch (error) {
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    
+
     // Print error output
     if (error.stdout) console.log(error.stdout.toString());
     if (error.stderr) console.error(error.stderr.toString());
@@ -71,7 +71,7 @@ for (const app of MFE_APPS) {
     const cleanOutput = output.replace(/\x1b\[[0-9;]*m/g, '');
     const testFilesMatch = cleanOutput.match(/Test Files\s+(\d+)\s+failed.*?(\d+)\s+passed/);
     const testsMatch = cleanOutput.match(/Tests\s+(\d+)\s+failed.*?(\d+)\s+passed/);
-    
+
     const testFiles = testFilesMatch ? parseInt(testFilesMatch[2]) : 0;
     const failedTestFiles = testFilesMatch ? parseInt(testFilesMatch[1]) : 0;
     const tests = testsMatch ? parseInt(testsMatch[2]) : 0;
@@ -107,9 +107,7 @@ console.log('-'.repeat(60));
 for (const result of results) {
   const statusIcon = result.status === 'passed' ? '✓' : '✗';
   const statusText = result.status === 'passed' ? 'PASSED' : 'FAILED';
-  const testsText = result.failed 
-    ? `${result.tests} (${result.failed} failed)`
-    : `${result.tests}`;
+  const testsText = result.failed ? `${result.tests} (${result.failed} failed)` : `${result.tests}`;
   console.log(
     `${result.name.padEnd(20)}${(statusIcon + ' ' + statusText).padEnd(15)}${testsText.padEnd(12)}${result.duration}s`
   );
@@ -118,9 +116,9 @@ for (const result of results) {
 console.log('-'.repeat(60));
 
 // Check if all passed
-const allPassed = results.every((r) => r.status === 'passed');
-const passedCount = results.filter((r) => r.status === 'passed').length;
-const failedCount = results.filter((r) => r.status === 'failed').length;
+const allPassed = results.every(r => r.status === 'passed');
+const passedCount = results.filter(r => r.status === 'passed').length;
+const failedCount = results.filter(r => r.status === 'failed').length;
 
 console.log(`\nTotal Test Files: ${totalTestFiles}`);
 console.log(`Total Tests: ${totalTests}`);
