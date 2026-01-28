@@ -524,7 +524,7 @@ window.addEventListener('themeChanged', (event) => {
 **Note:** The examples use `@testing-library/react` which should be installed as a dev dependency:
 
 ```bash
-yarn workspace @mfe-demo/shared-hooks add -D @testing-library/react @testing-library/react-hooks
+yarn workspace @mfe-demo/shared-hooks add -D @testing-library/react
 ```
 
 Create `packages/shared-hooks/src/__tests__/useLocalStorage.test.ts`:
@@ -835,8 +835,11 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const serialized = JSON.stringify(value);
       
-      // Check size before saving (note: total localStorage limit is ~5-10MB per domain)
-      if (serialized.length > 5000000) { // ~5MB per item as safety limit
+      // Check size before saving
+      // Note: This checks character count. Actual bytes may be higher (up to 2x for UTF-16).
+      // Total localStorage limit is ~5-10MB per domain across all keys.
+      const sizeInBytes = new Blob([serialized]).size;
+      if (sizeInBytes > 5000000) { // ~5MB per item as safety limit
         console.warn('Value too large for localStorage. Consider using a different storage mechanism.');
         return;
       }
