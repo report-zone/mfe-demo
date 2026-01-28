@@ -339,14 +339,11 @@ yarn install
 In restricted network environments (CI servers, corporate networks, firewalls), Cypress binary download may be blocked or unavailable. This prevents the installation from completing, which means dependencies are not installed and the shared-hooks package cannot be built.
 
 **Solution:**
-Skip the Cypress binary download during installation. The Cypress package will still be installed for E2E test functionality, but the binary can be downloaded later when needed:
+Skip the Cypress binary download during installation. The Cypress npm package will still be installed, but the binary (required to run E2E tests) will not be downloaded. E2E tests cannot run without the binary, but you can download it separately later when needed:
 
 ```bash
 # Install dependencies without Cypress binary
 CYPRESS_INSTALL_BINARY=0 yarn install
-
-# After successful install, build shared-hooks
-yarn build:shared-hooks
 
 # Now you can run dev or build commands
 yarn dev
