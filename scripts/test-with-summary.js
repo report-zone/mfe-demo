@@ -5,6 +5,26 @@ const { execSync } = require('child_process');
  * Test runner script that executes all MFE tests and provides a summary
  */
 
+/**
+ * Parse coverage data from vitest output
+ * @param {string} cleanOutput - Output with ANSI codes stripped
+ * @returns {object|null} Coverage data or null if not found
+ */
+function parseCoverage(cleanOutput) {
+  // Example line: "All files          |   44.29 |    58.47 |   60.86 |   44.29 |"
+  // Handles both decimal and whole numbers (e.g., "100" or "100.00")
+  const coverageMatch = cleanOutput.match(/All files\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|\s+(\d+(?:\.\d+)?)\s+\|/);
+  if (coverageMatch) {
+    return {
+      statements: parseFloat(coverageMatch[1]),
+      branches: parseFloat(coverageMatch[2]),
+      functions: parseFloat(coverageMatch[3]),
+      lines: parseFloat(coverageMatch[4]),
+    };
+  }
+  return null;
+}
+
 const MFE_APPS = [
   { name: 'container', workspace: '@mfe-demo/container' },
   { name: 'home', workspace: '@mfe-demo/home' },
@@ -53,17 +73,7 @@ for (const app of MFE_APPS) {
     totalPassed += tests;
 
     // Parse coverage data
-    // Example line: "All files          |   44.29 |    58.47 |   60.86 |   44.29 |"
-    const coverageMatch = cleanOutput.match(/All files\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|/);
-    let coverage = null;
-    if (coverageMatch) {
-      coverage = {
-        statements: parseFloat(coverageMatch[1]),
-        branches: parseFloat(coverageMatch[2]),
-        functions: parseFloat(coverageMatch[3]),
-        lines: parseFloat(coverageMatch[4]),
-      };
-    }
+    const coverage = parseCoverage(cleanOutput);
 
     results.push({
       name: app.name,
@@ -97,16 +107,7 @@ for (const app of MFE_APPS) {
     totalFailed += failedTests;
 
     // Try to parse coverage even if tests failed
-    const coverageMatch = cleanOutput.match(/All files\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|\s+([\d.]+)\s+\|/);
-    let coverage = null;
-    if (coverageMatch) {
-      coverage = {
-        statements: parseFloat(coverageMatch[1]),
-        branches: parseFloat(coverageMatch[2]),
-        functions: parseFloat(coverageMatch[3]),
-        lines: parseFloat(coverageMatch[4]),
-      };
-    }
+    const coverage = parseCoverage(cleanOutput);
 
     results.push({
       name: app.name,
@@ -170,7 +171,9 @@ for (const result of results) {
       `${result.name.padEnd(20)}${(result.coverage.statements + '%').padEnd(15)}${(result.coverage.branches + '%').padEnd(15)}${(result.coverage.functions + '%').padEnd(15)}${result.coverage.lines + '%'}`
     );
   } else {
-    console.log(`${result.name.padEnd(20)}N/A`.padEnd(80));
+    console.log(
+      `${result.name.padEnd(20)}${'N/A'.padEnd(15)}${'N/A'.padEnd(15)}${'N/A'.padEnd(15)}N/A`
+    );
   }
 }
 
@@ -189,7 +192,7 @@ if (mfesWithCoverage.length > 0) {
     mfesWithCoverage.reduce((sum, r) => sum + r.coverage.lines, 0) / mfesWithCoverage.length;
 
   console.log(
-    `\n${'Average'.padEnd(20)}${avgStatements.toFixed(2) + '%'.padEnd(14)}${avgBranches.toFixed(2) + '%'.padEnd(14)}${avgFunctions.toFixed(2) + '%'.padEnd(14)}${avgLines.toFixed(2) + '%'}`
+    `\n${'Average'.padEnd(20)}${(avgStatements.toFixed(2) + '%').padEnd(15)}${(avgBranches.toFixed(2) + '%').padEnd(15)}${(avgFunctions.toFixed(2) + '%').padEnd(15)}${avgLines.toFixed(2) + '%'}`
   );
 }
 
