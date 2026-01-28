@@ -5,6 +5,9 @@ import { IEventBus } from './interfaces/IEventBus';
  * Uses CustomEvent and window.dispatchEvent for cross-MFE communication
  */
 export class WindowEventBus implements IEventBus {
+  // Map to track handler-to-listener relationships for proper cleanup
+  private listenerMap = new WeakMap<Function, EventListener>();
+
   dispatch<T = unknown>(eventName: string, detail?: T): void {
     try {
       const event = new CustomEvent(eventName, { detail });
@@ -24,6 +27,9 @@ export class WindowEventBus implements IEventBus {
       }
     };
 
+    // Store the mapping for proper cleanup
+    this.listenerMap.set(handler, listener);
+
     try {
       window.addEventListener(eventName, listener);
     } catch (error) {
@@ -38,10 +44,12 @@ export class WindowEventBus implements IEventBus {
 
   unsubscribe<T = unknown>(eventName: string, handler: (detail: T) => void): void {
     try {
-      // Note: We can't directly remove the listener because we wrapped it
-      // This is a limitation of the current design
-      // For production use, consider maintaining a WeakMap of handlers
-      window.removeEventListener(eventName, handler as EventListener);
+      // Get the wrapped listener from the map
+      const listener = this.listenerMap.get(handler);
+      if (listener) {
+        window.removeEventListener(eventName, listener);
+        this.listenerMap.delete(handler);
+      }
     } catch (error) {
       console.error('WindowEventBus: Error unsubscribing from event', error);
     }
