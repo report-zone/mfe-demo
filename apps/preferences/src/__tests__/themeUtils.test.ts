@@ -82,6 +82,28 @@ describe('Theme Utilities', () => {
       expect(muiTheme.palette.background.paper).toBe('#1e1e1e');
       expect(muiTheme.palette.text.primary).toBe('#ffffff');
     });
+
+    it('should filter out invalid component override keys', () => {
+      const definition = createDefaultThemeDefinition();
+      definition.muiComponentOverrides = {
+        MuiButton: { styleOverrides: { root: { borderRadius: 4 } } },
+        MuiCard: { styleOverrides: { root: { borderRadius: 8 } } },
+        breakpoints: { values: { xs: 0 } },
+        palette: { mode: 'dark' },
+        typography: { fontSize: 14 },
+      } as any;
+      
+      const muiTheme = convertThemeDefinitionToMuiTheme(definition);
+      
+      // Should include valid MUI component overrides
+      expect(muiTheme.components?.MuiButton).toBeDefined();
+      expect(muiTheme.components?.MuiCard).toBeDefined();
+      
+      // Should NOT include invalid keys (breakpoints, palette, typography)
+      expect(muiTheme.components?.breakpoints).toBeUndefined();
+      expect((muiTheme.components as any)?.palette).toBeUndefined();
+      expect((muiTheme.components as any)?.typography).toBeUndefined();
+    });
   });
 
   describe('validateThemeDefinition', () => {
