@@ -8,7 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "yarn build:shared-hooks && concurrently \"yarn dev:container\" \"yarn dev:home\" \"yarn dev:preferences\" \"yarn dev:account\" \"yarn dev:admin\"",
+    "dev": "yarn build:shared-hooks && concurrently \"yarn dev:shared-hooks\" \"yarn dev:container\" \"yarn dev:home\" \"yarn dev:preferences\" \"yarn dev:account\" \"yarn dev:admin\"",
+    "dev:shared-hooks": "yarn workspace @mfe-demo/shared-hooks dev",
     "dev:container": "yarn workspace @mfe-demo/container dev",
     "dev:home": "yarn workspace @mfe-demo/home dev",
     "dev:preferences": "yarn workspace @mfe-demo/preferences dev",
