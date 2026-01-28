@@ -15,8 +15,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  ThemeProvider,
 } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
