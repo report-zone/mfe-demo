@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Theme } from '@mui/material';
 import App from './App';
-import { I18nProvider } from '@mfe-demo/shared-hooks';
+import { I18nProvider, useThemeSync, localStorageService, windowEventBus } from '@mfe-demo/shared-hooks';
 import { i18nConfig } from './i18n/config';
+import { ThemeConverter } from './utils/ThemeConverter';
 
-const theme = createTheme({
+const defaultTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
@@ -15,12 +16,22 @@ const theme = createTheme({
   },
 });
 
-// Wrapper component that provides I18nProvider for the MFE
+// Wrapper component that provides I18nProvider and ThemeProvider for the MFE
 const AdminMFE: React.FC = () => {
+  // Theme converter function
+  const convertToTheme = useCallback((themeConfig: unknown): Theme => {
+    return ThemeConverter.convertToTheme(themeConfig);
+  }, []);
+  
+  // Sync theme with container app
+  const theme = useThemeSync(defaultTheme, localStorageService, windowEventBus, convertToTheme);
+  
   return (
-    <I18nProvider config={i18nConfig}>
-      <App />
-    </I18nProvider>
+    <ThemeProvider theme={theme}>
+      <I18nProvider config={i18nConfig}>
+        <App />
+      </I18nProvider>
+    </ThemeProvider>
   );
 };
 
@@ -33,7 +44,7 @@ if (import.meta.env.DEV) {
     ReactDOM.createRoot(rootElement).render(
       <React.StrictMode>
         <I18nProvider config={i18nConfig}>
-          <ThemeProvider theme={theme}>
+          <ThemeProvider theme={defaultTheme}>
             <CssBaseline />
             <BrowserRouter>
               <App />
