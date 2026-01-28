@@ -29,7 +29,8 @@
       "deleteConfirm": "¿Está seguro de que desea eliminar este tema personalizado?",
       "themeLoaded": "¡Tema cargado y agregado a la selección!",
       "themeDeleted": "¡Tema eliminado con éxito!",
-      "loadError": "Error al cargar el archivo de tema"
+      "loadError": "Error al cargar el archivo de tema",
+      "componentShowcase": "Escaparate de componentes"
     },
     "themeEditor": {
       "title": "Editor de temas",

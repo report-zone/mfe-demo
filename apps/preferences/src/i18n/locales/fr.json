@@ -29,7 +29,8 @@
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce thème personnalisé?",
       "themeLoaded": "Thème chargé et ajouté à la sélection!",
       "themeDeleted": "Thème supprimé avec succès!",
-      "loadError": "Erreur lors du chargement du fichier de thème"
+      "loadError": "Erreur lors du chargement du fichier de thème",
+      "componentShowcase": "Vitrine des composants"
     },
     "themeEditor": {
       "title": "Éditeur de thème",

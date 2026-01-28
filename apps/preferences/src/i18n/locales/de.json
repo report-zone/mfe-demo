@@ -29,7 +29,8 @@
       "deleteConfirm": "Möchten Sie dieses benutzerdefinierte Thema wirklich löschen?",
       "themeLoaded": "Thema geladen und zur Auswahl hinzugefügt!",
       "themeDeleted": "Thema erfolgreich gelöscht!",
-      "loadError": "Fehler beim Laden der Themadatei"
+      "loadError": "Fehler beim Laden der Themadatei",
+      "componentShowcase": "Komponenten-Showcase"
     },
     "themeEditor": {
       "title": "Thema-Editor",

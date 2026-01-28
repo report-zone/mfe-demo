@@ -29,7 +29,8 @@
       "deleteConfirm": "このカスタムテーマを削除してもよろしいですか？",
       "themeLoaded": "テーマが読み込まれ、選択に追加されました！",
       "themeDeleted": "テーマが正常に削除されました！",
-      "loadError": "テーマファイルの読み込みエラー"
+      "loadError": "テーマファイルの読み込みエラー",
+      "componentShowcase": "コンポーネントショーケース"
     },
     "themeEditor": {
       "title": "テーマエディター",
