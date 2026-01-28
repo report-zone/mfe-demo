@@ -50,7 +50,7 @@ const App: React.FC = () => {
   };
 
   React.useEffect(() => {
-    // Default to general tab if at root or preferences root
+    // Default to general tab if at preferences root
     if (isRootPath(location.pathname)) {
       navigate('/preferences/general', { replace: true });
     }
