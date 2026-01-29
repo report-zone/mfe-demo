@@ -1223,15 +1223,15 @@ try {
 
   // Check if the path mapping already exists
   if (!tsConfigContent.includes(`"@mfe-demo/${mfeName}"`)) {
-    // Add the new path mapping after the @/* path using regex to preserve formatting
-    // This handles the format: "@/*": ["./src/*"]
+    // Add the new path mapping before the closing brace of the paths object
+    // This regex finds the last entry before the closing } of paths
     const newPathMapping = `,\n      "@mfe-demo/${mfeName}": ["../${mfeName}/src/main.tsx"]`;
     
-    // Find the existing paths and add after the last one
-    // Match pattern like: "@/*": ["./src/*"] or "@/*": ["./src/*"],
+    // Match the last line in paths object (any line ending with ] before the paths closing brace)
+    // Pattern: finds the last array value (]) followed by newline and closing brace
     tsConfigContent = tsConfigContent.replace(
-      /("@\/\*": \["\.\/src\/\*"\]),?/,
-      `$1${newPathMapping}`
+      /(\["[^"]+"\])\n(\s*\}\n\s*\},)/,
+      `$1${newPathMapping}\n$2`
     );
     
     fs.writeFileSync(containerTsConfigPath, tsConfigContent);

@@ -168,6 +168,9 @@ async function removeMFE(mfeName) {
     const portRegex = new RegExp(`\\n    ${mfeName}: \\d+,`, 'g');
     registryContent = registryContent.replace(portRegex, '');
 
+    // Clean up any extra blank lines before the closing brace of the ports object
+    registryContent = registryContent.replace(/,\n\s*\n(\s*\};)/, ',\n$1');
+
     // Remove case in switch statement
     const caseRegex = new RegExp(`\\n        case '${mfeName}':\\n          return import\\('@mfe-demo/${mfeName}'\\);`, 'g');
     registryContent = registryContent.replace(caseRegex, '');
