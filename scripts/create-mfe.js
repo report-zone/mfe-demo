@@ -1216,6 +1216,35 @@ if (aliasMatch && !aliasMatch[1].includes(`@mfe-demo/${mfeName}`)) {
   console.log('⚙️  Updated: apps/container/vite.config.ts');
 }
 
+// 6b. Update container tsconfig.json with TypeScript path mappings
+const containerTsConfigPath = path.join(projectRoot, 'apps/container/tsconfig.json');
+try {
+  let tsConfigContent = fs.readFileSync(containerTsConfigPath, 'utf8');
+
+  // Check if the path mapping already exists
+  if (!tsConfigContent.includes(`"@mfe-demo/${mfeName}"`)) {
+    // Parse the tsconfig.json
+    const tsConfig = JSON.parse(tsConfigContent);
+    
+    // Ensure paths object exists
+    if (!tsConfig.compilerOptions) {
+      tsConfig.compilerOptions = {};
+    }
+    if (!tsConfig.compilerOptions.paths) {
+      tsConfig.compilerOptions.paths = {};
+    }
+    
+    // Add the new path mapping
+    tsConfig.compilerOptions.paths[`@mfe-demo/${mfeName}`] = [`../${mfeName}/src/main.tsx`];
+    
+    // Write the updated tsconfig.json with proper formatting
+    fs.writeFileSync(containerTsConfigPath, JSON.stringify(tsConfig, null, 2) + '\n');
+    console.log('📝 Updated: apps/container/tsconfig.json');
+  }
+} catch (error) {
+  console.error(`❌ Error updating tsconfig.json: ${error.message}`);
+}
+
 // 7. Update scripts/run-production-local.js
 const prodLocalPath = path.join(projectRoot, 'scripts/run-production-local.js');
 let prodLocalContent = fs.readFileSync(prodLocalPath, 'utf8');

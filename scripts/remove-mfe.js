@@ -13,6 +13,7 @@
  *   - Container routeMappings.ts
  *   - Container App.tsx MFE loader entries
  *   - Container vite.config.ts aliases
+ *   - Container tsconfig.json path mappings
  *   - scripts/run-production-local.js
  *   - scripts/deploy-all.sh
  *   - scripts/deploy.sh
@@ -228,6 +229,22 @@ async function removeMFE(mfeName) {
     console.log('⚙️  Updated: apps/container/vite.config.ts');
   } catch (error) {
     console.error(`❌ Error updating vite.config.ts: ${error.message}`);
+  }
+
+  // 8b. Update container tsconfig.json to remove TypeScript path mapping
+  const containerTsConfigPath = path.join(projectRoot, 'apps/container/tsconfig.json');
+  try {
+    const tsConfigContent = fs.readFileSync(containerTsConfigPath, 'utf8');
+    const tsConfig = JSON.parse(tsConfigContent);
+    
+    // Remove the path mapping if it exists
+    if (tsConfig.compilerOptions?.paths?.[`@mfe-demo/${mfeName}`]) {
+      delete tsConfig.compilerOptions.paths[`@mfe-demo/${mfeName}`];
+      fs.writeFileSync(containerTsConfigPath, JSON.stringify(tsConfig, null, 2) + '\n');
+      console.log('📝 Updated: apps/container/tsconfig.json');
+    }
+  } catch (error) {
+    console.error(`❌ Error updating tsconfig.json: ${error.message}`);
   }
 
   // 9. Update scripts/run-production-local.js
