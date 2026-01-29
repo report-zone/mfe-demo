@@ -41,6 +41,10 @@ yarn prod:local
 yarn prod:local --skip-build
 ```
 
+## Deployed Application
+
+[Running app](https://mfe.world/container/)
+
 ## Overview
 
 This project demonstrates a micro frontend (MFE) architecture using modern web technologies without relying on complex MFE libraries like single-spa or Module Federation. It uses import maps and supports independent development and deployment of each micro frontend.
@@ -127,6 +131,7 @@ yarn dev
 ```
 
 This will start all 5 applications concurrently:
+
 - Container (port 4000)
 - Home MFE (port 3001)
 - Preferences MFE (port 3002)
@@ -183,6 +188,7 @@ yarn prod:local --skip-build
 ```
 
 This will:
+
 1. Build all applications (if needed)
 2. Start all preview servers on their respective ports
 3. Open http://localhost:4000 to view the application
