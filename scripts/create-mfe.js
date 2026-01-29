@@ -1223,22 +1223,18 @@ try {
 
   // Check if the path mapping already exists
   if (!tsConfigContent.includes(`"@mfe-demo/${mfeName}"`)) {
-    // Parse the tsconfig.json
-    const tsConfig = JSON.parse(tsConfigContent);
+    // Add the new path mapping before the closing brace of the paths object
+    // This regex finds the last entry before the closing } of paths
+    const newPathMapping = `,\n      "@mfe-demo/${mfeName}": ["../${mfeName}/src/main.tsx"]`;
     
-    // Ensure paths object exists
-    if (!tsConfig.compilerOptions) {
-      tsConfig.compilerOptions = {};
-    }
-    if (!tsConfig.compilerOptions.paths) {
-      tsConfig.compilerOptions.paths = {};
-    }
+    // Match the last line in paths object (any line ending with ] before the paths closing brace)
+    // Pattern: finds the last array value (]) followed by newline and closing brace
+    tsConfigContent = tsConfigContent.replace(
+      /(\["[^"]+"\])\n(\s*\}\n\s*\},)/,
+      `$1${newPathMapping}\n$2`
+    );
     
-    // Add the new path mapping
-    tsConfig.compilerOptions.paths[`@mfe-demo/${mfeName}`] = [`../${mfeName}/src/main.tsx`];
-    
-    // Write the updated tsconfig.json with proper formatting
-    fs.writeFileSync(containerTsConfigPath, JSON.stringify(tsConfig, null, 2) + '\n');
+    fs.writeFileSync(containerTsConfigPath, tsConfigContent);
     console.log('📝 Updated: apps/container/tsconfig.json');
   }
 } catch (error) {
