@@ -1027,10 +1027,10 @@ updateJsonFile(rootPackageJson, (pkg) => {
   
   // Update the combined dev script - add new MFE to concurrently
   if (!pkg.scripts.dev.includes(`dev:${mfeName}`)) {
-    // Simply append to the existing concurrently command
+    // Append at the end of the concurrently command (handles any number of existing MFEs)
     pkg.scripts.dev = pkg.scripts.dev.replace(
-      /"yarn dev:admin"$/,
-      `"yarn dev:admin" "yarn dev:${mfeName}"`
+      /"$/,
+      `" "yarn dev:${mfeName}"`
     );
   }
   
@@ -1041,9 +1041,10 @@ updateJsonFile(rootPackageJson, (pkg) => {
   
   // Update the combined preview script
   if (!pkg.scripts.preview.includes(`preview:${mfeName}`)) {
+    // Append at the end of the concurrently command (handles any number of existing MFEs)
     pkg.scripts.preview = pkg.scripts.preview.replace(
-      /"yarn preview:admin"$/,
-      `"yarn preview:admin" "yarn preview:${mfeName}"`
+      /"$/,
+      `" "yarn preview:${mfeName}"`
     );
   }
   
@@ -1054,10 +1055,8 @@ updateJsonFile(rootPackageJson, (pkg) => {
   
   // Update clean script
   if (!pkg.scripts.clean.includes(`../${mfeName}`)) {
-    pkg.scripts.clean = pkg.scripts.clean.replace(
-      /&& cd \.\.\/admin && rm -rf node_modules dist$/,
-      `&& cd ../admin && rm -rf node_modules dist && cd ../${mfeName} && rm -rf node_modules dist`
-    );
+    // Append at the end of the clean script (handles any number of existing MFEs)
+    pkg.scripts.clean = pkg.scripts.clean + ` && cd ../${mfeName} && rm -rf node_modules dist`;
   }
 });
 console.log('📦 Updated: package.json');
@@ -1296,15 +1295,20 @@ let prodLocalContent = fs.readFileSync(prodLocalPath, 'utf8');
 
 // Update APPS array
 if (!prodLocalContent.includes(`'${mfeName}'`)) {
+  // Use a flexible regex that matches the APPS array with any number of entries
   prodLocalContent = prodLocalContent.replace(
-    /const APPS = \['container', 'home', 'preferences', 'account', 'admin'\];/,
-    `const APPS = ['container', 'home', 'preferences', 'account', 'admin', '${mfeName}'];`
+    /const APPS = \[([^\]]+)\];/,
+    (match, apps) => {
+      // Append the new MFE to the existing array
+      const trimmedApps = apps.trim().replace(/,\s*$/, '');
+      return `const APPS = [${trimmedApps}, '${mfeName}'];`;
+    }
   );
   
-  // Add access point log
+  // Add access point log - find the line before "Open http://localhost" and add after it
   prodLocalContent = prodLocalContent.replace(
-    /console\.log\('   Admin:       http:\/\/localhost:3004'\);/,
-    `console.log('   Admin:       http://localhost:3004');\n    console.log('   ${mfeNamePascal}:${' '.repeat(Math.max(1, 10 - mfeNamePascal.length))}http://localhost:${nextPort}');`
+    /(console\.log\('   [A-Za-z0-9]+:\s+http:\/\/localhost:\d+'\);)\n(\s*console\.log\('\\n👉 Open)/,
+    `$1\n    console.log('   ${mfeNamePascal}:${' '.repeat(Math.max(1, 10 - mfeNamePascal.length))}http://localhost:${nextPort}');\n$2`
   );
   
   fs.writeFileSync(prodLocalPath, prodLocalContent);
@@ -1316,9 +1320,12 @@ const deployAllPath = path.join(projectRoot, 'scripts/deploy-all.sh');
 let deployAllContent = fs.readFileSync(deployAllPath, 'utf8');
 
 if (!deployAllContent.includes(mfeName)) {
+  // Use flexible regex that matches the for loop with any number of apps
   deployAllContent = deployAllContent.replace(
-    /for APP in container home preferences account admin;/,
-    `for APP in container home preferences account admin ${mfeName};`
+    /for APP in ([^;]+);/,
+    (match, apps) => {
+      return `for APP in ${apps.trim()} ${mfeName};`;
+    }
   );
   fs.writeFileSync(deployAllPath, deployAllContent);
   console.log('🚀 Updated: scripts/deploy-all.sh');
@@ -1329,22 +1336,28 @@ const deployPath = path.join(projectRoot, 'scripts/deploy.sh');
 let deployContent = fs.readFileSync(deployPath, 'utf8');
 
 if (!deployContent.includes(mfeName)) {
-  // Update echo for available apps
+  // Update echo for available apps - match any list of apps
   deployContent = deployContent.replace(
-    /echo "Available apps: container, home, preferences, account, admin"/,
-    `echo "Available apps: container, home, preferences, account, admin, ${mfeName}"`
+    /echo "Available apps: ([^"]+)"/,
+    (match, apps) => {
+      return `echo "Available apps: ${apps}, ${mfeName}"`;
+    }
   );
   
-  // Update regex validation
+  // Update regex validation - match the bash regex pattern with any apps
   deployContent = deployContent.replace(
-    /if \[\[ ! "\$APP_NAME" =~ \^\(container\|home\|preferences\|account\|admin\)\$ \]\];/,
-    `if [[ ! "$APP_NAME" =~ ^(container|home|preferences|account|admin|${mfeName})$ ]];`
+    /if \[\[ ! "\$APP_NAME" =~ \^\(([^)]+)\)\$ \]\];/,
+    (match, apps) => {
+      return `if [[ ! "$APP_NAME" =~ ^(${apps}|${mfeName})$ ]];`;
+    }
   );
   
-  // Update error message
+  // Update error message - match any list of apps
   deployContent = deployContent.replace(
-    /echo "Error: Invalid app name\. Must be one of: container, home, preferences, account, admin"/,
-    `echo "Error: Invalid app name. Must be one of: container, home, preferences, account, admin, ${mfeName}"`
+    /echo "Error: Invalid app name\. Must be one of: ([^"]+)"/,
+    (match, apps) => {
+      return `echo "Error: Invalid app name. Must be one of: ${apps}, ${mfeName}"`;
+    }
   );
   
   fs.writeFileSync(deployPath, deployContent);
@@ -1357,22 +1370,27 @@ let deployAppsContent = fs.readFileSync(deployAppsPath, 'utf8');
 
 // Update MFE remote URL settings
 if (!deployAppsContent.includes(`VITE_MFE_${mfeName.toUpperCase()}_URL`)) {
+  // Find the last VITE_MFE_*_URL export and add after it
   deployAppsContent = deployAppsContent.replace(
-    /export VITE_MFE_ADMIN_URL="\$\{WEBSITE_URL\}\/admin"/,
-    `export VITE_MFE_ADMIN_URL="\${WEBSITE_URL}/admin"\n    export VITE_MFE_${mfeName.toUpperCase()}_URL="\${WEBSITE_URL}/${mfeName}"`
+    /(export VITE_MFE_[A-Z_]+_URL="\$\{WEBSITE_URL\}\/[a-z-]+")\n(\s*\n|\s*print_info)/,
+    `$1\n    export VITE_MFE_${mfeName.toUpperCase()}_URL="\${WEBSITE_URL}/${mfeName}"\n$2`
   );
   
+  // Find the last print_info for MFE URLs and add after it
   deployAppsContent = deployAppsContent.replace(
-    /print_info "  - Admin: \$\{VITE_MFE_ADMIN_URL\}"/,
-    `print_info "  - Admin: \${VITE_MFE_ADMIN_URL}"\n    print_info "  - ${mfeNamePascal}: \${VITE_MFE_${mfeName.toUpperCase()}_URL}"`
+    /(print_info "  - [A-Za-z]+: \$\{VITE_MFE_[A-Z_]+_URL\}")\n(\s*\n|\s*\})/,
+    `$1\n    print_info "  - ${mfeNamePascal}: \${VITE_MFE_${mfeName.toUpperCase()}_URL}"\n$2`
   );
 }
 
-// Update APPS array
+// Update APPS array - match bash array with any number of apps
 if (!deployAppsContent.includes(`"${mfeName}"`)) {
   deployAppsContent = deployAppsContent.replace(
-    /APPS=\("container" "home" "preferences" "account" "admin"\)/,
-    `APPS=("container" "home" "preferences" "account" "admin" "${mfeName}")`
+    /APPS=\(([^)]+)\)/,
+    (match, apps) => {
+      const trimmedApps = apps.trim();
+      return `APPS=(${trimmedApps} "${mfeName}")`;
+    }
   );
 }
 
