@@ -1245,6 +1245,55 @@ try {
   console.error(`❌ Error updating tsconfig.json: ${error.message}`);
 }
 
+// 6c. Update container vite-env.d.ts with TypeScript module declaration
+const viteEnvPath = path.join(projectRoot, 'apps/container/src/vite-env.d.ts');
+try {
+  let viteEnvContent = fs.readFileSync(viteEnvPath, 'utf8');
+  
+  // Check if the module declaration already exists
+  if (!viteEnvContent.includes(`declare module '@mfe-demo/${mfeName}'`)) {
+    // Add the module declaration at the end of the file
+    const moduleDeclaration = `declare module '@mfe-demo/${mfeName}' {
+  import { ComponentType } from 'react';
+  const component: ComponentType;
+  export default component;
+}
+`;
+    viteEnvContent = viteEnvContent.trimEnd() + '\n\n' + moduleDeclaration;
+    fs.writeFileSync(viteEnvPath, viteEnvContent);
+    console.log('📝 Updated: apps/container/src/vite-env.d.ts');
+  }
+} catch (error) {
+  console.error(`❌ Error updating vite-env.d.ts: ${error.message}`);
+}
+
+// 6d. Update container vite-plugin-mfe-remote.ts with new MFE package
+const mfeRemotePluginPath = path.join(projectRoot, 'apps/container/vite-plugin-mfe-remote.ts');
+try {
+  let mfeRemoteContent = fs.readFileSync(mfeRemotePluginPath, 'utf8');
+  const originalContent = mfeRemoteContent;
+  
+  // Check if the MFE package already exists
+  if (!mfeRemoteContent.includes(`'@mfe-demo/${mfeName}'`)) {
+    // Add the new MFE to the mfePackages array by finding the last entry and adding after it
+    // This regex matches any @mfe-demo package followed by the closing bracket of the array
+    mfeRemoteContent = mfeRemoteContent.replace(
+      /('@mfe-demo\/[\w-]+',)(\s*\];)/,
+      `$1\n        '@mfe-demo/${mfeName}',$2`
+    );
+    
+    // Verify the replacement was successful
+    if (mfeRemoteContent !== originalContent) {
+      fs.writeFileSync(mfeRemotePluginPath, mfeRemoteContent);
+      console.log('🔌 Updated: apps/container/vite-plugin-mfe-remote.ts');
+    } else {
+      console.warn('⚠️  Could not find mfePackages array in vite-plugin-mfe-remote.ts. Manual update may be required.');
+    }
+  }
+} catch (error) {
+  console.error(`❌ Error updating vite-plugin-mfe-remote.ts: ${error.message}`);
+}
+
 // 7. Update scripts/run-production-local.js
 const prodLocalPath = path.join(projectRoot, 'scripts/run-production-local.js');
 let prodLocalContent = fs.readFileSync(prodLocalPath, 'utf8');
