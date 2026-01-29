@@ -11,8 +11,10 @@ interface ThemeChangeEvent {
   themeConfig?: unknown;
 }
 
-// Default theme configurations for fallback when themes are not in customThemes storage
-// These match the configurations in apps/preferences/src/themes/defaultThemes.ts
+// Default theme configurations for fallback when themes are not in customThemes storage.
+// Note: These configurations are duplicated from apps/preferences/src/themes/defaultThemes.ts
+// to maintain MFE independence (each MFE should be able to run standalone).
+// This follows the existing pattern in the codebase where each MFE has its own ThemeConverter.
 const DEFAULT_THEME_CONFIGS: Record<string, unknown> = {
   light: {
     palette: {
@@ -101,7 +103,7 @@ export function useThemeSync<T>(
     return () => {
       unsubscribe();
     };
-  }, [defaultTheme, storageService, eventBus]);
+  }, [defaultTheme, storageService, eventBus, convertToTheme]);
 
   return currentTheme;
 }

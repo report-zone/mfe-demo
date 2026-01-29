@@ -67,6 +67,9 @@ describe('useThemeSync', () => {
 
     await waitFor(() => {
       expect(result.current.palette.mode).toBe('dark');
+      // Verify the complete dark theme config is applied
+      expect(result.current.palette.primary.main).toBe('#90caf9');
+      expect(result.current.palette.secondary.main).toBe('#f48fb1');
     });
   });
 
@@ -82,6 +85,9 @@ describe('useThemeSync', () => {
 
     await waitFor(() => {
       expect(result.current.palette.mode).toBe('light');
+      // Verify the complete light theme config is applied
+      expect(result.current.palette.primary.main).toBe('#1976d2');
+      expect(result.current.palette.secondary.main).toBe('#dc004e');
     });
   });
 
