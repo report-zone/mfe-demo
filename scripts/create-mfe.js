@@ -1172,27 +1172,24 @@ let appTsxContent = fs.readFileSync(appTsxPath, 'utf8');
 
 // Check if the MFE is already added
 if (!appTsxContent.includes(`mountedMFEs.has('${mfeName}')`)) {
-  // Find the account MFE loader block and add the new MFE after it (before admin)
-  const accountMfeBlock = `{mountedMFEs.has('account') && (
-          <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
-            <MFELoader mfeName="account" />
-          </Box>
-        )}`;
+  // Insert the new MFE loader block before the admin comment
+  // This is more robust than matching a specific MFE block
+  const adminComment = `{/* Only mount admin MFE if user is an admin and has visited admin page */}`;
   
-  const newMfeBlock = `{mountedMFEs.has('account') && (
-          <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
-            <MFELoader mfeName="account" />
-          </Box>
-        )}
-        {mountedMFEs.has('${mfeName}') && (
+  const newMfeBlock = `{mountedMFEs.has('${mfeName}') && (
           <Box sx={{ display: currentMFE === '${mfeName}' ? 'block' : 'none' }}>
             <MFELoader mfeName="${mfeName}" />
           </Box>
-        )}`;
+        )}
+        {/* Only mount admin MFE if user is an admin and has visited admin page */}`;
   
-  appTsxContent = appTsxContent.replace(accountMfeBlock, newMfeBlock);
-  fs.writeFileSync(appTsxPath, appTsxContent);
-  console.log('📱 Updated: apps/container/src/App.tsx');
+  if (appTsxContent.includes(adminComment)) {
+    appTsxContent = appTsxContent.replace(adminComment, newMfeBlock);
+    fs.writeFileSync(appTsxPath, appTsxContent);
+    console.log('📱 Updated: apps/container/src/App.tsx');
+  } else {
+    console.warn('⚠️  Could not find admin MFE comment in App.tsx. Manual update may be required.');
+  }
 }
 
 // 6. Update container vite.config.ts

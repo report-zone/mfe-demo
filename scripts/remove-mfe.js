@@ -84,15 +84,7 @@ function updateJsonFile(filePath, updateFn) {
 // Helper function to delete directory recursively
 function deleteDirectory(dirPath) {
   if (fs.existsSync(dirPath)) {
-    fs.readdirSync(dirPath).forEach((file) => {
-      const curPath = path.join(dirPath, file);
-      if (fs.lstatSync(curPath).isDirectory()) {
-        deleteDirectory(curPath);
-      } else {
-        fs.unlinkSync(curPath);
-      }
-    });
-    fs.rmdirSync(dirPath);
+    fs.rmSync(dirPath, { recursive: true, force: true });
   }
 }
 
@@ -206,9 +198,10 @@ async function removeMFE(mfeName) {
   const appTsxPath = path.join(projectRoot, 'apps/container/src/App.tsx');
   try {
     let appTsxContent = fs.readFileSync(appTsxPath, 'utf8');
-    // Remove the MFE loader block
+    // Remove the MFE loader block - use a more flexible regex that matches whitespace variations
+    // Pattern matches: {mountedMFEs.has('mfeName') && ( <Box ...> <MFELoader /> </Box> )}
     const mfeLoaderRegex = new RegExp(
-      `\\n        \\{mountedMFEs\\.has\\('${mfeName}'\\) && \\(\\n          <Box sx=\\{\\{ display: currentMFE === '${mfeName}' \\? 'block' : 'none' \\}\\}>\\n            <MFELoader mfeName="${mfeName}" />\\n          </Box>\\n        \\)\\}`,
+      `\\s*\\{mountedMFEs\\.has\\(['"]${mfeName}['"]\\)\\s*&&\\s*\\([\\s\\S]*?<MFELoader\\s+mfeName=["']${mfeName}["']\\s*\\/>[\\s\\S]*?<\\/Box>[\\s\\S]*?\\)\\}`,
       'g'
     );
     appTsxContent = appTsxContent.replace(mfeLoaderRegex, '');
