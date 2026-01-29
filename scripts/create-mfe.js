@@ -1132,7 +1132,7 @@ const switchMatch = registryContent.match(/switch \(mfeName\) \{([\s\S]*?)defaul
 if (switchMatch && !switchMatch[1].includes(`case '${mfeName}':`)) {
   const newCase = `\n        case '${mfeName}':\n          return import('@mfe-demo/${mfeName}');`;
   registryContent = registryContent.replace(
-    /(\s*case 'admin':[\s\S]*?return import\('@mfe-demo\/admin'\);)/,
+    /(\s*case '\w+':[\s\S]*?return import\('@mfe-demo\/\w+'\);)(?![\s\S]*case)/,
     `$1${newCase}`
   );
 }
@@ -1142,7 +1142,7 @@ const registryMatch = registryContent.match(/export const mfeRegistry: Record<st
 if (registryMatch && !registryMatch[1].includes(`${mfeName}:`)) {
   const newEntry = `\n  ${mfeName}: {\n    name: '${mfeNamePascal}',\n    loadComponent: createMFELoader('${mfeName}'),\n    description: '${mfeNamePascal} micro frontend',\n  },`;
   registryContent = registryContent.replace(
-    /(admin: \{[\s\S]*?description: 'Admin panel micro frontend',\s*\},)/,
+    /(\w+: \{[\s\S]*?description: '[^']*',\s*\},)(?![\s\S]*\w+: \{)/,
     `$1${newEntry}`
   );
 }
@@ -1158,7 +1158,7 @@ const routeArrayMatch = routeContent.match(/export const routeMappings: RouteMap
 if (routeArrayMatch && !routeArrayMatch[1].includes(`'/${mfeName}'`)) {
   const newRoute = `\n  { pattern: '/${mfeName}', mfeName: '${mfeName}', exact: true },`;
   routeContent = routeContent.replace(
-    /(\{ pattern: '\/admin', mfeName: 'admin', exact: true \},)/,
+    /(\{ pattern: '\/\w+', mfeName: '\w+', exact: true \},)(?![\s\S]*\{ pattern:)/,
     `$1${newRoute}`
   );
   fs.writeFileSync(routeMappingsPath, routeContent);
@@ -1198,8 +1198,8 @@ let viteConfigContent = fs.readFileSync(containerViteConfigPath, 'utf8');
 // Add to hasRemoteUrls check
 if (!viteConfigContent.includes(`process.env.VITE_MFE_${mfeName.toUpperCase()}_URL`)) {
   viteConfigContent = viteConfigContent.replace(
-    /process\.env\.VITE_MFE_ADMIN_URL/,
-    `process.env.VITE_MFE_ADMIN_URL &&\n    process.env.VITE_MFE_${mfeName.toUpperCase()}_URL`
+    /(process\.env\.VITE_MFE_\w+_URL)(?![\s\S]*process\.env\.VITE_MFE_)/,
+    `$1 &&\n    process.env.VITE_MFE_${mfeName.toUpperCase()}_URL`
   );
 }
 
@@ -1208,7 +1208,7 @@ const aliasMatch = viteConfigContent.match(/alias: useAliases \? \{([\s\S]*?)\} 
 if (aliasMatch && !aliasMatch[1].includes(`@mfe-demo/${mfeName}`)) {
   const newAlias = `\n        '@mfe-demo/${mfeName}': path.resolve(__dirname, '../${mfeName}/src/main.tsx'),`;
   viteConfigContent = viteConfigContent.replace(
-    /('@mfe-demo\/admin': path\.resolve\(__dirname, '\.\.\/admin\/src\/main\.tsx'\),)/,
+    /('@mfe-demo\/\w+': path\.resolve\(__dirname, '\.\.\/\w+\/src\/main\.tsx'\),)(?![\s\S]*'@mfe-demo\/)/,
     `$1${newAlias}`
   );
   fs.writeFileSync(containerViteConfigPath, viteConfigContent);
