@@ -44,6 +44,7 @@ interface ThemeContextType {
   themes: CustomTheme[];
   setTheme: (theme: CustomTheme) => void;
   addCustomTheme: (theme: CustomTheme) => void;
+  updateCustomTheme: (theme: CustomTheme) => void;
   removeCustomTheme: (themeId: string) => void;
   loadThemesFromStorage: () => void;
 }
@@ -156,6 +157,31 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
     }
   };
 
+  const updateCustomTheme = (updatedTheme: CustomTheme) => {
+    try {
+      const storedThemes = storageService.getItem('customThemes');
+      const existingCustomThemes: CustomTheme[] = storedThemes ? JSON.parse(storedThemes) : [];
+      const updatedCustomThemes = existingCustomThemes.map((t: CustomTheme) =>
+        t.id === updatedTheme.id ? updatedTheme : t
+      );
+      
+      // Save to storage
+      storageService.setItem('customThemes', JSON.stringify(updatedCustomThemes));
+      // Hydrate all themes from storage to ensure consistent theme objects
+      const hydratedThemes = updatedCustomThemes.map(regenerateThemeFromConfig);
+      setThemes([...defaultThemes, ...hydratedThemes]);
+      
+      // If the updated theme was selected, update the current theme as well
+      if (currentTheme.id === updatedTheme.id) {
+        const hydratedUpdatedTheme = regenerateThemeFromConfig(updatedTheme);
+        setCurrentTheme(hydratedUpdatedTheme);
+        eventBus.dispatch('themeChanged', hydratedUpdatedTheme);
+      }
+    } catch (error) {
+      console.error('Error updating theme in storage:', error);
+    }
+  };
+
   return (
     <ThemeContext.Provider
       value={{
@@ -163,6 +189,7 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
         themes,
         setTheme,
         addCustomTheme,
+        updateCustomTheme,
         removeCustomTheme,
         loadThemesFromStorage,
       }}

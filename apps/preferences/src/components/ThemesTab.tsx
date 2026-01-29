@@ -21,9 +21,10 @@ import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThemeContext } from '../context/ThemeContext';
-import { CustomThemeDefinition } from '../types/theme.types';
+import { CustomThemeDefinition, CustomTheme } from '../types/theme.types';
 import ThemeEditorDialog from './ThemeEditorDialog';
 import ComponentShowcase from './ComponentShowcase';
 import { convertThemeDefinitionToMuiTheme } from '../utils/themeUtils';
@@ -32,13 +33,25 @@ import { useI18n } from '@mfe-demo/shared-hooks';
 
 const ThemesTab: React.FC = () => {
   const { t } = useI18n();
-  const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage, removeCustomTheme } =
+  const { themes, setTheme, currentTheme, addCustomTheme, updateCustomTheme, loadThemesFromStorage, removeCustomTheme } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
+  const [editingTheme, setEditingTheme] = useState<CustomTheme | null>(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
 
   const handleCreateTheme = () => {
+    setEditingTheme(null);
     setEditorOpen(true);
+  };
+
+  const handleEditTheme = (theme: CustomTheme) => {
+    setEditingTheme(theme);
+    setEditorOpen(true);
+  };
+
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+    setEditingTheme(null);
   };
 
   const handleLoadAndAddTheme = async () => {
@@ -141,19 +154,33 @@ const ThemesTab: React.FC = () => {
                   </Tooltip>
                 )}
                 {theme.isCustom && (
-                  <Tooltip title={t('preferences.themes.deleteTooltip')} placement="left">
-                    <IconButton 
-                      size="small" 
-                      sx={{ ml: 1 }} 
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTheme(theme.id);
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                  <>
+                    <Tooltip title={t('preferences.themes.editTooltip')} placement="left">
+                      <IconButton 
+                        size="small" 
+                        sx={{ ml: 1 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTheme(theme);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('preferences.themes.deleteTooltip')} placement="left">
+                      <IconButton 
+                        size="small" 
+                        sx={{ ml: 1 }} 
+                        color="error"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTheme(theme.id);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </>
                 )}
               </Box>
             ))}
@@ -178,7 +205,40 @@ const ThemesTab: React.FC = () => {
         </Box>
       </Paper>
 
-      <ThemeEditorDialog open={editorOpen} onClose={() => setEditorOpen(false)} />
+      <ThemeEditorDialog 
+        open={editorOpen} 
+        onClose={handleEditorClose}
+        initialTheme={editingTheme?.themeConfig as CustomThemeDefinition | undefined}
+        onSaveToStorage={(themeConfig: CustomThemeDefinition) => {
+          const muiTheme = convertThemeDefinitionToMuiTheme(themeConfig);
+          if (editingTheme) {
+            // Update existing theme
+            updateCustomTheme({
+              ...editingTheme,
+              name: themeConfig.name,
+              description: themeConfig.description || '',
+              theme: muiTheme,
+              themeConfig: themeConfig,
+            });
+            loadThemesFromStorage();
+            setSnackbar({ open: true, message: t('preferences.themes.themeUpdated'), severity: 'success' });
+          } else {
+            // Create new theme
+            const newTheme = {
+              id: `custom-${Date.now()}`,
+              name: themeConfig.name,
+              description: themeConfig.description || '',
+              theme: muiTheme,
+              isCustom: true,
+              themeConfig: themeConfig,
+            };
+            addCustomTheme(newTheme);
+            loadThemesFromStorage();
+            setSnackbar({ open: true, message: t('preferences.themes.themeSaved'), severity: 'success' });
+          }
+          handleEditorClose();
+        }}
+      />
 
       {/* Snackbar for notifications */}
       <Snackbar
