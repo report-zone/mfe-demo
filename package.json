@@ -2,6 +2,7 @@
   "name": "mfe-demo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "An MFE architecture demo using React, TypeScript, React Router, Amplify and Cognito",
   "workspaces": [
     "apps/*",
