@@ -14,6 +14,8 @@
  *   - Container App.tsx MFE loader entries
  *   - Container vite.config.ts aliases
  *   - Container tsconfig.json path mappings
+ *   - Container vite-env.d.ts module declarations
+ *   - Container vite-plugin-mfe-remote.ts MFE packages
  *   - scripts/run-production-local.js
  *   - scripts/deploy-all.sh
  *   - scripts/deploy.sh
@@ -234,17 +236,71 @@ async function removeMFE(mfeName) {
   // 8b. Update container tsconfig.json to remove TypeScript path mapping
   const containerTsConfigPath = path.join(projectRoot, 'apps/container/tsconfig.json');
   try {
-    const tsConfigContent = fs.readFileSync(containerTsConfigPath, 'utf8');
-    const tsConfig = JSON.parse(tsConfigContent);
-    
-    // Remove the path mapping if it exists
-    if (tsConfig.compilerOptions?.paths?.[`@mfe-demo/${mfeName}`]) {
-      delete tsConfig.compilerOptions.paths[`@mfe-demo/${mfeName}`];
-      fs.writeFileSync(containerTsConfigPath, JSON.stringify(tsConfig, null, 2) + '\n');
+    let tsConfigContent = fs.readFileSync(containerTsConfigPath, 'utf8');
+    const originalContent = tsConfigContent;
+
+    // Remove the path mapping for this MFE (multi-line format from JSON.stringify)
+    // Pattern matches:
+    //       "@mfe-demo/mfeName": [
+    //         "../mfeName/src/main.tsx"
+    //       ],
+    const multiLineRegex = new RegExp(
+      `,?\\n      "@mfe-demo/${mfeName}": \\[\\n        "\\.\\./${mfeName}/src/main\\.tsx"\\n      \\]`,
+      'g'
+    );
+    tsConfigContent = tsConfigContent.replace(multiLineRegex, '');
+
+    // Also try single-line format as fallback
+    const singleLineRegex = new RegExp(
+      `,?\\n      "@mfe-demo/${mfeName}": \\["\\.\\./${mfeName}/src/main\\.tsx"\\]`,
+      'g'
+    );
+    tsConfigContent = tsConfigContent.replace(singleLineRegex, '');
+
+    if (tsConfigContent !== originalContent) {
+      fs.writeFileSync(containerTsConfigPath, tsConfigContent);
       console.log('📝 Updated: apps/container/tsconfig.json');
     }
   } catch (error) {
     console.error(`❌ Error updating tsconfig.json: ${error.message}`);
+  }
+
+  // 8c. Update container vite-env.d.ts to remove TypeScript module declaration
+  const viteEnvPath = path.join(projectRoot, 'apps/container/src/vite-env.d.ts');
+  try {
+    let viteEnvContent = fs.readFileSync(viteEnvPath, 'utf8');
+
+    // Remove the module declaration block for this MFE
+    const moduleDeclarationRegex = new RegExp(
+      `\\n*declare module '@mfe-demo/${mfeName}' \\{\\n  import \\{ ComponentType \\} from 'react';\\n  const component: ComponentType;\\n  export default component;\\n\\}\\n?`,
+      'g'
+    );
+    viteEnvContent = viteEnvContent.replace(moduleDeclarationRegex, '');
+
+    // Ensure file ends with a newline
+    if (!viteEnvContent.endsWith('\n')) {
+      viteEnvContent = viteEnvContent + '\n';
+    }
+
+    fs.writeFileSync(viteEnvPath, viteEnvContent);
+    console.log('📝 Updated: apps/container/src/vite-env.d.ts');
+  } catch (error) {
+    console.error(`❌ Error updating vite-env.d.ts: ${error.message}`);
+  }
+
+  // 8d. Update container vite-plugin-mfe-remote.ts to remove MFE package
+  const mfeRemotePluginPath = path.join(projectRoot, 'apps/container/vite-plugin-mfe-remote.ts');
+  try {
+    let mfeRemoteContent = fs.readFileSync(mfeRemotePluginPath, 'utf8');
+
+    // Remove the MFE package from the mfePackages array
+    const mfePackageRegex = new RegExp(`\\n        '@mfe-demo/${mfeName}',`, 'g');
+    mfeRemoteContent = mfeRemoteContent.replace(mfePackageRegex, '');
+
+    fs.writeFileSync(mfeRemotePluginPath, mfeRemoteContent);
+    console.log('🔌 Updated: apps/container/vite-plugin-mfe-remote.ts');
+  } catch (error) {
+    console.error(`❌ Error updating vite-plugin-mfe-remote.ts: ${error.message}`);
   }
 
   // 9. Update scripts/run-production-local.js
