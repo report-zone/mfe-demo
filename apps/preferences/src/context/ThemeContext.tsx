@@ -5,6 +5,40 @@ import { defaultThemes } from '../themes/defaultThemes';
 import { convertThemeDefinitionToMuiTheme } from '../utils/themeUtils';
 import { IStorageService, IEventBus, localStorageService, windowEventBus } from '@mfe-demo/shared-hooks';
 
+/**
+ * Regenerates the MUI Theme object from themeConfig.
+ * This is necessary because serialized MUI Theme objects lose their methods
+ * (like breakpoints.up()) during JSON serialization to localStorage.
+ */
+const regenerateThemeFromConfig = (storedTheme: CustomTheme): CustomTheme => {
+  if (!storedTheme.themeConfig) {
+    // No themeConfig available, return as-is (will use serialized theme)
+    return storedTheme;
+  }
+
+  let regeneratedTheme: Theme;
+  const config = storedTheme.themeConfig;
+
+  // Check if themeConfig is a CustomThemeDefinition (has colors and componentOverrides)
+  if (
+    typeof config === 'object' &&
+    config !== null &&
+    'colors' in config &&
+    'componentOverrides' in config
+  ) {
+    // It's a CustomThemeDefinition - use the dedicated converter
+    regeneratedTheme = convertThemeDefinitionToMuiTheme(config as CustomThemeDefinition);
+  } else {
+    // It's a legacy ThemeOptions config - use createTheme directly
+    regeneratedTheme = createTheme(config as ThemeOptions);
+  }
+
+  return {
+    ...storedTheme,
+    theme: regeneratedTheme,
+  };
+};
+
 interface ThemeContextType {
   currentTheme: CustomTheme;
   themes: CustomTheme[];
@@ -37,40 +71,6 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
 }) => {
   const [currentTheme, setCurrentTheme] = useState<CustomTheme>(defaultThemes[0]);
   const [themes, setThemes] = useState<CustomTheme[]>(defaultThemes);
-
-  /**
-   * Regenerates the MUI Theme object from themeConfig.
-   * This is necessary because serialized MUI Theme objects lose their methods
-   * (like breakpoints.up()) during JSON serialization to localStorage.
-   */
-  const regenerateThemeFromConfig = (storedTheme: CustomTheme): CustomTheme => {
-    if (!storedTheme.themeConfig) {
-      // No themeConfig available, return as-is (will use serialized theme)
-      return storedTheme;
-    }
-
-    let regeneratedTheme: Theme;
-    const config = storedTheme.themeConfig;
-
-    // Check if themeConfig is a CustomThemeDefinition (has colors and componentOverrides)
-    if (
-      typeof config === 'object' &&
-      config !== null &&
-      'colors' in config &&
-      'componentOverrides' in config
-    ) {
-      // It's a CustomThemeDefinition - use the dedicated converter
-      regeneratedTheme = convertThemeDefinitionToMuiTheme(config as CustomThemeDefinition);
-    } else {
-      // It's a legacy ThemeOptions config - use createTheme directly
-      regeneratedTheme = createTheme(config as ThemeOptions);
-    }
-
-    return {
-      ...storedTheme,
-      theme: regeneratedTheme,
-    };
-  };
 
   // Load custom themes from storage on mount
   const loadThemesFromStorage = useCallback(() => {
@@ -122,12 +122,14 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
     // Get custom themes from storage to ensure we have the latest
     try {
       const storedThemes = storageService.getItem('customThemes');
-      const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
+      const existingCustomThemes: CustomTheme[] = storedThemes ? JSON.parse(storedThemes) : [];
       const updatedCustomThemes = [...existingCustomThemes, theme];
       
       // Save to storage
       storageService.setItem('customThemes', JSON.stringify(updatedCustomThemes));
-      setThemes([...defaultThemes, ...updatedCustomThemes]);
+      // Hydrate all themes from storage to ensure consistent theme objects
+      const hydratedThemes = updatedCustomThemes.map(regenerateThemeFromConfig);
+      setThemes([...defaultThemes, ...hydratedThemes]);
     } catch (error) {
       console.error('Error saving theme to storage:', error);
     }
@@ -136,12 +138,14 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({
   const removeCustomTheme = (themeId: string) => {
     try {
       const storedThemes = storageService.getItem('customThemes');
-      const existingCustomThemes = storedThemes ? JSON.parse(storedThemes) : [];
+      const existingCustomThemes: CustomTheme[] = storedThemes ? JSON.parse(storedThemes) : [];
       const updatedCustomThemes = existingCustomThemes.filter((t: CustomTheme) => t.id !== themeId);
       
       // Save to storage
       storageService.setItem('customThemes', JSON.stringify(updatedCustomThemes));
-      setThemes([...defaultThemes, ...updatedCustomThemes]);
+      // Hydrate all themes from storage to ensure consistent theme objects
+      const hydratedThemes = updatedCustomThemes.map(regenerateThemeFromConfig);
+      setThemes([...defaultThemes, ...hydratedThemes]);
       
       // If the deleted theme was selected, switch to default
       if (currentTheme.id === themeId) {
