@@ -400,22 +400,25 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       const cleanedOverrides: Record<string, unknown> = {};
       
       Object.keys(finalDefinition.muiComponentOverrides).forEach(component => {
-        const componentOverride = finalDefinition.muiComponentOverrides[component] as Record<string, unknown>;
-        if (componentOverride?.styleOverrides) {
+        const componentOverride = finalDefinition.muiComponentOverrides[component];
+        if (componentOverride && typeof componentOverride === 'object' && 'styleOverrides' in componentOverride) {
+          const typedOverride = componentOverride as Record<string, unknown>;
           const cleanedStyleOverrides: Record<string, unknown> = {};
-          const styleOverrides = componentOverride.styleOverrides as Record<string, unknown>;
+          const styleOverrides = typedOverride.styleOverrides as Record<string, unknown>;
           
-          Object.keys(styleOverrides).forEach(overrideKey => {
-            // Only include if enabled
-            if (enabledOverrides[component]?.[overrideKey]) {
-              cleanedStyleOverrides[overrideKey] = styleOverrides[overrideKey];
-            }
-          });
+          if (styleOverrides && typeof styleOverrides === 'object') {
+            Object.keys(styleOverrides).forEach(overrideKey => {
+              // Only include if enabled
+              if (enabledOverrides[component]?.[overrideKey]) {
+                cleanedStyleOverrides[overrideKey] = styleOverrides[overrideKey];
+              }
+            });
+          }
           
           // Only include component if it has enabled overrides
           if (Object.keys(cleanedStyleOverrides).length > 0) {
             cleanedOverrides[component] = {
-              ...componentOverride,
+              ...typedOverride,
               styleOverrides: cleanedStyleOverrides,
             };
           }
@@ -425,9 +428,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
       finalDefinition.muiComponentOverrides = cleanedOverrides;
     }
     
+    // Ensure version is set, default to "1.0.0" if missing
+    const version = finalDefinition.version || '1.0.0';
     const finalDefinitionWithVersion = isEditingExistingTheme 
-      ? { ...finalDefinition, version: bumpVersion(finalDefinition.version) }
-      : finalDefinition;
+      ? { ...finalDefinition, version: bumpVersion(version) }
+      : { ...finalDefinition, version };
     
     onSaveToStorage(finalDefinitionWithVersion);
     setHasUnsavedChanges(false);

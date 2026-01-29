@@ -33,7 +33,7 @@ import { useI18n } from '@mfe-demo/shared-hooks';
 
 const ThemesTab: React.FC = () => {
   const { t } = useI18n();
-  const { themes, setTheme, currentTheme, addCustomTheme, updateCustomTheme, loadThemesFromStorage, removeCustomTheme } =
+  const { themes, setTheme, currentTheme, addCustomTheme, updateCustomTheme, removeCustomTheme } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingTheme, setEditingTheme] = useState<CustomTheme | null>(null);
@@ -70,7 +70,6 @@ const ThemesTab: React.FC = () => {
         themeConfig: config,
       };
       addCustomTheme(theme);
-      loadThemesFromStorage();
       setSnackbar({ open: true, message: t('preferences.themes.themeLoaded'), severity: 'success' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : t('preferences.themes.loadError');
@@ -81,7 +80,6 @@ const ThemesTab: React.FC = () => {
   const handleDeleteTheme = (themeId: string) => {
     if (window.confirm(t('preferences.themes.deleteConfirm'))) {
       removeCustomTheme(themeId);
-      loadThemesFromStorage();
       setSnackbar({ open: true, message: t('preferences.themes.themeDeleted'), severity: 'success' });
     }
   };
@@ -220,7 +218,6 @@ const ThemesTab: React.FC = () => {
               theme: muiTheme,
               themeConfig: themeConfig,
             });
-            loadThemesFromStorage();
             setSnackbar({ open: true, message: t('preferences.themes.themeUpdated'), severity: 'success' });
           } else {
             // Create new theme
@@ -233,7 +230,6 @@ const ThemesTab: React.FC = () => {
               themeConfig: themeConfig,
             };
             addCustomTheme(newTheme);
-            loadThemesFromStorage();
             setSnackbar({ open: true, message: t('preferences.themes.themeSaved'), severity: 'success' });
           }
           handleEditorClose();
