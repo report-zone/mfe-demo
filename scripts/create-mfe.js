@@ -1166,6 +1166,35 @@ if (routeArrayMatch && !routeArrayMatch[1].includes(`'/${mfeName}'`)) {
   console.log('🛤️  Updated: apps/container/src/config/routeMappings.ts');
 }
 
+// 5b. Update container App.tsx to add MFE loader entry
+const appTsxPath = path.join(projectRoot, 'apps/container/src/App.tsx');
+let appTsxContent = fs.readFileSync(appTsxPath, 'utf8');
+
+// Check if the MFE is already added
+if (!appTsxContent.includes(`mountedMFEs.has('${mfeName}')`)) {
+  // Find the account MFE loader block and add the new MFE after it (before admin)
+  const accountMfeBlock = `{mountedMFEs.has('account') && (
+          <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
+            <MFELoader mfeName="account" />
+          </Box>
+        )}`;
+  
+  const newMfeBlock = `{mountedMFEs.has('account') && (
+          <Box sx={{ display: currentMFE === 'account' ? 'block' : 'none' }}>
+            <MFELoader mfeName="account" />
+          </Box>
+        )}
+        {mountedMFEs.has('${mfeName}') && (
+          <Box sx={{ display: currentMFE === '${mfeName}' ? 'block' : 'none' }}>
+            <MFELoader mfeName="${mfeName}" />
+          </Box>
+        )}`;
+  
+  appTsxContent = appTsxContent.replace(accountMfeBlock, newMfeBlock);
+  fs.writeFileSync(appTsxPath, appTsxContent);
+  console.log('📱 Updated: apps/container/src/App.tsx');
+}
+
 // 6. Update container vite.config.ts
 const containerViteConfigPath = path.join(projectRoot, 'apps/container/vite.config.ts');
 let viteConfigContent = fs.readFileSync(containerViteConfigPath, 'utf8');
