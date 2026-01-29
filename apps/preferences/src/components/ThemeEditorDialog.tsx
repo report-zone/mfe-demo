@@ -31,6 +31,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -58,11 +59,12 @@ interface ThemeEditorDialogProps {
   open: boolean;
   onClose: () => void;
   initialTheme?: CustomThemeDefinition;
+  onSaveToStorage?: (themeConfig: CustomThemeDefinition) => void;
 }
 
 
 
-const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme }) => {
+const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, initialTheme, onSaveToStorage }) => {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState(0);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -387,6 +389,55 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
     setNewFilename('');
   };
 
+  const handleSaveToStorage = () => {
+    if (!onSaveToStorage) return;
+    
+    // Filter out disabled MUI component overrides before saving
+    const finalDefinition = cloneThemeDefinition(themeDefinition);
+    
+    // Clean up muiComponentOverrides based on enabled state
+    if (finalDefinition.muiComponentOverrides) {
+      const cleanedOverrides: Record<string, unknown> = {};
+      
+      Object.keys(finalDefinition.muiComponentOverrides).forEach(component => {
+        const componentOverride = finalDefinition.muiComponentOverrides[component];
+        if (componentOverride && typeof componentOverride === 'object' && 'styleOverrides' in componentOverride) {
+          const typedOverride = componentOverride as Record<string, unknown>;
+          const cleanedStyleOverrides: Record<string, unknown> = {};
+          const styleOverrides = typedOverride.styleOverrides as Record<string, unknown>;
+          
+          if (styleOverrides && typeof styleOverrides === 'object') {
+            Object.keys(styleOverrides).forEach(overrideKey => {
+              // Only include if enabled
+              if (enabledOverrides[component]?.[overrideKey]) {
+                cleanedStyleOverrides[overrideKey] = styleOverrides[overrideKey];
+              }
+            });
+          }
+          
+          // Only include component if it has enabled overrides
+          if (Object.keys(cleanedStyleOverrides).length > 0) {
+            cleanedOverrides[component] = {
+              ...typedOverride,
+              styleOverrides: cleanedStyleOverrides,
+            };
+          }
+        }
+      });
+      
+      finalDefinition.muiComponentOverrides = cleanedOverrides;
+    }
+    
+    // Ensure version is set, default to "1.0.0" if missing
+    const version = finalDefinition.version || '1.0.0';
+    const finalDefinitionWithVersion = isEditingExistingTheme 
+      ? { ...finalDefinition, version: bumpVersion(version) }
+      : { ...finalDefinition, version };
+    
+    onSaveToStorage(finalDefinitionWithVersion);
+    setHasUnsavedChanges(false);
+  };
+
   const handleResetToDefaults = () => {
     setThemeDefinition(createDefaultThemeDefinition());
     setHasUnsavedChanges(true);
@@ -440,6 +491,11 @@ const ThemeEditorDialog: React.FC<ThemeEditorDialogProps> = ({ open, onClose, in
           <Button color="inherit" startIcon={<UploadFileIcon />} onClick={handleLoadTheme}>
             {t('preferences.themeEditor.open')}
           </Button>
+          {onSaveToStorage && (
+            <Button color="inherit" startIcon={<SaveAltIcon />} onClick={handleSaveToStorage}>
+              {t('preferences.themeEditor.saveToApp')}
+            </Button>
+          )}
           <Button color="inherit" startIcon={<SaveIcon />} onClick={handleSave}>
             {t('preferences.themeEditor.save')}
           </Button>
