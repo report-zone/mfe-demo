@@ -1117,7 +1117,7 @@ if (portMapMatch && !portMapMatch[1].includes(mfeName)) {
   const lastEntryMatch = portMapMatch[1].match(/(\s*\w+: \d+),?\s*$/);
   if (lastEntryMatch) {
     const updatedContent = portMapMatch[1].replace(
-      /(\s*admin: \d+),?\s*$/,
+      /(\s*\w+: \d+),?\s*$/,
       `$1,\n    ${mfeName}: ${nextPort},`
     );
     registryContent = registryContent.replace(
