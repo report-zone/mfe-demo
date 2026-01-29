@@ -169,7 +169,8 @@ async function removeMFE(mfeName) {
     registryContent = registryContent.replace(portRegex, '');
 
     // Clean up any extra blank lines before the closing brace of the ports object
-    registryContent = registryContent.replace(/,\n\s*\n(\s*\};)/, ',\n$1');
+    // Uses global flag to handle multiple consecutive blank lines
+    registryContent = registryContent.replace(/,\n(\s*\n)+(\s*\};)/g, ',\n$2');
 
     // Remove case in switch statement
     const caseRegex = new RegExp(`\\n        case '${mfeName}':\\n          return import\\('@mfe-demo/${mfeName}'\\);`, 'g');
@@ -242,7 +243,15 @@ async function removeMFE(mfeName) {
     let tsConfigContent = fs.readFileSync(containerTsConfigPath, 'utf8');
     const originalContent = tsConfigContent;
 
-    // Remove the path mapping for this MFE (multi-line format from JSON.stringify)
+    // Remove the path mapping for this MFE
+    // Primary format: single-line (created by current create-mfe.js using regex approach)
+    const singleLineRegex = new RegExp(
+      `,?\\n      "@mfe-demo/${mfeName}": \\["\\.\\./${mfeName}/src/main\\.tsx"\\]`,
+      'g'
+    );
+    tsConfigContent = tsConfigContent.replace(singleLineRegex, '');
+
+    // Legacy format: multi-line (created by older versions using JSON.stringify)
     // Pattern matches:
     //       "@mfe-demo/mfeName": [
     //         "../mfeName/src/main.tsx"
@@ -252,13 +261,6 @@ async function removeMFE(mfeName) {
       'g'
     );
     tsConfigContent = tsConfigContent.replace(multiLineRegex, '');
-
-    // Also try single-line format as fallback
-    const singleLineRegex = new RegExp(
-      `,?\\n      "@mfe-demo/${mfeName}": \\["\\.\\./${mfeName}/src/main\\.tsx"\\]`,
-      'g'
-    );
-    tsConfigContent = tsConfigContent.replace(singleLineRegex, '');
 
     if (tsConfigContent !== originalContent) {
       fs.writeFileSync(containerTsConfigPath, tsConfigContent);
