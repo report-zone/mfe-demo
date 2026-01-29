@@ -1,6 +1,6 @@
 {
   "admin": {
-    "title": "Admin-Panel",
+    "title": "Verwaltungs-Panel",
     "warning": "Dies ist ein geschützter Admin-Bereich. Nur Benutzer mit Admin-Rolle können auf diese Seite zugreifen.",
     "description": "Verwalten Sie Benutzer, Berechtigungen und Systemeinstellungen.",
     "table": {
