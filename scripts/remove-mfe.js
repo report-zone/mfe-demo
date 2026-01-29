@@ -169,8 +169,9 @@ async function removeMFE(mfeName) {
     registryContent = registryContent.replace(portRegex, '');
 
     // Clean up any extra blank lines before the closing brace of the ports object
-    // Uses global flag to handle multiple consecutive blank lines
-    registryContent = registryContent.replace(/,\n(\s*\n)+(\s*\};)/g, ',\n$2');
+    // Pattern matches a comma, newline, and one or more empty/whitespace-only lines, 
+    // then captures the closing brace to preserve it
+    registryContent = registryContent.replace(/,\n(?:\n)+(\s*\};)/g, ',\n$1');
 
     // Remove case in switch statement
     const caseRegex = new RegExp(`\\n        case '${mfeName}':\\n          return import\\('@mfe-demo/${mfeName}'\\);`, 'g');
