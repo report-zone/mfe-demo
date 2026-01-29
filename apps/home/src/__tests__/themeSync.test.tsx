@@ -55,6 +55,42 @@ describe('useThemeSync', () => {
     });
   });
 
+  it('should fallback to dark theme when selectedThemeId is dark but not in customThemes', async () => {
+    // Simulate: user selected 'dark' theme, but customThemes only has custom themes (no default themes)
+    mockStorageService.getItem
+      .mockReturnValueOnce('dark') // selectedThemeId
+      .mockReturnValueOnce(null); // customThemes (empty or missing)
+
+    const { result } = renderHook(() =>
+      useThemeSync(defaultTheme, mockStorageService, mockEventBus, convertToTheme)
+    );
+
+    await waitFor(() => {
+      expect(result.current.palette.mode).toBe('dark');
+      // Verify the complete dark theme config is applied
+      expect(result.current.palette.primary.main).toBe('#90caf9');
+      expect(result.current.palette.secondary.main).toBe('#f48fb1');
+    });
+  });
+
+  it('should fallback to light theme when selectedThemeId is light but not in customThemes', async () => {
+    // Simulate: user selected 'light' theme, but customThemes only has custom themes (no default themes)
+    mockStorageService.getItem
+      .mockReturnValueOnce('light') // selectedThemeId
+      .mockReturnValueOnce(JSON.stringify([])); // customThemes (empty array)
+
+    const { result } = renderHook(() =>
+      useThemeSync(defaultTheme, mockStorageService, mockEventBus, convertToTheme)
+    );
+
+    await waitFor(() => {
+      expect(result.current.palette.mode).toBe('light');
+      // Verify the complete light theme config is applied
+      expect(result.current.palette.primary.main).toBe('#1976d2');
+      expect(result.current.palette.secondary.main).toBe('#dc004e');
+    });
+  });
+
   it('should subscribe to theme change events', () => {
     mockStorageService.getItem.mockReturnValue(null);
 
