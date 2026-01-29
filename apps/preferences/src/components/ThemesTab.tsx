@@ -20,6 +20,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InfoIcon from '@mui/icons-material/Info';
+import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThemeContext } from '../context/ThemeContext';
@@ -35,10 +36,22 @@ const ThemesTab: React.FC = () => {
   const { themes, setTheme, currentTheme, addCustomTheme, loadThemesFromStorage, removeCustomTheme } =
     useThemeContext();
   const [editorOpen, setEditorOpen] = useState(false);
+  const [editingTheme, setEditingTheme] = useState<CustomThemeDefinition | undefined>(undefined);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' as 'success' | 'error' | 'info' });
 
   const handleCreateTheme = () => {
+    setEditingTheme(undefined);
     setEditorOpen(true);
+  };
+
+  const handleEditTheme = (themeConfig: CustomThemeDefinition) => {
+    setEditingTheme(themeConfig);
+    setEditorOpen(true);
+  };
+
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+    setEditingTheme(undefined);
   };
 
   const handleLoadAndAddTheme = async () => {
@@ -141,19 +154,36 @@ const ThemesTab: React.FC = () => {
                   </Tooltip>
                 )}
                 {theme.isCustom && (
-                  <Tooltip title={t('preferences.themes.deleteTooltip')} placement="left">
-                    <IconButton 
-                      size="small" 
-                      sx={{ ml: 1 }} 
-                      color="error"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTheme(theme.id);
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                  <>
+                    <Tooltip title={t('preferences.themes.editTooltip')} placement="left">
+                      <IconButton 
+                        size="small" 
+                        sx={{ ml: 1 }} 
+                        color="primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (theme.themeConfig && 'colors' in theme.themeConfig && 'componentOverrides' in theme.themeConfig) {
+                            handleEditTheme(theme.themeConfig as CustomThemeDefinition);
+                          }
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('preferences.themes.deleteTooltip')} placement="left">
+                      <IconButton 
+                        size="small" 
+                        sx={{ ml: 1 }} 
+                        color="error"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTheme(theme.id);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </>
                 )}
               </Box>
             ))}
@@ -178,7 +208,7 @@ const ThemesTab: React.FC = () => {
         </Box>
       </Paper>
 
-      <ThemeEditorDialog open={editorOpen} onClose={() => setEditorOpen(false)} />
+      <ThemeEditorDialog open={editorOpen} onClose={handleEditorClose} initialTheme={editingTheme} />
 
       {/* Snackbar for notifications */}
       <Snackbar

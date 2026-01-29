@@ -25,6 +25,7 @@
       "selectTheme": "Sélectionner un thème",
       "customTheme": "Thème personnalisé",
       "defaultTheme": "Thème par défaut",
+      "editTooltip": "Modifier le thème personnalisé",
       "deleteTooltip": "Supprimer le thème personnalisé",
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce thème personnalisé?",
       "themeLoaded": "Thème chargé et ajouté à la sélection!",

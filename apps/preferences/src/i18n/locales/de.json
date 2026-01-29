@@ -25,6 +25,7 @@
       "selectTheme": "Thema auswählen",
       "customTheme": "Benutzerdefiniertes Thema",
       "defaultTheme": "Standard-Thema",
+      "editTooltip": "Benutzerdefiniertes Thema bearbeiten",
       "deleteTooltip": "Benutzerdefiniertes Thema löschen",
       "deleteConfirm": "Möchten Sie dieses benutzerdefinierte Thema wirklich löschen?",
       "themeLoaded": "Thema geladen und zur Auswahl hinzugefügt!",

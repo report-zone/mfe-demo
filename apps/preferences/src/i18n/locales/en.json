@@ -25,6 +25,7 @@
       "selectTheme": "Select Theme",
       "customTheme": "Custom Theme",
       "defaultTheme": "Default Theme",
+      "editTooltip": "Edit custom theme",
       "deleteTooltip": "Delete custom theme",
       "deleteConfirm": "Are you sure you want to delete this custom theme?",
       "themeLoaded": "Theme loaded and added to selection!",

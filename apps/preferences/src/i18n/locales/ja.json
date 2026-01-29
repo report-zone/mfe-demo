@@ -25,6 +25,7 @@
       "selectTheme": "テーマを選択",
       "customTheme": "カスタムテーマ",
       "defaultTheme": "デフォルトテーマ",
+      "editTooltip": "カスタムテーマを編集",
       "deleteTooltip": "カスタムテーマを削除",
       "deleteConfirm": "このカスタムテーマを削除してもよろしいですか？",
       "themeLoaded": "テーマが読み込まれ、選択に追加されました！",

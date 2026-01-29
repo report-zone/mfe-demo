@@ -25,6 +25,7 @@
       "selectTheme": "选择主题",
       "customTheme": "自定义主题",
       "defaultTheme": "默认主题",
+      "editTooltip": "编辑自定义主题",
       "deleteTooltip": "删除自定义主题",
       "deleteConfirm": "您确定要删除此自定义主题吗？",
       "themeLoaded": "主题已加载并添加到选择中！",
