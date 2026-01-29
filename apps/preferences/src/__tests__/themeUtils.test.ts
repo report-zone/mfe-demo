@@ -100,9 +100,11 @@ describe('Theme Utilities', () => {
       expect(muiTheme.components?.MuiCard).toBeDefined();
       
       // Should NOT include invalid keys (breakpoints, palette, typography)
-      expect(muiTheme.components?.breakpoints).toBeUndefined();
-      expect((muiTheme.components as any)?.palette).toBeUndefined();
-      expect((muiTheme.components as any)?.typography).toBeUndefined();
+      // These keys are not valid component names, so they should be filtered out
+      const components = muiTheme.components as Record<string, unknown> | undefined;
+      expect(components?.breakpoints).toBeUndefined();
+      expect(components?.palette).toBeUndefined();
+      expect(components?.typography).toBeUndefined();
     });
   });
 
