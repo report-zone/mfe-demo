@@ -60,16 +60,28 @@ const camelCase = (str) => {
 const mfeNamePascal = pascalCase(mfeName);
 const mfeNameCamel = camelCase(mfeName);
 
-// Get the next available port (find highest port + 1)
-const existingApps = ['container', 'home', 'preferences', 'account', 'admin'];
-const portMap = {
-  container: 4000,
-  home: 3001,
-  preferences: 3002,
-  account: 3003,
-  admin: 3004,
+// Get the next available port by reading the mfeRegistry.ts file
+const getNextAvailablePort = () => {
+  const mfeRegistryPath = path.join(projectRoot, 'apps/container/src/config/mfeRegistry.ts');
+  try {
+    const registryContent = fs.readFileSync(mfeRegistryPath, 'utf8');
+    const portMapMatch = registryContent.match(/const ports: Record<string, number> = \{([\s\S]*?)\};/);
+    if (portMapMatch) {
+      // Extract all port numbers from the ports object
+      const portMatches = portMapMatch[1].match(/:\s*(\d+)/g);
+      if (portMatches) {
+        const ports = portMatches.map(p => parseInt(p.replace(/:\s*/, ''), 10));
+        return Math.max(...ports) + 1;
+      }
+    }
+  } catch (e) {
+    // Fall back to default if registry can't be read
+  }
+  // Default fallback: start from port 4001 (after admin's 3004 and container's 4000)
+  return 4001;
 };
-const nextPort = Math.max(...Object.values(portMap)) + 1;
+
+const nextPort = getNextAvailablePort();
 
 console.log(`\n🚀 Creating MFE: ${mfeName}`);
 console.log(`   Directory: ${mfeDir}`);
@@ -83,7 +95,6 @@ const directories = [
   'src/__tests__',
   'src/i18n',
   'src/i18n/locales',
-  'src/i18n/__tests__',
   'src/utils',
 ];
 
@@ -986,12 +997,17 @@ console.log('\n✅ MFE files created successfully!\n');
 // Now update the integration files
 console.log('🔧 Updating integration files...\n');
 
-// Helper function to update JSON file
+// Helper function to update JSON file with error handling
 function updateJsonFile(filePath, updateFn) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const json = JSON.parse(content);
-  updateFn(json);
-  fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n');
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const json = JSON.parse(content);
+    updateFn(json);
+    fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n');
+  } catch (error) {
+    console.error(`❌ Error updating ${filePath}: ${error.message}`);
+    throw error;
+  }
 }
 
 // 1. Update root package.json
@@ -1060,6 +1076,10 @@ const navbarTranslations = {
 containerLocales.forEach(lang => {
   const localePath = path.join(projectRoot, 'apps/container/src/i18n/locales', `${lang}.json`);
   updateJsonFile(localePath, (json) => {
+    // Ensure navbar object exists
+    if (!json.navbar) {
+      json.navbar = {};
+    }
     json.navbar[mfeName] = navbarTranslations[lang];
   });
   console.log(`🌐 Updated: apps/container/src/i18n/locales/${lang}.json`);
