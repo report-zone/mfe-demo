@@ -285,7 +285,7 @@ describe('ThemeConverter', () => {
 
     it('should fallback to default theme for serialized MUI theme objects', () => {
       // This simulates a serialized MUI Theme object that was stored in localStorage
-      // and then parsed back - it has breakpoints.values, breakpoints.keys, etc.
+      // and then parsed back - it has breakpoints.keys, breakpoints.unit, etc.
       // but the methods like breakpoints.up() are lost during JSON serialization
       const serializedTheme = {
         palette: {
@@ -298,11 +298,8 @@ describe('ThemeConverter', () => {
           unit: 'px',
         },
         transitions: {
-          duration: { shortest: 150, shorter: 200 },
+          duration: { shortest: 150, shorter: 200, enteringScreen: 225, leavingScreen: 195 },
           easing: { easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)' },
-        },
-        mixins: {
-          toolbar: { minHeight: 56 },
         },
       };
 
@@ -314,7 +311,7 @@ describe('ThemeConverter', () => {
       expect(typeof theme.breakpoints.down).toBe('function');
     });
 
-    it('should reject serialized MUI theme with breakpoints.keys', () => {
+    it('should reject serialized MUI theme with breakpoints.keys and breakpoints.unit', () => {
       const serializedTheme = {
         palette: { mode: 'light' as const },
         breakpoints: {
@@ -327,8 +324,32 @@ describe('ThemeConverter', () => {
       expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
     });
 
-    it('should reject serialized MUI theme with transitions.easing', () => {
+    it('should reject serialized MUI theme with transitions.duration.enteringScreen and leavingScreen', () => {
       const serializedTheme = {
+        palette: { mode: 'light' as const },
+        transitions: {
+          duration: { shortest: 150, enteringScreen: 225, leavingScreen: 195 },
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
+    });
+
+    it('should accept valid legacy theme with mixins.toolbar (user input is valid)', () => {
+      // mixins.toolbar is a valid ThemeOptions input, not output-only
+      const validTheme = {
+        palette: { mode: 'light' as const },
+        mixins: {
+          toolbar: { minHeight: 56 },
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(validTheme)).toBe(true);
+    });
+
+    it('should accept valid legacy theme with transitions.duration and easing (user input is valid)', () => {
+      // transitions.duration and easing are valid ThemeOptions inputs
+      const validTheme = {
         palette: { mode: 'light' as const },
         transitions: {
           duration: { shortest: 150 },
@@ -336,18 +357,7 @@ describe('ThemeConverter', () => {
         },
       };
 
-      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
-    });
-
-    it('should reject serialized MUI theme with mixins.toolbar', () => {
-      const serializedTheme = {
-        palette: { mode: 'light' as const },
-        mixins: {
-          toolbar: { minHeight: 56 },
-        },
-      };
-
-      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
+      expect(ThemeConverter.isLegacyThemeFormat(validTheme)).toBe(true);
     });
 
     it('should accept valid legacy theme options without serialized properties', () => {
