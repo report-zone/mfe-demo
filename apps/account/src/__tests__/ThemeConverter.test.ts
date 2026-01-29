@@ -40,9 +40,11 @@ describe('ThemeConverter', () => {
       expect(theme.components?.MuiCard).toBeDefined();
       
       // Should NOT include invalid keys (breakpoints, palette, typography)
-      expect(theme.components?.breakpoints).toBeUndefined();
-      expect(theme.components?.palette).toBeUndefined();
-      expect(theme.components?.typography).toBeUndefined();
+      // These keys are not valid component names, so they should be filtered out
+      const components = theme.components as Record<string, unknown> | undefined;
+      expect(components?.breakpoints).toBeUndefined();
+      expect(components?.palette).toBeUndefined();
+      expect(components?.typography).toBeUndefined();
     });
 
     it('should apply light mode by default', () => {

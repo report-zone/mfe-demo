@@ -257,11 +257,53 @@ export class ThemeConverter {
   }
 
   /**
+   * Detects if an object appears to be a serialized MUI Theme object
+   * Serialized themes have properties like breakpoints.values, transitions.duration
+   * that are plain objects (functions are lost during JSON serialization).
+   * These cannot be passed to createTheme() as they would cause runtime errors.
+   */
+  private static isSerializedMuiTheme(obj: Record<string, unknown>): boolean {
+    // Check for serialized breakpoints object (has values, keys, unit - from createTheme output)
+    const breakpoints = obj.breakpoints as Record<string, unknown> | undefined;
+    if (breakpoints && typeof breakpoints === 'object') {
+      // A serialized MUI theme has breakpoints.values, breakpoints.keys, breakpoints.unit
+      // A valid ThemeOptions would only have breakpoints.values (no keys/unit)
+      if (breakpoints.values && breakpoints.keys && breakpoints.unit) {
+        return true;
+      }
+    }
+
+    // Check for serialized transitions object (has duration, easing - from createTheme output)
+    const transitions = obj.transitions as Record<string, unknown> | undefined;
+    if (transitions && typeof transitions === 'object') {
+      // A serialized MUI theme has transitions.duration AND transitions.easing
+      if (transitions.duration && transitions.easing) {
+        return true;
+      }
+    }
+
+    // Check for serialized mixins object (toolbar property indicates serialized theme)
+    const mixins = obj.mixins as Record<string, unknown> | undefined;
+    if (mixins && typeof mixins === 'object' && mixins.toolbar) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Type guard to check if theme config is a valid legacy MUI theme format
+   * Returns false for serialized MUI Theme objects (which have lost their methods)
    */
   static isLegacyThemeFormat(cfg: unknown): boolean {
     if (typeof cfg !== 'object' || cfg === null) return false;
     const obj = cfg as Record<string, unknown>;
+    
+    // Reject serialized MUI Theme objects - they cannot be used with createTheme()
+    if (this.isSerializedMuiTheme(obj)) {
+      return false;
+    }
+    
     // Legacy format typically has palette, typography, spacing, etc.
     return !!(obj.palette || obj.typography || obj.spacing || obj.components);
   }

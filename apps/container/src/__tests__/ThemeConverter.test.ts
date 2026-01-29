@@ -205,9 +205,11 @@ describe('ThemeConverter', () => {
       expect(theme.components?.MuiCard).toBeDefined();
       
       // Should NOT include invalid keys (breakpoints, palette, typography)
-      expect(theme.components?.breakpoints).toBeUndefined();
-      expect(theme.components?.palette).toBeUndefined();
-      expect(theme.components?.typography).toBeUndefined();
+      // These keys are not valid component names, so they should be filtered out
+      const components = theme.components as Record<string, unknown> | undefined;
+      expect(components?.breakpoints).toBeUndefined();
+      expect(components?.palette).toBeUndefined();
+      expect(components?.typography).toBeUndefined();
     });
   });
 
@@ -279,6 +281,87 @@ describe('ThemeConverter', () => {
       
       expect(theme.palette.mode).toBe('dark');
       expect(theme.palette.primary.main).toBe('#90caf9');
+    });
+
+    it('should fallback to default theme for serialized MUI theme objects', () => {
+      // This simulates a serialized MUI Theme object that was stored in localStorage
+      // and then parsed back - it has breakpoints.values, breakpoints.keys, etc.
+      // but the methods like breakpoints.up() are lost during JSON serialization
+      const serializedTheme = {
+        palette: {
+          mode: 'dark' as const,
+          primary: { main: '#90caf9' },
+        },
+        breakpoints: {
+          values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1536 },
+          keys: ['xs', 'sm', 'md', 'lg', 'xl'],
+          unit: 'px',
+        },
+        transitions: {
+          duration: { shortest: 150, shorter: 200 },
+          easing: { easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+        },
+        mixins: {
+          toolbar: { minHeight: 56 },
+        },
+      };
+
+      // Should NOT throw an error - should fallback to default theme
+      const theme = ThemeConverter.convertToTheme(serializedTheme);
+      
+      // Should have valid breakpoints methods
+      expect(typeof theme.breakpoints.up).toBe('function');
+      expect(typeof theme.breakpoints.down).toBe('function');
+    });
+
+    it('should reject serialized MUI theme with breakpoints.keys', () => {
+      const serializedTheme = {
+        palette: { mode: 'light' as const },
+        breakpoints: {
+          values: { xs: 0, sm: 600 },
+          keys: ['xs', 'sm'],
+          unit: 'px',
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
+    });
+
+    it('should reject serialized MUI theme with transitions.easing', () => {
+      const serializedTheme = {
+        palette: { mode: 'light' as const },
+        transitions: {
+          duration: { shortest: 150 },
+          easing: { easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)' },
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
+    });
+
+    it('should reject serialized MUI theme with mixins.toolbar', () => {
+      const serializedTheme = {
+        palette: { mode: 'light' as const },
+        mixins: {
+          toolbar: { minHeight: 56 },
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(serializedTheme)).toBe(false);
+    });
+
+    it('should accept valid legacy theme options without serialized properties', () => {
+      const validLegacyTheme = {
+        palette: {
+          mode: 'dark' as const,
+          primary: { main: '#90caf9' },
+        },
+        breakpoints: {
+          values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1536 },
+        },
+      };
+
+      expect(ThemeConverter.isLegacyThemeFormat(validLegacyTheme)).toBe(true);
     });
   });
 });
