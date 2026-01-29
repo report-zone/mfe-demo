@@ -11,6 +11,33 @@ interface ThemeChangeEvent {
   themeConfig?: unknown;
 }
 
+// Default theme configurations for fallback when themes are not in customThemes storage
+// These match the configurations in apps/preferences/src/themes/defaultThemes.ts
+const DEFAULT_THEME_CONFIGS: Record<string, unknown> = {
+  light: {
+    palette: {
+      mode: 'light',
+      primary: {
+        main: '#1976d2',
+      },
+      secondary: {
+        main: '#dc004e',
+      },
+    },
+  },
+  dark: {
+    palette: {
+      mode: 'dark',
+      primary: {
+        main: '#90caf9',
+      },
+      secondary: {
+        main: '#f48fb1',
+      },
+    },
+  },
+};
+
 /**
  * Custom hook to sync theme with container app
  * This hook should be used by MFEs to ensure they apply the same theme as the container
@@ -38,14 +65,20 @@ export function useThemeSync<T>(
         if (selectedThemeId) {
           // Load from customThemes (includes both predefined and custom)
           const customThemesJson = storageService.getItem('customThemes');
+          let themeLoaded = false;
           
           if (customThemesJson) {
             const themes: StoredTheme[] = JSON.parse(customThemesJson);
             const theme = themes.find((t) => t.id === selectedThemeId);
             if (theme && theme.themeConfig) {
               setCurrentTheme(convertToTheme(theme.themeConfig));
-              return;
+              themeLoaded = true;
             }
+          }
+          
+          // Fallback to default themes (light/dark) if not found in storage
+          if (!themeLoaded && selectedThemeId in DEFAULT_THEME_CONFIGS) {
+            setCurrentTheme(convertToTheme(DEFAULT_THEME_CONFIGS[selectedThemeId]));
           }
         }
       } catch (error) {
