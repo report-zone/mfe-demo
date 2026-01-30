@@ -1160,10 +1160,11 @@ let routeContent = fs.readFileSync(routeMappingsPath, 'utf8');
 
 const routeArrayMatch = routeContent.match(/export const routeMappings: RouteMapping\[\] = \[([\s\S]*?)\];/);
 if (routeArrayMatch && !routeArrayMatch[1].includes(`'/${mfeName}'`)) {
-  const newRoute = `\n  { pattern: '/${mfeName}', mfeName: '${mfeName}', exact: true },`;
+  // Insert new route before the home route (which should always be last as catch-all)
+  const newRoute = `{ pattern: '/${mfeName}', mfeName: '${mfeName}', exact: true },\n  `;
   routeContent = routeContent.replace(
-    /(\{ pattern: '\/\w+', mfeName: '\w+', exact: true \},)(?![\s\S]*\{ pattern:)/,
-    `$1${newRoute}`
+    /(\{ pattern: '\/', mfeName: 'home', exact: true \})/,
+    `${newRoute}$1`
   );
   fs.writeFileSync(routeMappingsPath, routeContent);
   console.log('🛤️  Updated: apps/container/src/config/routeMappings.ts');

@@ -198,7 +198,9 @@ async function removeMFE(mfeName) {
   const routeMappingsPath = path.join(projectRoot, 'apps/container/src/config/routeMappings.ts');
   try {
     let routeContent = fs.readFileSync(routeMappingsPath, 'utf8');
-    const routeRegex = new RegExp(`\\n  \\{ pattern: '/${mfeName}', mfeName: '${mfeName}', exact: true \\},`, 'g');
+    // Match route entry with either exact: true or exact: false, with or without trailing comments
+    // Only match the line content, preserving line structure
+    const routeRegex = new RegExp(`  \\{ pattern: '/${mfeName}', mfeName: '${mfeName}', exact: (true|false) \\},([ ]*//[^\\n]*)?\\n`, 'g');
     routeContent = routeContent.replace(routeRegex, '');
     fs.writeFileSync(routeMappingsPath, routeContent);
     console.log('🛤️  Updated: apps/container/src/config/routeMappings.ts');
