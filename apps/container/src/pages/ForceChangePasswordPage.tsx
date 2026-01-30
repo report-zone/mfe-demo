@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -8,47 +8,58 @@ import {
   Button,
   Typography,
   Alert,
-  Link,
   Container,
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Login as LoginIcon } from '@mui/icons-material';
+import { Visibility, VisibilityOff, LockReset } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { validatePassword, validatePasswordMatch } from '../utils/validation';
 
-const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const ForceChangePasswordPage: React.FC = () => {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { completeNewPassword } = useAuth();
   const navigate = useNavigate();
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const passwordMatchResult = validatePasswordMatch(newPassword, confirmPassword);
+    if (!passwordMatchResult.isValid) {
+      setError(passwordMatchResult.error!);
+      return;
+    }
+
+    const passwordResult = validatePassword(newPassword);
+    if (!passwordResult.isValid) {
+      setError(passwordResult.error!);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const result = await login(username, password);
-      
-      // Check if user needs to change their password
-      if (result.nextStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
-        navigate('/force-change-password');
-      } else {
-        navigate('/');
-      }
+      await completeNewPassword(newPassword);
+      navigate('/');
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to set new password';
       setError(errorMessage);
-    } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -79,12 +90,12 @@ const LoginPage: React.FC = () => {
           >
             <CardContent sx={{ p: 4 }}>
               <Box sx={{ mb: 3, textAlign: 'center' }}>
-                <LoginIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                <LockReset sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
                 <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
-                  Welcome Back
+                  Set New Password
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Sign in to continue to MFE Demo
+                  Your account requires a password change. Please set a new password to continue.
                 </Typography>
               </Box>
 
@@ -99,27 +110,16 @@ const LoginPage: React.FC = () => {
                   margin="normal"
                   required
                   fullWidth
-                  id="username"
-                  label="Username"
-                  name="username"
-                  autoComplete="username"
-                  autoFocus
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  disabled={isLoading}
-                />
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
+                  name="newPassword"
+                  label="New Password"
                   type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  id="newPassword"
+                  autoComplete="new-password"
+                  autoFocus
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
                   disabled={isLoading}
+                  helperText="Must be at least 8 characters"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -134,17 +134,32 @@ const LoginPage: React.FC = () => {
                     ),
                   }}
                 />
-
-                <Box sx={{ textAlign: 'right', mt: 1 }}>
-                  <Link
-                    component={RouterLink}
-                    to="/reset-password"
-                    variant="body2"
-                    sx={{ textDecoration: 'none' }}
-                  >
-                    Forgot password?
-                  </Link>
-                </Box>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirm New Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={handleToggleConfirmPasswordVisibility}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
 
                 <Button
                   type="submit"
@@ -161,21 +176,8 @@ const LoginPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  {isLoading ? 'Signing in...' : 'Sign In'}
+                  {isLoading ? 'Setting Password...' : 'Set New Password'}
                 </Button>
-
-                <Box sx={{ textAlign: 'center', mt: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Don&apos;t have an account?{' '}
-                    <Link
-                      component={RouterLink}
-                      to="/create-account"
-                      sx={{ textDecoration: 'none', fontWeight: 600 }}
-                    >
-                      Create Account
-                    </Link>
-                  </Typography>
-                </Box>
               </Box>
             </CardContent>
           </Card>
@@ -185,4 +187,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default ForceChangePasswordPage;

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
-import { User, IAuthContext } from './interfaces/IAuthContext';
+import { User, IAuthContext, LoginResult } from './interfaces/IAuthContext';
 import { logger } from '../services/loggerService';
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -41,10 +41,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     checkUser();
   }, [checkUser]);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<LoginResult> => {
     try {
-      await injectedAuthService.signIn(username, password);
+      const result = await injectedAuthService.signIn(username, password);
+      
+      // Check if user needs to change their password
+      if (result.nextStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+        return { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
+      }
+      
       await checkUser();
+      return { nextStep: 'DONE' };
     } catch (error) {
       logger.error('Login failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;
@@ -97,6 +104,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  const completeNewPass = async (newPassword: string) => {
+    try {
+      await injectedAuthService.completeNewPassword({ newPassword });
+      await checkUser();
+    } catch (error) {
+      logger.error('Complete new password failed', 'AuthContext', error instanceof Error ? error : undefined);
+      throw error;
+    }
+  };
+
   const isAuthenticated = !!user;
   const isAdmin = user?.groups?.includes('admin') || false;
 
@@ -113,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         confirmSignUp: confirmSignup,
         resetPassword: resetPass,
         confirmResetPassword: confirmResetPass,
+        completeNewPassword: completeNewPass,
       }}
     >
       {children}

@@ -13,6 +13,13 @@ export interface User {
 }
 
 /**
+ * Login result indicating the next step required
+ */
+export type LoginResult = 
+  | { nextStep: 'DONE' }
+  | { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
+
+/**
  * Authentication State - Read-only authentication information
  */
 export interface IAuthState {
@@ -26,7 +33,7 @@ export interface IAuthState {
  * Authentication Actions - Login/Logout operations
  */
 export interface IAuthActions {
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
 }
 
@@ -47,7 +54,14 @@ export interface IPasswordReset {
 }
 
 /**
+ * Force Change Password Operations - For admin-created users
+ */
+export interface IForceChangePassword {
+  completeNewPassword: (newPassword: string) => Promise<void>;
+}
+
+/**
  * Complete Auth Context - Combines all auth interfaces
  * Use this when you need full auth functionality
  */
-export interface IAuthContext extends IAuthState, IAuthActions, ISignUpOperations, IPasswordReset {}
+export interface IAuthContext extends IAuthState, IAuthActions, ISignUpOperations, IPasswordReset, IForceChangePassword {}
