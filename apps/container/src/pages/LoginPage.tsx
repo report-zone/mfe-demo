@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
 
     try {
       const result = await login(username, password);
-      
+
       // Check if user needs to change their password
       if (result.nextStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
         navigate('/force-change-password');
@@ -136,14 +136,26 @@ const LoginPage: React.FC = () => {
                 />
 
                 <Box sx={{ textAlign: 'right', mt: 1 }}>
-                  <Link
-                    component={RouterLink}
-                    to="/reset-password"
-                    variant="body2"
-                    sx={{ textDecoration: 'none' }}
-                  >
-                    Forgot password?
-                  </Link>
+                  {/* In production, route to /login to prevent resetting of password in demo application */}
+                  {process.env.NODE_ENV !== 'development' ? (
+                    <Link
+                      component={RouterLink}
+                      to="/login"
+                      variant="body2"
+                      sx={{ textDecoration: 'none' }}
+                    >
+                      Forgot password?
+                    </Link>
+                  ) : (
+                    <Link
+                      component={RouterLink}
+                      to="/reset-password"
+                      variant="body2"
+                      sx={{ textDecoration: 'none' }}
+                    >
+                      Forgot password?
+                    </Link>
+                  )}
                 </Box>
 
                 <Button

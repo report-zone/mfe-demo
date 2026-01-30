@@ -44,7 +44,16 @@ yarn prod:local --skip-build
 
 ## Deployed Application
 
-username:
+### Regular user
+
+username: demo@gmail.com
+
+password: Password$123
+
+### Admin user
+
+username: demo_admin@gmail.com
+
 password: Password$123
 
 [Running app](https://mfe.world/container/)

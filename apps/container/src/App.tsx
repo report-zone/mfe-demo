@@ -32,7 +32,7 @@ const MFEContainer: React.FC = () => {
   };
 
   const currentMFE = getCurrentMFE();
-  
+
   // Track which MFEs have been visited (and thus should stay mounted)
   const mountedMFEs = useMFEMounting(currentMFE);
 
@@ -103,21 +103,27 @@ const AppContent: React.FC = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />} />
-      <Route path="/create-account" element={!isAuthenticated ? <CreateAccountPage /> : <Navigate to="/" replace />} />
-      <Route path="/reset-password" element={!isAuthenticated ? <ResetPasswordPage /> : <Navigate to="/" replace />} />
-      <Route path="/force-change-password" element={!isAuthenticated ? <ForceChangePasswordPage /> : <Navigate to="/" replace />} />
+      <Route
+        path="/login"
+        element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/create-account"
+        element={!isAuthenticated ? <CreateAccountPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/reset-password"
+        element={!isAuthenticated ? <ResetPasswordPage /> : <Navigate to="/" replace />}
+      />
+      <Route
+        path="/force-change-password"
+        element={!isAuthenticated ? <ForceChangePasswordPage /> : <Navigate to="/" replace />}
+      />
 
       {/* Protected routes - MFEs are lazy mounted on first access and stay mounted */}
       <Route
         path="/*"
-        element={
-          isAuthenticated ? (
-            <MFEContainer />
-          ) : (
-            <Navigate to="/login" replace />
-          )
-        }
+        element={isAuthenticated ? <MFEContainer /> : <Navigate to="/login" replace />}
       />
     </Routes>
   );
@@ -126,7 +132,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   // Handle base URL redirects
   useBaseUrlRedirect();
-  
+
   // Manage theme state
   const currentTheme = useThemeManagement();
 
