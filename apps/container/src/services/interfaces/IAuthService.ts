@@ -33,6 +33,17 @@ export interface ConfirmResetPasswordParams {
   newPassword: string;
 }
 
+export interface CompleteNewPasswordParams {
+  newPassword: string;
+}
+
+/**
+ * Sign-in result indicating the next step required
+ */
+export type SignInResult = 
+  | { nextStep: 'DONE' }
+  | { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
+
 /**
  * IAuthService - Authentication abstraction
  * 
@@ -42,8 +53,9 @@ export interface ConfirmResetPasswordParams {
 export interface IAuthService {
   /**
    * Sign in a user with username and password
+   * Returns the next step required to complete sign-in
    */
-  signIn(username: string, password: string): Promise<void>;
+  signIn(username: string, password: string): Promise<SignInResult>;
 
   /**
    * Sign out the current user
@@ -69,6 +81,11 @@ export interface IAuthService {
    * Confirm password reset with verification code
    */
   confirmResetPassword(params: ConfirmResetPasswordParams): Promise<void>;
+
+  /**
+   * Complete new password challenge (for admin-created users)
+   */
+  completeNewPassword(params: CompleteNewPasswordParams): Promise<void>;
 
   /**
    * Get the current authenticated user

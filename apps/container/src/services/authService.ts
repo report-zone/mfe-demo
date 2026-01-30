@@ -10,6 +10,7 @@ import {
   signOut as amplifySignOut,
   signUp as amplifySignUp,
   confirmSignUp as amplifyConfirmSignUp,
+  confirmSignIn as amplifyConfirmSignIn,
   resetPassword as amplifyResetPassword,
   confirmResetPassword as amplifyConfirmResetPassword,
   getCurrentUser,
@@ -27,6 +28,8 @@ import {
   ConfirmSignUpParams,
   ResetPasswordParams,
   ConfirmResetPasswordParams,
+  CompleteNewPasswordParams,
+  SignInResult,
 } from './interfaces/IAuthService';
 
 /**
@@ -36,14 +39,22 @@ import {
 class CognitoAuthService implements IAuthService {
   /**
    * Sign in a user with username and password
+   * Returns the next step required to complete sign-in
    */
-  async signIn(username: string, password: string): Promise<void> {
+  async signIn(username: string, password: string): Promise<SignInResult> {
     const signInInput: SignInInput = {
       username,
       password,
       options: { authFlowType: 'USER_PASSWORD_AUTH' }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
     };
-    await amplifySignIn(signInInput);
+    const result = await amplifySignIn(signInInput);
+    
+    // Check if user needs to set a new password (admin-created users)
+    if (result.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+      return { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
+    }
+    
+    return { nextStep: 'DONE' };
   }
 
   /**
@@ -100,6 +111,15 @@ class CognitoAuthService implements IAuthService {
       newPassword: params.newPassword,
     };
     await amplifyConfirmResetPassword(confirmInput);
+  }
+
+  /**
+   * Complete new password challenge (for admin-created users)
+   */
+  async completeNewPassword(params: CompleteNewPasswordParams): Promise<void> {
+    await amplifyConfirmSignIn({
+      challengeResponse: params.newPassword,
+    });
   }
 
   /**

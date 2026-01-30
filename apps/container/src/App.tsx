@@ -9,6 +9,7 @@ import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccountPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ForceChangePasswordPage from './pages/ForceChangePasswordPage';
 import Loading from './components/Loading';
 import MFELoader from './components/MFELoader';
 import { getMFEForRoute } from './config/routeMappings';
@@ -105,6 +106,7 @@ const AppContent: React.FC = () => {
       <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />} />
       <Route path="/create-account" element={!isAuthenticated ? <CreateAccountPage /> : <Navigate to="/" replace />} />
       <Route path="/reset-password" element={!isAuthenticated ? <ResetPasswordPage /> : <Navigate to="/" replace />} />
+      <Route path="/force-change-password" element={!isAuthenticated ? <ForceChangePasswordPage /> : <Navigate to="/" replace />} />
 
       {/* Protected routes - MFEs are lazy mounted on first access and stay mounted */}
       <Route
