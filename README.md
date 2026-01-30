@@ -56,7 +56,7 @@ username: demo_admin@gmail.com
 
 password: Password$123
 
-[Running app](https://mfe.world/container/)
+[Running app](https://mfe.world/)
 
 ## Overview
 
