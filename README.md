@@ -44,6 +44,9 @@ yarn prod:local --skip-build
 
 ## Deployed Application
 
+username:
+password: Password$123
+
 [Running app](https://mfe.world/container/)
 
 ## Overview
