@@ -45,15 +45,17 @@ class CognitoAuthService implements IAuthService {
     const signInInput: SignInInput = {
       username,
       password,
-      options: { authFlowType: 'USER_PASSWORD_AUTH' }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
+      options: {
+        /* authFlowType: 'USER_PASSWORD_AUTH' */
+      }, // should be able to remove authFlowType as USER_SRP_AUTH is the default
     };
     const result = await amplifySignIn(signInInput);
-    
+
     // Check if user needs to set a new password (admin-created users)
     if (result.nextStep.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
       return { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
     }
-    
+
     return { nextStep: 'DONE' };
   }
 

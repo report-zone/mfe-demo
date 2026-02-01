@@ -9,15 +9,20 @@ export default defineConfig(({ command, mode }) => {
     process.env.VITE_MFE_HOME_URL &&
     process.env.VITE_MFE_PREFERENCES_URL &&
     process.env.VITE_MFE_ACCOUNT_URL &&
-    process.env.VITE_MFE_ADMIN_URL
+    process.env.VITE_MFE_ADMIN_URL &&
+    process.env.VITE_MFE_REPORTS_URL &&
+    process.env.VITE_MFE_DASHBOARDS_URL &&
+    process.env.VITE_MFE_REPOSITORY_URL &&
+    process.env.VITE_MFE_BUGS_URL &&
+    process.env.VITE_MFE_FEATURES_URL
   );
-  
+
   // Use aliases when in dev mode OR when remote URLs are not configured
   const useAliases = command !== 'build' || !hasRemoteUrls;
-  
+
   // Use base path for production builds and preview, but not for dev server
   const isDevServer = command === 'serve' && mode === 'development';
-  
+
   return {
     plugins: [
       mfeRemoteResolver(), // Add MFE remote resolver plugin
@@ -30,43 +35,46 @@ export default defineConfig(({ command, mode }) => {
       // This is needed when loading remote MFEs that may reference process
       'process.env': JSON.stringify({}),
       // Also define process itself to prevent "process is not defined" errors
-      'process': JSON.stringify({ env: {} }),
+      process: JSON.stringify({ env: {} }),
     },
     resolve: {
-      alias: useAliases ? {
-        // Use local aliases for development or when remote URLs not configured
-        '@mfe-demo/preferences': path.resolve(__dirname, '../preferences/src/main.tsx'),
-        '@mfe-demo/home': path.resolve(__dirname, '../home/src/main.tsx'),
-        '@mfe-demo/account': path.resolve(__dirname, '../account/src/main.tsx'),
-        '@mfe-demo/admin': path.resolve(__dirname, '../admin/src/main.tsx'),
-      } : {
-        // In production with remote URLs, don't set aliases (handled by plugin)
-      },
+      alias: useAliases
+        ? {
+            // Use local aliases for development or when remote URLs not configured
+            '@mfe-demo/preferences': path.resolve(__dirname, '../preferences/src/main.tsx'),
+            '@mfe-demo/home': path.resolve(__dirname, '../home/src/main.tsx'),
+            '@mfe-demo/account': path.resolve(__dirname, '../account/src/main.tsx'),
+            '@mfe-demo/admin': path.resolve(__dirname, '../admin/src/main.tsx'),
+          }
+        : {
+            // In production with remote URLs, don't set aliases (handled by plugin)
+          },
     },
     server: {
-    port: 4000,
-    host: true,
-    watch: {
-      // Enable watching of MFE source files in sibling directories
-      // The negated pattern allows Vite to watch node_modules/@mfe-demo packages
-      // which are aliased to the actual MFE source directories
-      ignored: ['!**/node_modules/@mfe-demo/**'],
+      port: 4000,
+      host: true,
+      watch: {
+        // Enable watching of MFE source files in sibling directories
+        // The negated pattern allows Vite to watch node_modules/@mfe-demo packages
+        // which are aliased to the actual MFE source directories
+        ignored: ['!**/node_modules/@mfe-demo/**'],
+      },
+      fs: {
+        // Allow serving files from the MFE directories (parent of container)
+        allow: ['..'],
+      },
     },
-    fs: {
-      // Allow serving files from the MFE directories (parent of container)
-      allow: ['..'],
+    build: {
+      outDir: 'dist',
+      sourcemap: true,
+      rollupOptions: {
+        // Externalize React and related libraries in production builds
+        // This ensures the container and MFEs use the same React instance from the import map
+        // Both prod:local and production deployment need this externalization
+        external:
+          command === 'build' ? ['react', 'react-dom', 'react-dom/client', 'react-router-dom'] : [],
+      },
     },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    rollupOptions: {
-      // Externalize React and related libraries in production builds
-      // This ensures the container and MFEs use the same React instance from the import map
-      // Both prod:local and production deployment need this externalization
-      external: command === 'build' ? ['react', 'react-dom', 'react-dom/client', 'react-router-dom'] : [],
-    },
-  },
     preview: {
       port: 4000,
       host: true,

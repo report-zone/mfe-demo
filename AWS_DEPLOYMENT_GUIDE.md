@@ -20,6 +20,7 @@ This guide provides complete instructions for deploying the MFE Demo application
 ## Overview
 
 This deployment solution uses:
+
 - **CloudFormation** for infrastructure as code
 - **AWS CLI** for deployment automation
 - **S3** for static file hosting
@@ -37,30 +38,33 @@ This deployment solution uses:
 ### Required Software
 
 1. **AWS CLI** (version 2.x or higher)
+
    ```bash
    # Install on macOS
    brew install awscli
-   
+
    # Install on Linux
    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
    unzip awscliv2.zip
    sudo ./aws/install
-   
+
    # Install on Windows
    # Download from: https://awscli.amazonaws.com/AWSCLIV2.msi
    ```
 
 2. **Node.js** (version 18.x or higher)
+
    ```bash
    # Check version
    node --version
-   
+
    # Install using nvm
    nvm install 18
    nvm use 18
    ```
 
 3. **Yarn** (version 1.22.x or higher)
+
    ```bash
    npm install -g yarn
    ```
@@ -169,7 +173,7 @@ aws sts get-caller-identity
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/report-zone/mfe-demo.git
+git clone https://github.com/custom/mfe-demo.git
 cd mfe-demo
 ```
 
@@ -200,6 +204,7 @@ nano deployment/config.yaml
 ```
 
 Update the following values:
+
 - `aws.region` - Your AWS region (e.g., us-east-1)
 - `aws.account_id` - Your 12-digit AWS account ID
 - `aws.profile` - Your AWS CLI profile name (or leave as "default")
@@ -214,6 +219,7 @@ Update the following values:
 ```
 
 This will:
+
 - Create S3 bucket
 - Create CloudFront distribution
 - Request ACM certificate (with DNS validation)
@@ -231,6 +237,7 @@ This will:
 ```
 
 This will:
+
 - Build all 5 applications (container + 4 MFEs)
 - Upload to S3
 - Invalidate CloudFront cache
@@ -283,6 +290,7 @@ Or use an existing domain and transfer it to Route 53.
 6. **Note the Hosted Zone ID** - you'll need this
 
 If you registered domain outside AWS:
+
 - Update nameservers at your registrar to use AWS nameservers shown in hosted zone
 
 ### Step 3: Configure AWS Credentials
@@ -298,6 +306,7 @@ aws sts get-caller-identity --profile mfe-demo-deploy
 ```
 
 Update `deployment/config.yaml`:
+
 ```yaml
 aws:
   region: us-east-1
@@ -329,19 +338,19 @@ Edit `deployment/config.yaml`:
 ```yaml
 # AWS Configuration
 aws:
-  region: us-east-1           # Change to your preferred region
-  account_id: "123456789012"   # Your AWS account ID
-  profile: default             # Or your profile name
+  region: us-east-1 # Change to your preferred region
+  account_id: '123456789012' # Your AWS account ID
+  profile: default # Or your profile name
 
 # Application Configuration
 application:
   name: mfe-demo
-  environment: production      # or staging, development
+  environment: production # or staging, development
 
 # Domain Configuration
 domain:
-  name: app.mfeworld.com       # Your actual domain
-  hosted_zone_id: Z1234567890ABC  # Your Route 53 Hosted Zone ID
+  name: app.mfeworld.com # Your actual domain
+  hosted_zone_id: Z1234567890ABC # Your Route 53 Hosted Zone ID
 
 # Stack Names (optional - can leave as default)
 stacks:
@@ -354,11 +363,13 @@ stacks:
 ### Step 5: Deploy CloudFormation Stacks
 
 Deploy all stacks:
+
 ```bash
 ./deployment/deploy-cloudformation.sh all
 ```
 
 Or deploy individually:
+
 ```bash
 # Deploy infrastructure first
 ./deployment/deploy-cloudformation.sh infrastructure
@@ -368,11 +379,13 @@ Or deploy individually:
 ```
 
 **Monitor Progress:**
+
 - Go to AWS Console → CloudFormation
 - Watch stack events for progress
 - Check for any errors
 
 **Certificate Validation:**
+
 - ACM will create CNAME records in Route 53 automatically
 - Validation typically takes 5-30 minutes
 - Check AWS Console → Certificate Manager for status
@@ -382,11 +395,13 @@ Or deploy individually:
 After deployment completes:
 
 1. **Check S3 Bucket**
+
    ```bash
    aws s3 ls s3://app.mfeworld.com/
    ```
 
 2. **Check CloudFront Distribution**
+
    ```bash
    aws cloudfront list-distributions --query 'DistributionList.Items[].{Domain:DomainName,Status:Status}'
    ```
@@ -403,6 +418,7 @@ After deployment completes:
 ### Step 7: Build Applications
 
 Build all applications:
+
 ```bash
 cd /path/to/mfe-demo
 yarn install
@@ -410,6 +426,7 @@ yarn build
 ```
 
 Or build individually:
+
 ```bash
 yarn build:container
 yarn build:home
@@ -421,11 +438,13 @@ yarn build:admin
 ### Step 8: Deploy Applications
 
 Deploy all:
+
 ```bash
 ./deployment/deploy-apps.sh all
 ```
 
 Deploy single application:
+
 ```bash
 ./deployment/deploy-apps.sh container
 ./deployment/deploy-apps.sh home
@@ -433,6 +452,7 @@ Deploy single application:
 ```
 
 Skip build (if already built):
+
 ```bash
 ./deployment/deploy-apps.sh all true
 ```
@@ -440,6 +460,7 @@ Skip build (if already built):
 ### Step 9: Create Users and Groups
 
 Create an admin user:
+
 ```bash
 # Get User Pool ID
 USER_POOL_ID=$(cat deployment/cognito-info.txt | grep USER_POOL_ID | cut -d'=' -f2)
@@ -462,6 +483,7 @@ aws cognito-idp admin-add-user-to-group \
 ```
 
 Create a regular user:
+
 ```bash
 aws cognito-idp admin-create-user \
   --user-pool-id "$USER_POOL_ID" \
@@ -563,39 +585,39 @@ aws s3api copy-object \
 ```yaml
 # AWS Account Settings
 aws:
-  region: string              # AWS region (e.g., us-east-1)
-  account_id: string          # 12-digit AWS account ID
-  profile: string             # AWS CLI profile name
+  region: string # AWS region (e.g., us-east-1)
+  account_id: string # 12-digit AWS account ID
+  profile: string # AWS CLI profile name
   # OR use direct credentials (not recommended)
-  access_key_id: string       # AWS access key
-  secret_access_key: string   # AWS secret key
+  access_key_id: string # AWS access key
+  secret_access_key: string # AWS secret key
 
 # Application Settings
 application:
-  name: string                # Application name for resource naming
-  environment: string         # Environment: development|staging|production
+  name: string # Application name for resource naming
+  environment: string # Environment: development|staging|production
 
 # Domain Settings
 domain:
-  name: string                # Full domain name (e.g., app.mfeworld.com)
-  hosted_zone_id: string      # Route 53 Hosted Zone ID
+  name: string # Full domain name (e.g., app.mfeworld.com)
+  hosted_zone_id: string # Route 53 Hosted Zone ID
 
 # CloudFormation Stacks
 stacks:
   infrastructure:
-    name: string              # Stack name for S3/CloudFront
-    template: string          # Path to template file
+    name: string # Stack name for S3/CloudFront
+    template: string # Path to template file
   auth:
-    name: string              # Stack name for Cognito
-    template: string          # Path to template file
+    name: string # Stack name for Cognito
+    template: string # Path to template file
 
 # Deployment Settings
 deployment:
-  bucket_name: string         # S3 bucket name (usually same as domain)
-  applications: array         # List of apps to deploy
+  bucket_name: string # S3 bucket name (usually same as domain)
+  applications: array # List of apps to deploy
   cache:
-    static_max_age: number    # Cache time for static assets (seconds)
-    html_max_age: number      # Cache time for HTML (seconds)
+    static_max_age: number # Cache time for static assets (seconds)
+    html_max_age: number # Cache time for HTML (seconds)
 ```
 
 ### Environment-Specific Configurations
@@ -631,6 +653,7 @@ CONFIG_FILE="${PROJECT_ROOT}/deployment/config.dev.yaml"
 **Symptom:** ACM certificate stays in "Pending validation" status
 
 **Solution:**
+
 - Check Route 53 for CNAME validation records
 - Ensure CNAME records were created automatically
 - Wait up to 30 minutes for propagation
@@ -651,12 +674,14 @@ aws acm describe-certificate --certificate-arn <ARN> --region us-east-1
 **Solution:**
 
 The deployment script now automatically handles ROLLBACK_COMPLETE states by:
+
 1. Detecting the failed state
 2. Deleting the failed stack
 3. Recreating the stack from scratch
 4. Displaying detailed error events to help diagnose the issue
 
 Common causes and solutions:
+
 - **Invalid S3 Origin Configuration**: Fixed in recent updates to use proper S3 website endpoint
 - **S3 Bucket Name Collision**: Bucket names must be globally unique across all AWS accounts
   - If deployment fails with "Bucket already exists", the bucket name is taken
@@ -685,6 +710,7 @@ aws cloudformation validate-template --template-body file://cloudformation/templ
 **Symptom:** `aws s3 sync` fails with access denied
 
 **Solution:**
+
 - Verify AWS credentials are correct
 - Check IAM user/role has S3 permissions
 - Verify bucket policy allows uploads
@@ -702,6 +728,7 @@ aws s3api get-bucket-policy --bucket app.mfeworld.com
 **Symptom:** Accessing website shows 403 error
 
 **Solution:**
+
 - Check S3 bucket policy allows public read
 - Verify CloudFront distribution is enabled
 - Check CloudFront error pages configuration
@@ -720,6 +747,7 @@ aws cloudfront list-distributions
 **Symptom:** Authentication fails with redirect URL error
 
 **Solution:**
+
 - Verify callback URLs in Cognito User Pool Client
 - Ensure URLs match exactly (including trailing slash)
 - Update CloudFormation template if needed
@@ -736,6 +764,7 @@ aws cognito-idp describe-user-pool-client \
 **Symptom:** Website loads but applications don't render
 
 **Solution:**
+
 - Check browser console for errors
 - Verify import map URLs in container index.html
 - Ensure all MFE files uploaded to S3
@@ -785,6 +814,7 @@ aws cloudfront get-distribution --id <DISTRIBUTION_ID> | grep LoggingEnabled
 ### 1. Credential Management
 
 **DO:**
+
 - Use AWS IAM roles with minimum required permissions
 - Use AWS CLI profiles instead of hardcoded credentials
 - Rotate access keys regularly
@@ -792,6 +822,7 @@ aws cloudfront get-distribution --id <DISTRIBUTION_ID> | grep LoggingEnabled
 - Enable MFA on IAM users
 
 **DON'T:**
+
 - Commit credentials to Git
 - Share credentials via email or chat
 - Use root account for deployments
@@ -800,6 +831,7 @@ aws cloudfront get-distribution --id <DISTRIBUTION_ID> | grep LoggingEnabled
 ### 2. S3 Bucket Security
 
 **Recommended Settings:**
+
 - Enable versioning (already configured in template)
 - Enable logging
 - Enable encryption at rest
@@ -822,6 +854,7 @@ aws s3api put-bucket-encryption \
 ### 3. CloudFront Security
 
 **Recommended Settings:**
+
 - Use HTTPS only (redirect HTTP to HTTPS) ✓
 - Enable origin access identity (OAI) for S3
 - Use security headers
@@ -831,6 +864,7 @@ aws s3api put-bucket-encryption \
 ### 4. Cognito Security
 
 **Recommended Settings:**
+
 - Enable MFA (configured as OPTIONAL in template)
 - Use strong password policy ✓
 - Enable advanced security features
@@ -870,6 +904,7 @@ Minimum required IAM policy for deployment:
 ### 6. Network Security
 
 **Recommended:**
+
 - Use CloudFront geo-restriction if needed
 - Enable CloudFront access logs
 - Use AWS Shield for DDoS protection
@@ -882,6 +917,7 @@ Minimum required IAM policy for deployment:
 ### Monthly Cost Estimates (US East region)
 
 **Small Application (< 10,000 users/month):**
+
 - S3 Storage (1 GB): $0.02
 - S3 Requests (100K): $0.04
 - CloudFront (1 GB transfer): $0.085
@@ -892,6 +928,7 @@ Minimum required IAM policy for deployment:
 - **Total: ~$1-2/month**
 
 **Medium Application (< 100,000 users/month):**
+
 - S3 Storage (5 GB): $0.12
 - S3 Requests (1M): $0.40
 - CloudFront (50 GB transfer): $4.25
@@ -902,6 +939,7 @@ Minimum required IAM policy for deployment:
 - **Total: ~$6-8/month**
 
 **Large Application (> 100,000 users/month):**
+
 - Costs scale with usage
 - Consider Reserved Capacity for CloudFront
 - Cognito charges $0.00550 per MAU after 50,000
@@ -922,6 +960,7 @@ Minimum required IAM policy for deployment:
    - Move old logs to Glacier
 
 4. **Monitor and Set Budgets**
+
    ```bash
    # Create budget alert
    aws budgets create-budget \
@@ -1007,6 +1046,7 @@ jobs:
 ## Support and Resources
 
 ### AWS Documentation
+
 - [CloudFormation User Guide](https://docs.aws.amazon.com/cloudformation/)
 - [S3 Developer Guide](https://docs.aws.amazon.com/s3/)
 - [CloudFront Developer Guide](https://docs.aws.amazon.com/cloudfront/)
@@ -1038,11 +1078,13 @@ aws cloudformation delete-stack --stack-name mfe-demo-auth
 ### A. CloudFormation Template Parameters
 
 **s3-cloudfront.yaml:**
+
 - `DomainName`: Your domain name
 - `HostedZoneId`: Route 53 hosted zone ID
 - `Environment`: Environment name (development/staging/production)
 
 **cognito.yaml:**
+
 - `ApplicationName`: Application name for resource naming
 - `Environment`: Environment name
 - `DomainName`: Domain name for callback URLs

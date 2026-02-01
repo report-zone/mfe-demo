@@ -1,6 +1,6 @@
 /**
  * Auth Context Interfaces
- * 
+ *
  * Following Interface Segregation Principle (ISP),
  * we split the monolithic AuthContextType into smaller,
  * focused interfaces so clients only depend on what they need.
@@ -15,7 +15,7 @@ export interface User {
 /**
  * Login result indicating the next step required
  */
-export type LoginResult = 
+export type LoginResult =
   | { nextStep: 'DONE' }
   | { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
 
@@ -64,4 +64,5 @@ export interface IForceChangePassword {
  * Complete Auth Context - Combines all auth interfaces
  * Use this when you need full auth functionality
  */
-export interface IAuthContext extends IAuthState, IAuthActions, ISignUpOperations, IPasswordReset, IForceChangePassword {}
+export interface IAuthContext
+  extends IAuthState, IAuthActions, ISignUpOperations, IPasswordReset, IForceChangePassword {}

@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
 import { User, IAuthContext, LoginResult } from './interfaces/IAuthContext';
@@ -19,9 +26,9 @@ interface AuthProviderProps {
   authService?: IAuthService; // Allow injection for testing (Dependency Injection)
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ 
-  children, 
-  authService: injectedAuthService = authService 
+export const AuthProvider: React.FC<AuthProviderProps> = ({
+  children,
+  authService: injectedAuthService = authService,
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,12 +51,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const login = async (username: string, password: string): Promise<LoginResult> => {
     try {
       const result = await injectedAuthService.signIn(username, password);
-      
+
       // Check if user needs to change their password
       if (result.nextStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
         return { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
       }
-      
+
       await checkUser();
       return { nextStep: 'DONE' };
     } catch (error) {
@@ -81,7 +88,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.confirmSignUp({ username, code });
     } catch (error) {
-      logger.error('Confirm sign up failed', 'AuthContext', error instanceof Error ? error : undefined);
+      logger.error(
+        'Confirm sign up failed',
+        'AuthContext',
+        error instanceof Error ? error : undefined
+      );
       throw error;
     }
   };
@@ -90,7 +101,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.resetPassword({ username });
     } catch (error) {
-      logger.error('Reset password failed', 'AuthContext', error instanceof Error ? error : undefined);
+      logger.error(
+        'Reset password failed',
+        'AuthContext',
+        error instanceof Error ? error : undefined
+      );
       throw error;
     }
   };
@@ -99,7 +114,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.confirmResetPassword({ username, code, newPassword });
     } catch (error) {
-      logger.error('Confirm reset password failed', 'AuthContext', error instanceof Error ? error : undefined);
+      logger.error(
+        'Confirm reset password failed',
+        'AuthContext',
+        error instanceof Error ? error : undefined
+      );
       throw error;
     }
   };
@@ -109,7 +128,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       await injectedAuthService.completeNewPassword({ newPassword });
       await checkUser();
     } catch (error) {
-      logger.error('Complete new password failed', 'AuthContext', error instanceof Error ? error : undefined);
+      logger.error(
+        'Complete new password failed',
+        'AuthContext',
+        error instanceof Error ? error : undefined
+      );
       throw error;
     }
   };

@@ -1,6 +1,6 @@
 /**
  * MFE Registry
- * 
+ *
  * Following the Open/Closed Principle (OCP),
  * this registry allows adding new MFEs without modifying MFELoader.
  * New MFEs can be registered by adding entries to this configuration.
@@ -56,13 +56,11 @@ const getMFEPort = (mfeName: string): number => {
 /**
  * Create a loader function that handles both local (dev) and remote (prod) loading
  */
-const createMFELoader = (
-  mfeName: string,
-): (() => Promise<{ default: ComponentType }>) => {
+const createMFELoader = (mfeName: string): (() => Promise<{ default: ComponentType }>) => {
   return () => {
     const remoteUrl = getMFERemoteUrl(mfeName);
     const isLocal = isLocalEnvironment();
-    
+
     // In development, localhost, or if no remote URL is configured, use local loading
     if (import.meta.env.DEV || !remoteUrl || isLocal) {
       // In preview mode (built but running locally), load from local preview servers
@@ -80,7 +78,7 @@ const createMFELoader = (
           throw new Error(`No exports found in local module: ${mfeName}`);
         });
       }
-      
+
       // In dev mode, use module aliases
       switch (mfeName) {
         case 'home':
@@ -95,7 +93,7 @@ const createMFELoader = (
           throw new Error(`Unknown MFE: ${mfeName}`);
       }
     }
-    
+
     // In production with remote URL, load from remote
     const moduleUrl = `${remoteUrl}/${mfeName}-mfe.js`;
     return loadRemoteModule(moduleUrl).then(module => {

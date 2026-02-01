@@ -32,12 +32,47 @@ import {
   Grid,
   Stack,
   Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  Tab,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
+import ShareIcon from '@mui/icons-material/Share';
+import PrintIcon from '@mui/icons-material/Print';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const ComponentShowcase: React.FC = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [tabValue, setTabValue] = React.useState(0);
+
+  // Sample data for table
+  const tableData = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
+    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'Editor', status: 'Inactive' },
+    { id: 4, name: 'Alice Williams', email: 'alice@example.com', role: 'User', status: 'Active' },
+  ];
+
+  const speedDialActions = [
+    { icon: <FileCopyIcon />, name: 'Copy', action: () => console.log('Copy') },
+    { icon: <PrintIcon />, name: 'Print', action: () => console.log('Print') },
+    { icon: <ShareIcon />, name: 'Share', action: () => console.log('Share') },
+    { icon: <EditIcon />, name: 'Edit', action: () => console.log('Edit') },
+  ];
 
   return (
     <Stack spacing={3}>
@@ -247,6 +282,123 @@ const ComponentShowcase: React.FC = () => {
 
           <Divider />
 
+          {/* Accordion */}
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>
+              Accordion
+            </Typography>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Getting Started</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Welcome to our application! This accordion section provides quick access to
+                  essential information and guides to help you get started.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Account Settings</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Manage your account preferences, security settings, and personal information
+                  all in one place.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Privacy & Security</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Review and update your privacy settings, manage data sharing preferences,
+                  and configure security options.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+
+          <Divider />
+
+          {/* Table */}
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>
+              Table
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {tableData.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.email}</TableCell>
+                      <TableCell>{row.role}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.status}
+                          color={row.status === 'Active' ? 'success' : 'default'}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          <Divider />
+
+          {/* Tabs */}
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>
+              Tabs
+            </Typography>
+            <Paper>
+              <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
+                <Tab label="Overview" />
+                <Tab label="Analytics" />
+                <Tab label="Reports" />
+              </Tabs>
+              <Box sx={{ p: 3 }}>
+                {tabValue === 0 && (
+                  <Typography>
+                    Welcome to the Overview tab. Here you&apos;ll find a summary of your key metrics
+                    and recent activity.
+                  </Typography>
+                )}
+                {tabValue === 1 && (
+                  <Typography>
+                    The Analytics tab displays detailed insights and data visualizations to help
+                    you make informed decisions.
+                  </Typography>
+                )}
+                {tabValue === 2 && (
+                  <Typography>
+                    Access all your reports here. Generate, download, and share comprehensive
+                    reports with your team.
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </Box>
+
+          <Divider />
+
           {/* AppBar */}
           <Box>
             <Typography variant="subtitle1" gutterBottom>
@@ -257,6 +409,34 @@ const ComponentShowcase: React.FC = () => {
                 <Typography variant="h6">AppBar Example</Typography>
               </Toolbar>
             </AppBar>
+          </Box>
+
+          <Divider />
+
+          {/* Speed Dial */}
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>
+              Speed Dial
+            </Typography>
+            <Paper sx={{ position: 'relative', height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                Speed Dial appears in the bottom-right corner (hover to see actions)
+              </Typography>
+              <SpeedDial
+                ariaLabel="Speed dial actions"
+                sx={{ position: 'absolute', bottom: 16, right: 16 }}
+                icon={<SpeedDialIcon />}
+              >
+                {speedDialActions.map((action) => (
+                  <SpeedDialAction
+                    key={action.name}
+                    icon={action.icon}
+                    tooltipTitle={action.name}
+                    onClick={action.action}
+                  />
+                ))}
+              </SpeedDial>
+            </Paper>
           </Box>
         </Stack>
   );

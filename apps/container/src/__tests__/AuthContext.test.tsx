@@ -78,7 +78,7 @@ describe('AuthContext', () => {
     const LoginTestComponent = () => {
       const { login } = useAuth();
       const [result, setResult] = React.useState<string | null>(null);
-      
+
       const handleLogin = async () => {
         const loginResult = await login('user', 'pass');
         setResult(loginResult.nextStep);
@@ -113,12 +113,14 @@ describe('AuthContext', () => {
   it('should return CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED when password change is required', async () => {
     const authService = await import('../services/authService');
     vi.mocked(authService.default.getCurrentUser).mockResolvedValue(null);
-    vi.mocked(authService.default.signIn).mockResolvedValue({ nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' });
+    vi.mocked(authService.default.signIn).mockResolvedValue({
+      nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED',
+    });
 
     const LoginTestComponent = () => {
       const { login } = useAuth();
       const [result, setResult] = React.useState<string | null>(null);
-      
+
       const handleLogin = async () => {
         const loginResult = await login('user', 'pass');
         setResult(loginResult.nextStep);
@@ -146,7 +148,9 @@ describe('AuthContext', () => {
     await userEvent.click(screen.getByText('Login'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('result')).toHaveTextContent('CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED');
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED'
+      );
     });
   });
 
@@ -164,7 +168,7 @@ describe('AuthContext', () => {
     const CompletePasswordTestComponent = () => {
       const { completeNewPassword, isAuthenticated } = useAuth();
       const [completed, setCompleted] = React.useState(false);
-      
+
       const handleComplete = async () => {
         await completeNewPassword('newPassword123');
         setCompleted(true);
@@ -194,7 +198,9 @@ describe('AuthContext', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('completed')).toHaveTextContent('Completed');
-      expect(authService.default.completeNewPassword).toHaveBeenCalledWith({ newPassword: 'newPassword123' });
+      expect(authService.default.completeNewPassword).toHaveBeenCalledWith({
+        newPassword: 'newPassword123',
+      });
     });
   });
 });

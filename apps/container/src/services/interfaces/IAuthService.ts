@@ -1,6 +1,6 @@
 /**
  * Authentication Service Interface
- * 
+ *
  * This interface defines the contract for authentication services,
  * following the Dependency Inversion Principle (DIP).
  * Components depend on this abstraction rather than concrete implementations.
@@ -40,13 +40,13 @@ export interface CompleteNewPasswordParams {
 /**
  * Sign-in result indicating the next step required
  */
-export type SignInResult = 
+export type SignInResult =
   | { nextStep: 'DONE' }
   | { nextStep: 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED' };
 
 /**
  * IAuthService - Authentication abstraction
- * 
+ *
  * Allows swapping between different auth providers (AWS Cognito, Auth0, Firebase, etc.)
  * without changing dependent code.
  */

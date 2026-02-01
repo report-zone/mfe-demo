@@ -1,6 +1,16 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Drawer, List, ListItem, ListItemButton, ListItemText, Toolbar, Box, useTheme, useMediaQuery } from '@mui/material';
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Toolbar,
+  Box,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '@mfe-demo/shared-hooks';
 
@@ -81,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ mobileOpen, onDrawerToggle }) => {
       >
         {drawerContent}
       </Drawer>
-      
+
       {/* Desktop Drawer */}
       <Drawer
         variant="permanent"

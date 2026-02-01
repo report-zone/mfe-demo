@@ -84,7 +84,7 @@ const LoginPage: React.FC = () => {
                   Welcome Back
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Sign in to continue to MFE Demo
+                  Sign in to continue to ReportZone NG
                 </Typography>
               </Box>
 
@@ -136,26 +136,14 @@ const LoginPage: React.FC = () => {
                 />
 
                 <Box sx={{ textAlign: 'right', mt: 1 }}>
-                  {/* In production, route to /login to prevent resetting of password in demo application */}
-                  {process.env.NODE_ENV !== 'development' ? (
-                    <Link
-                      component={RouterLink}
-                      to="/login"
-                      variant="body2"
-                      sx={{ textDecoration: 'none' }}
-                    >
-                      Forgot password?
-                    </Link>
-                  ) : (
-                    <Link
-                      component={RouterLink}
-                      to="/reset-password"
-                      variant="body2"
-                      sx={{ textDecoration: 'none' }}
-                    >
-                      Forgot password?
-                    </Link>
-                  )}
+                  <Link
+                    component={RouterLink}
+                    to="/reset-password"
+                    variant="body2"
+                    sx={{ textDecoration: 'none' }}
+                  >
+                    Forgot password?
+                  </Link>
                 </Box>
 
                 <Button

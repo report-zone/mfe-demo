@@ -27,7 +27,7 @@ Welcome to the MFE Demo project! This guide will help you get started with devel
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/report-zone/mfe-demo.git
+git clone https://github.com/custom/mfe-demo.git
 cd mfe-demo
 ```
 

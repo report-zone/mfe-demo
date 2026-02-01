@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Theme } from '@mui/material';
-import { defaultTheme, darkTheme } from '../config/theme';
+import { defaultTheme, darkTheme, customThemeConfig } from '../config/theme';
 import { ThemeConverter } from '../services/ThemeConverter';
 import { logger } from '../services/loggerService';
-import { IStorageService, IEventBus, localStorageService, windowEventBus } from '@mfe-demo/shared-hooks';
+import {
+  IStorageService,
+  IEventBus,
+  localStorageService,
+  windowEventBus,
+} from '@mfe-demo/shared-hooks';
 
 interface StoredTheme {
   id: string;
@@ -29,32 +34,38 @@ export function useThemeManagement(
     // Load theme from storage on mount
     try {
       const selectedThemeId = storageService.getItem('selectedThemeId');
-      
+
       if (selectedThemeId) {
         // First, try to load from customThemes (includes both predefined and custom)
         const customThemesJson = storageService.getItem('customThemes');
         let themeLoaded = false;
-        
+
         if (customThemesJson) {
           const themes: StoredTheme[] = JSON.parse(customThemesJson);
-          const theme = themes.find((t) => t.id === selectedThemeId);
+          const theme = themes.find(t => t.id === selectedThemeId);
           if (theme && theme.themeConfig) {
             setCurrentTheme(ThemeConverter.convertToTheme(theme.themeConfig));
             themeLoaded = true;
           }
         }
-        
+
         // Fallback to hardcoded default themes if not found in storage
         if (!themeLoaded) {
           if (selectedThemeId === 'light') {
             setCurrentTheme(defaultTheme);
           } else if (selectedThemeId === 'dark') {
             setCurrentTheme(darkTheme);
+          } else if (selectedThemeId === 'custom') {
+            setCurrentTheme(ThemeConverter.convertToTheme(customThemeConfig));
           }
         }
       }
     } catch (error) {
-      logger.error('Failed to load theme from storage', 'useThemeManagement', error instanceof Error ? error : undefined);
+      logger.error(
+        'Failed to load theme from storage',
+        'useThemeManagement',
+        error instanceof Error ? error : undefined
+      );
     }
 
     // Listen for theme changes from preferences MFE
@@ -66,7 +77,7 @@ export function useThemeManagement(
     };
 
     const unsubscribe = eventBus.subscribe('themeChanged', handleThemeChange);
-    
+
     return () => {
       unsubscribe();
     };

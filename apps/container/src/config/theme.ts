@@ -1,6 +1,6 @@
 /**
  * Theme Configuration
- * 
+ *
  * Following the Open/Closed Principle (OCP),
  * theme configuration is extracted to a separate file
  * for easy extension and customization without modifying App.tsx
@@ -36,6 +36,48 @@ export const darkTheme: Theme = createTheme({
     secondary: { main: '#f48fb1' },
   },
 });
+
+/**
+ * Custom theme configuration
+ * This is a simplified version containing the core theme definition.
+ * The full theme with all component overrides is stored in customThemes.
+ */
+export const customThemeConfig = {
+  palette: {
+    mode: 'light' as const,
+  },
+  colors: {
+    primaryMain: '#689cc5',
+    primaryLight: '#a3c5e0',
+    primaryDark: '#547d9e',
+    secondaryMain: '#5e6fa3',
+    secondaryLight: '#9aa4c8',
+    secondaryDark: '#4a5782',
+    errorMain: '#d32f2f',
+    warningMain: '#ed6c02',
+    infoMain: '#93dbe9',
+    successMain: '#2e7d32',
+    backgroundDefault: '#f8f9fa',
+    backgroundPaper: '#ffffff',
+    textPrimary: '#3b4368',
+    textSecondary: 'rgba(59, 67, 104, 0.7)',
+  },
+  componentOverrides: {
+    button: {
+      borderRadius: 8,
+      textTransform: 'none',
+    },
+    paper: {
+      borderRadius: 8,
+      elevation: 2,
+    },
+    card: {
+      borderRadius: 12,
+      elevation: 2,
+    },
+  },
+  muiComponentOverrides: {},
+};
 
 /**
  * Create a custom theme with overrides
