@@ -13,3 +13,23 @@ export { I18nProvider, useI18n } from './i18n/I18nContext';
 export { useLocalStorage } from './hooks/useLocalStorage';
 export { createSharedStateHook } from './hooks/createSharedStateHook';
 export { useThemeSync } from './hooks/useThemeSync';
+
+// Store (Redux + RTK Query)
+export {
+  store,
+  injectReducer,
+  useAppDispatch,
+  useAppSelector,
+  authReducer,
+  setCredentials,
+  clearCredentials,
+  setLoading,
+  selectCurrentUser,
+  selectIsAuthenticated,
+  selectIsAdmin,
+  selectAuthIsLoading,
+  baseApi,
+  apiConfig,
+  getApiConfig,
+} from './store';
+export type { RootState, AppDispatch, AuthUser, AuthState, ApiConfig } from './store';
