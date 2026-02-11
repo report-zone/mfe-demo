@@ -10,6 +10,12 @@ import { IAuthService } from '../services/interfaces/IAuthService';
 import authService from '../services/authService';
 import { User, IAuthContext, LoginResult } from './interfaces/IAuthContext';
 import { logger } from '../services/loggerService';
+import {
+  store,
+  setCredentials,
+  clearCredentials,
+  setLoading as setStoreLoading,
+} from '@mfe-demo/shared-hooks';
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
@@ -37,10 +43,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       const currentUser = await injectedAuthService.getCurrentUser();
       setUser(currentUser);
+      if (currentUser) {
+        store.dispatch(
+          setCredentials({
+            username: currentUser.username,
+            email: currentUser.email,
+            groups: currentUser.groups,
+          })
+        );
+      } else {
+        store.dispatch(clearCredentials());
+      }
     } catch {
       setUser(null);
+      store.dispatch(clearCredentials());
     } finally {
       setIsLoading(false);
+      store.dispatch(setStoreLoading(false));
     }
   }, [injectedAuthService]);
 
@@ -69,6 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     try {
       await injectedAuthService.signOut();
       setUser(null);
+      store.dispatch(clearCredentials());
     } catch (error) {
       logger.error('Logout failed', 'AuthContext', error instanceof Error ? error : undefined);
       throw error;

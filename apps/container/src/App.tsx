@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
+import { Provider as ReduxProvider } from 'react-redux';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { I18nProvider } from '@mfe-demo/shared-hooks';
+import { I18nProvider, store } from '@mfe-demo/shared-hooks';
 import { i18nConfig } from './i18n/config';
 import Header from './components/Header';
 import Navbar from './components/Navbar';
@@ -137,16 +138,18 @@ const App: React.FC = () => {
   const currentTheme = useThemeManagement();
 
   return (
-    <I18nProvider config={i18nConfig}>
-      <ThemeProvider theme={currentTheme}>
-        <CssBaseline />
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </BrowserRouter>
-      </ThemeProvider>
-    </I18nProvider>
+    <ReduxProvider store={store}>
+      <I18nProvider config={i18nConfig}>
+        <ThemeProvider theme={currentTheme}>
+          <CssBaseline />
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
+            <AuthProvider>
+              <AppContent />
+            </AuthProvider>
+          </BrowserRouter>
+        </ThemeProvider>
+      </I18nProvider>
+    </ReduxProvider>
   );
 };
 
